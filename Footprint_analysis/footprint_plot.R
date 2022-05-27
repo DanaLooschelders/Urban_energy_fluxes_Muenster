@@ -3,16 +3,35 @@ source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Footprint_analysis/Footpri
 #source coordinate rotation script
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Footprint_analysis/footprint_coordinate_transform.R")
 library(RColorBrewer)
-#Two-dimensional view of footprint
-ffp_x <- c(FFP_para$x_2d) #x-grid of footprint climatology [m]
-ffp_y <- c(FFP_para$y_2d) #y-grid of footprint climatology [m]
-ffp_f <- c(FFP_para$fclim_2d) #Normalised footprint function values of footprint climatology [m-2]
+
+####calculate area of the largest contour line####
+quilt.plot(ffp_x,ffp_y,ffp_f,nx=100,ny=100, xlim=c(-50,100),ylim=c(-180,200))
+lines(FFP_para$xr[[8]],  FFP_para$yr[[8]], type="l", col="red")
+ellipse<-data.frame("x"=FFP_para$xr[[8]], "y"=FFP_para$yr[[8]])
+
+# Center of ellipse from Stackoverflow
+#https://stackoverflow.com/questions/60423973/how-to-calculate-the-area-of-a-ggplot-stat-ellipse-when-type-norm
+ctr = MASS::cov.trob(ellipse)$center 
+# I tried changing this to 'stats::cov.wt' instead of 'MASS::cov.trob' 
+#from what is saw from (https://github.com/tidyverse/ggplot2/blob/master/R/stat-ellipse.R#L98)
+# Calculate distance to center from each point on the ellipse
+dist2center <- sqrt(rowSums((t(t(ellipse)-ctr))^2))
+# Calculate area of ellipse from semi-major and semi-minor axes. 
+#These are, respectively, the largest and smallest values of dist2center. 
+pi*min(dist2center)*max(dist2center)
+#4712.839
+
+####Quilt Plot####
 #create colors for quilt plot
 #colspalette<- two.colors(50, middle="grey50" ) #create colorscale between two colors
 fun_cols<-colorRampPalette(c("#e8f7f8", "#34a5ab")) #create colorscale
 colspalette<-fun_cols(7)  
 
-#plot
+#original
+quilt.plot(ffp_x,ffp_y,ffp_f,nx=100,ny=100, xlim=c(-70,40),ylim=c(-70,40))
+for (i in 1:8) lines(FFP_para$xr[[i]],FFP_para$yr[[i]], type="l", col="red")
+
+#modified plot to pdf
 pdf(file = "Footprint_Beton_whole.pdf", paper = "a4r")
 quilt.plot(ffp_x,#vector of x coordinates
            ffp_y,#vector of y coordinates
@@ -23,7 +42,7 @@ quilt.plot(ffp_x,#vector of x coordinates
            legend.mar=4,
            legend.cex=0.8,
            legend.line=4,
-           nx=1100,ny=1100, #nr of grid boxed in x/y
+           nx=160,ny=160, #nr of grid boxed in x/y
            xlim=c(-70,30),ylim=c(-50,40)) #boundaries for plot
 for (i in 1:8) lines(FFP_para$xr[[i]],#x-array for contour line of r
                      FFP_para$yr[[i]], #y-array for contour line of r
@@ -37,6 +56,7 @@ mtext(paste("Beton Footprint", substr(range(footprint$date)[1],
 mtext("contour lines depicting percentage of footprint", 
       side=3, line=0.5,cex = 0.9)
 dev.off()
+
 #quilt plot with utm coordiantes
 quilt.plot(c(FFP_para$x_2d_UTM),#vector of x coordinates
            c(FFP_para$y_2d_UTM),#vector of y coordinates
@@ -60,11 +80,20 @@ mtext(paste("Beton Footprint", substr(range(footprint$date)[1],
                             start=1, stop=11)), side = 3, line = 1.5)#add title
 mtext("contour lines depicting percentage of footprint", 
       side=3, line=0.5,cex = 0.9)
+
+
+#####3D footprint ####
+#3D footprint climatology surface (using the plot3D package)
+surf3D(FFP_para$x_2d, FFP_para$y_2d,FFP_para$fclim_2d)
+
+####Crosswind-integrated footprint####
+#plot Crosswind-integrated footprint
+plot(FFP_para$x_2d,FFP_para$fclim_2d, type="l")
+
 #plot mit fields
 #Two-dimensional view of footprint climatology with contour lines of R%.
+
 image.plot(FFP_para$x_2d[1,], FFP_para$y_2d[,1], FFP_para$fclim_2d, 
            xlim=c(-70,30), ylim=c(-50, 40))
 for (i in 1:8) lines(FFP_para$xr[[i]], FFP_para$yr[[i]], type="l", col="red")
 
-#plot 3D
-surf3D(FFP_para$x_2d, FFP_para$y_2d,FFP_para$fclim_2d)

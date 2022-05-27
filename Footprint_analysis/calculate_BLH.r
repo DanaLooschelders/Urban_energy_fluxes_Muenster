@@ -2,7 +2,7 @@
 #Parametrizised
 
 #source heat fluxes and meteorology script
-source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Footprint_analysis/heat_fluxes_with_meteorology.r")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/heat_fluxes_with_meteorology.r")
 
 #-------------------calculate boundary layer height from paper-------------------------------------#
 

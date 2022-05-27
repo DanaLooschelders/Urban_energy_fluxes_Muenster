@@ -28,24 +28,35 @@ beton_dataframe<-data.frame("x"=c(FFP_para$x_2d_UTM), "y"=c(FFP_para$y_2d_UTM),
 beton_matrix<-as.matrix(beton_dataframe)
 ####rotate in mean wind direction####
 #calculate mean wind dir
+library(rWind)
+
 atan2(mean(footprint$u_comp, na.rm=T),
       mean(footprint$v_comp, na.rm=T))*(180/pi)+180
-#mean wind dir is 270 -> direction on x axis
+#mean wind dir is 329.3 -> direction on x axis
 #90 would we east --> rotate -80 degrees --> 280 degrees
+
+#329-90 -> -239 
 #source function from package
-source("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/Coordinate_Rotation_function_from_SMoLR.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/functions_from_packages/Coordinate_Rotation_function_from_SMoLR.R")
 beton_matrix_rot<-rotate_coord(x=beton_matrix[,1], y=beton_matrix[,2], 
-             angle = 280, center = c(utm_x_east, utm_y_north), type="degrees",
+             angle = 45, center = c(utm_x_east, utm_y_north), type="degrees",
              method="polar")
 
-beton_matrix[,1:2]<-beton_matrix_rot
+beton_matrix_unrot<-beton_matrix
+beton_matrix_rot<-cbind(beton_matrix_rot, beton_matrix[,3])
 #create raster
-test_raster<-rasterFromXYZ(beton_matrix,res = c(1,1), 
+raster_rot<-rasterFromXYZ(beton_matrix_rot,res = c(1,1), 
                            crs = "+proj=utm +zone=32U+datum=WGS84",digits = 0.3)
+raster_unrot<-rasterFromXYZ(beton_matrix_unrot,res = c(1,1), 
+                          crs = "+proj=utm +zone=32U+datum=WGS84",digits = 0.3)
 
 #view
-plot(test_raster)
-mapview(test_raster)
+plot(raster_rot)
+mapview(raster_rot)
+
+plot(raster_unrot)
+mapview(raster_unrot)
+
 #create spatial polygons for contourlines
 FFP_para$xr_utm<-lapply(FFP_para$xr, function(x) x+utm_x_east)
 FFP_para$yr_utm<-lapply(FFP_para$yr, function(x) x+utm_y_north)

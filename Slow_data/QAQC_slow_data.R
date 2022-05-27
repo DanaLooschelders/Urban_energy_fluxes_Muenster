@@ -6,7 +6,7 @@ Sys.setenv(TZ='Etc/GMT') #ewige Winterzeit
 library(tidyverse)
 library(dplyr)
 #source script to load slow data
-source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/prep_slow_data_data.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/prep_slow_data_data.R")
 
 #Meteo
 ####AirTC - check if it is between 0 and 40 degrees C####

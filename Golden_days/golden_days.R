@@ -44,7 +44,7 @@ ggplot()+
 #save plot
 ggsave(filename = paste(label, "H_Flux_both_timeseries.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #plot difference between EC02 and EC04
 GD_dif<-data.frame(datetime=GD_Beton$datetime, H_beton=GD_Beton$H)
@@ -62,7 +62,7 @@ ggplot(dat=GD_dif, aes(x=datetime, y=flux_dif_H))+
 #save plot
 ggsave(filename = paste(label, "H_Flux_dif_both.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 ##integrate area under curve (for negative values)
 ##to quatify how much heat is going in which tower
@@ -88,7 +88,7 @@ ggplot(GD_Beton, aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = paste(label, "H_Flux_diurnal_mean_both_1sd_errorbars_hour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #as aggregated mean line for each half hour
 ggplot(GD_Beton, aes(x=as.factor(time), y=H))+
@@ -110,7 +110,7 @@ ggplot(GD_Beton, aes(x=as.factor(time), y=H))+
 #save plot
 ggsave(filename = paste(label, "H_Flux_diurnal_mean_both_1sd_errorbars_halfhour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #as aggregated mean line for hour
 ggplot(GD_Beton, aes(x=as.factor(hour), y=H))+
@@ -129,7 +129,7 @@ ggplot(GD_Beton, aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = paste(label, "H_Flux_diurnal_mean_both_hour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #as aggregated median line for hour
 ggplot(GD_Beton, aes(x=as.factor(hour), y=H))+
@@ -148,7 +148,7 @@ ggplot(GD_Beton, aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = paste(label, "H_Flux_diurnal_median_both_hour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #as aggregated mean line for halfhour
 ggplot(GD_Beton, aes(x=as.factor(time), y=H))+
@@ -165,7 +165,7 @@ ggplot(GD_Beton, aes(x=as.factor(time), y=H))+
 #save plot
 ggsave(filename = paste(label, "H_Flux_diurnal_mean_both_halfhour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 
 #####latent heat - time series####
@@ -184,7 +184,7 @@ ggplot()+
 #save plot
 ggsave(filename = paste(label, "LE_Flux_both.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #plot difference between EC02 and EC04
 GD_dif$LE_beton<-GD_Beton$LE
@@ -202,7 +202,7 @@ ggplot(dat=GD_dif, aes(x=datetime, y=flux_dif_LE))+
 #save plot
 ggsave(filename = paste(label, "LE_Flux_dif_both.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #####latent heat - diurnal####
 #as aggregated mean line for each hour with errorbars
@@ -226,7 +226,7 @@ ggplot(GD_Beton, aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = paste(label, "LE_Flux_diurnal_both_mean_1sd_errorbars_hour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #as aggregated mean line for each half hour
 ggplot(GD_Beton, aes(x=as.factor(time), y=LE))+
@@ -249,7 +249,7 @@ ggplot(GD_Beton, aes(x=as.factor(time), y=LE))+
 #save plot
 ggsave(filename = paste(label, "LE_Flux_diurnal_mean_both_1sd_errorbars_halfhour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #as aggregated mean line for hour
 ggplot(GD_Beton, aes(x=as.factor(hour), y=LE))+
@@ -269,7 +269,7 @@ ggplot(GD_Beton, aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = paste(label, "LE_Flux_diurnal_mean_both_hour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #as aggregated median line for hour
 ggplot(GD_Beton, aes(x=as.factor(hour), y=LE))+
@@ -289,7 +289,7 @@ ggplot(GD_Beton, aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = paste(label, "LE_Flux_diurnal_median_both_hour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #as aggregated mean line for halfhour
 ggplot(GD_Beton, aes(x=as.factor(time), y=LE))+
@@ -306,5 +306,5 @@ ggplot(GD_Beton, aes(x=as.factor(time), y=LE))+
 #save plot
 ggsave(filename = paste(label, "LE_Flux_diurnal_mean_both_halfhour.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 

@@ -16,9 +16,9 @@ library(spatialfil)
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/functions_from_packages/function_convKernel_from_spatialfill.R")
 #source scripts that contain footprint functions
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/functions_from_packages/calc_footprint_FFP.R")
-source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/FFP_R/calc_footprint_FFP_climatology.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/functions_from_packages/calc_footprint_FFP_climatology.R")
 #source script for calculation of BLH
-source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/calculate_BLH.r")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Footprint_analysis/calculate_BLH.r")
 
 
 #footprint climatology
@@ -39,8 +39,8 @@ footprint<-data.frame("windspeed"=dat.beton.flux.meteo$wind_speed,
                       "ustar"=dat.beton.flux.meteo$u.,
                     "winddir"=dat.beton.flux.meteo$wind_dir,
                     "date"=dat.beton.flux.meteo$TIMESTAMP,
-                    "u_comp"=dat.beton.flux.meteo$u_rot,
-                    "v_comp"=dat.beton.flux.meteo$v_rot)
+                    "u_comp"=dat.beton.flux.meteo$u_unrot,
+                    "v_comp"=dat.beton.flux.meteo$v_unrot)
 #mean(footprint$winddir)
 #226/7
 #191/5
@@ -61,35 +61,16 @@ FFP_para <- calc_footprint_FFP_climatology(zm=1.78,
                                       smooth_data=1)
 #an aggregated footprint, a so-called footprint climatology
 range(footprint$L)
-range(BLH_merge$pbl_layer1, na.rm=T)
 
-#calculate the area of the largest contour line
-quilt.plot(ffp_x,ffp_y,ffp_f,nx=1000,ny=1000, xlim=c(-50,200),ylim=c(-180,200))
-lines(FFP_single$xr[[8]],  FFP_single$yr[[8]], type="l", col="red")
-ellipse<-data.frame("x"=FFP_single$xr[[8]], "y"=FFP_single$yr[[8]])
-# Center of ellipse from Stackoverflow
-#https://stackoverflow.com/questions/60423973/how-to-calculate-the-area-of-a-ggplot-stat-ellipse-when-type-norm
-ctr = MASS::cov.trob(ellipse)$center 
-# I tried changing this to 'stats::cov.wt' instead of 'MASS::cov.trob' 
-#from what is saw from (https://github.com/tidyverse/ggplot2/blob/master/R/stat-ellipse.R#L98)
-# Calculate distance to center from each point on the ellipse
-dist2center <- sqrt(rowSums((t(t(ellipse)-ctr))^2))
-# Calculate area of ellipse from semi-major and semi-minor axes. 
-#These are, respectively, the largest and smallest values of dist2center. 
-pi*min(dist2center)*max(dist2center)
-#1764.154 calculated height
-#1713.055 random height
-FFP_single_2$xr[[8]]==FFP_single$xr[[8]]
-#3D footprint climatology surface (using the plot3D package)
-surf3D(FFP_single$x_2d, FFP_single$y_2d,FFP_single$fclim_2d)
+#Two-dimensional view of footprint
+ffp_x <- c(FFP_para$x_2d) #x-grid of footprint climatology [m]
+ffp_y <- c(FFP_para$y_2d) #y-grid of footprint climatology [m]
+ffp_f <- c(FFP_para$fclim_2d) #Normalised footprint function values of footprint climatology [m-2]
 
-#plot Crosswind-integrated footprint
-plot(FFP_para$x_2d,FFP_para$fclim_2d, type="l")
-
-#plot
 #receptor is mounted above the origin (0,0) and positive x indicates upwind distance
-mean_wind_dir<-mean(circular(footprint$winddir, units = "degrees"))
+#mean_wind_dir<-mean(circular(footprint$winddir, units = "degrees"))
 
-atan2(mean(footprint$u_comp, na.rm=T),
+mean_wind_dir<-atan2(mean(footprint$u_comp, na.rm=T),
       mean(footprint$v_comp, na.rm=T))*(180/pi)+180
-#mean wind dir is 270
+#mean wind dir is 329.3314
+
