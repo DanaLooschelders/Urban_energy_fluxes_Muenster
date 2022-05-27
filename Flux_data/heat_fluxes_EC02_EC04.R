@@ -13,7 +13,7 @@ towername="Beton"
 #towername="Kiebitz"
 
 #source script to load flux data from EC02 and EC04
-source("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/prep_flux_data.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Flux_data/prep_flux_data.R")
 
 ####data exploration####
 

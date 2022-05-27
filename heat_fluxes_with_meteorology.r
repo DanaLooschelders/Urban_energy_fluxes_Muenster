@@ -2,11 +2,11 @@ library(tidyverse)
 library(dplyr)
 library(gridExtra)
 #source scripts
-
+getwd()
 #30min slow data
-source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/slow_data_to_30min_avg.r")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/slow_data_to_30min_avg.r")
 #heat flux data
-source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/prep_flux_data.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Flux_data/prep_flux_data.R")
 
 dat.meteo.agg$Rain_mm_Tot<-dat.rain.agg$Rain_mm_Tot #add rain data
 dat.meteo.agg<-cbind(dat.meteo.agg, dat.soil.agg[,-c(1,2)]) #add soil data

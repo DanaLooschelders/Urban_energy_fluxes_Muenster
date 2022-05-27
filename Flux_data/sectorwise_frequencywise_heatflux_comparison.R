@@ -1,5 +1,5 @@
 #source script to load flux and slow data and compare heatfluxes
-source("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/sectorwise_heatflux_comparison.r")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Flux_data/sectorwise_heatflux_comparison.r")
 
 #split into equally sized bins
 #install.packages("funModeling")

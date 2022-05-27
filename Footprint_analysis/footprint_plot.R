@@ -1,7 +1,7 @@
 #source footprint preparation
-source("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/Footprint_prep.r")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Footprint_analysis/Footprint_prep.r")
 #source coordinate rotation script
-source("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/footprint_coordinate_transform.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Footprint_analysis/footprint_coordinate_transform.R")
 library(RColorBrewer)
 #Two-dimensional view of footprint
 ffp_x <- c(FFP_para$x_2d) #x-grid of footprint climatology [m]

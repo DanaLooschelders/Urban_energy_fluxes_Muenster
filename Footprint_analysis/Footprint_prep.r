@@ -13,9 +13,9 @@ library(circular)
 library(fields) #install depency for spatialfill
 library(spatialfil)
 #source functions seperately`
-source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/function_convKernel_from_spatialfill.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/functions_from_packages/function_convKernel_from_spatialfill.R")
 #source scripts that contain footprint functions
-source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/FFP_R/calc_footprint_FFP.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/functions_from_packages/calc_footprint_FFP.R")
 source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/FFP_R/calc_footprint_FFP_climatology.R")
 #source script for calculation of BLH
 source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/calculate_BLH.r")

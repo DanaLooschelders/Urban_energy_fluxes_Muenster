@@ -4,7 +4,7 @@ library(bigleaf)
 library(ggplot2)
 library(ggrepel)
 library(grid)
-source("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/heat_fluxes_with_meteorology.r")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/heat_fluxes_with_meteorology.r")
 ####PREP####
 #Prep data to do it for both EC towers splitting meteo.agg into kiebitz and beton
 #soil is extra --> used for both
