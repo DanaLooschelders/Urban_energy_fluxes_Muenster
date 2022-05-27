@@ -6,7 +6,7 @@ Sys.setenv(TZ='Etc/GMT') #ewige Winterzeit
 library(tidyverse)
 library(dplyr)
 #source script to load slow data and perform QAQC
-source("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/QAQC_slow_data.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R")
 
 #summarize all variables to mean
 dat.meteo.agg<-dat.meteo.merge %>%

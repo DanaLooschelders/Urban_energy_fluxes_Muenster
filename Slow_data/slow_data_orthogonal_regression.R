@@ -1,6 +1,6 @@
 #orthogonal regression for slow data
 #source script to process slow data
-source("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/QAQC_slow_data.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R")
 library(grid)
 #Code from klima wiki
 mean_regression <- function(a,b,r=1,na.rm=T) {
