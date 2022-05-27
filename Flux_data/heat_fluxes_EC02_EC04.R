@@ -29,7 +29,7 @@ ggplot(dat=tower, aes(x=datetime, y=H))+
 #save plot
 ggsave(filename = paste("H_Flux_", towername, "_QF.pdf", sep=""),
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #aggregated sensible heat flux
 #plot mean day as boxplot
@@ -44,7 +44,7 @@ ggplot(dat=tower, aes(x=hour, y=H))+
 ggsave(filename = paste("H_Flux_diurnal_",towername, "_boxplot.pdf", 
                         sep=""),
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 
 ##Latent Heat Flux
@@ -59,7 +59,7 @@ ggplot(dat=tower, aes(x=datetime, y=LE))+
 #save plot
 ggsave(filename = paste("LE_Flux_QF_",towername,".pdf"),
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #aggregated latent heat flux
 #plot mean day as boxplot
@@ -73,5 +73,5 @@ ggplot(dat=beton, aes(x=hour, y=LE))+
 #save plot
 ggsave(filename = paste("LE_Flux_QF_", towername, ".pdf", sep=""),
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir))
 

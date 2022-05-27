@@ -13,7 +13,7 @@ ggplot()+
 #save plot
 ggsave(filename = "H_Flux_kiebitz_winddir.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #Beton sensible heat flux and wind_dir
 ggplot()+
@@ -26,7 +26,7 @@ ggplot()+
 #save plot
 ggsave(filename = "H_Flux_beton_winddir.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #create 8 wind sectors
 #from klimaübungsskript
@@ -83,7 +83,7 @@ ggplot(beton[!(is.na(beton$wind_sec)),], aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = "H_Flux_diurnal_8_windsector_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #plot aggregated day for every wind sector (4 sectors)
 #as aggregated mean line for hour
@@ -105,7 +105,7 @@ ggplot(beton[!(is.na(beton$wind_sec_four)),], aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = "H_Flux_diurnal_4_windsector_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #Latent heat flux
 #as aggregated mean line for hour
@@ -127,7 +127,7 @@ ggplot(beton[!(is.na(beton$wind_sec)),], aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_8_windsector_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #Latent heat flux
 #as aggregated mean line for hour
@@ -149,7 +149,7 @@ ggplot(beton[!(is.na(beton$wind_sec_four)),], aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_4_windsector_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #plot difference against wind dir
 dif$Bwindsec<-beton$wind_sec

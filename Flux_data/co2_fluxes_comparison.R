@@ -13,7 +13,7 @@ ggplot()+
 #save plot
 ggsave(filename = "CO2_Flux_both.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 #
 #plot difference between EC02 and EC04
 dif<-data.frame(datetime=beton$datetime, co2_beton=beton$co2_flux)
@@ -31,7 +31,7 @@ ggplot(dat=dif, aes(x=datetime, y=flux_dif_co2))+
 #save plot
 ggsave(filename = "CO2_Flux_dif_both.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 ##integrate area under curve (for negative values)
 ##to quatify how much heat is going in which tower
@@ -56,7 +56,7 @@ ggplot(beton, aes(x=as.factor(hour), y=co2_flux))+
 #save plot
 ggsave(filename = "CO2_Flux_diurnal_both_errorbars_hour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #as aggregated mean line for each half hour
 ggplot(beton, aes(x=as.factor(time), y=co2_flux))+
@@ -77,7 +77,7 @@ ggplot(beton, aes(x=as.factor(time), y=co2_flux))+
 #save plot
 ggsave(filename = "CO2_Flux_diurnal_both_errorbars_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #as aggregated mean line for hour
 ggplot(beton, aes(x=as.factor(hour), y=co2_flux))+
@@ -94,7 +94,7 @@ ggplot(beton, aes(x=as.factor(hour), y=co2_flux))+
 #save plot
 ggsave(filename = "CO2_Flux_diurnal_both_hour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #as aggregated mean line for halfhour
 ggplot(beton, aes(x=as.factor(time), y=co2_flux))+
@@ -111,5 +111,5 @@ ggplot(beton, aes(x=as.factor(time), y=co2_flux))+
 #save plot
 ggsave(filename = "CO2_Flux_diurnal_both_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 

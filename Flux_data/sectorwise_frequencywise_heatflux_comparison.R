@@ -48,7 +48,7 @@ ggplot(beton[!(is.na(beton$wind_sec_freq)),], aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = "H_Flux_diurnal_freq_windsector_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #plot aggregated day for every wind sector (4 sectors)
 #as aggregated mean line for hour
@@ -70,7 +70,7 @@ ggplot(beton[!(is.na(beton$wind_sec_freq)),], aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = "H_Flux_diurnal_freq_windsector_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #Latent heat flux
 #as aggregated mean line for hour
@@ -92,7 +92,7 @@ ggplot(beton[!(is.na(beton$wind_sec_freq)),], aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_8_windsector_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #Latent heat flux
 #as aggregated mean line for hour
@@ -114,7 +114,7 @@ ggplot(beton[!(is.na(beton$wind_sec_freq)),], aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_freq_windsector_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #plot difference against wind dir
 dif$Bwindsec<-beton$wind_sec

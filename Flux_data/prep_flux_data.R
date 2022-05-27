@@ -1,3 +1,7 @@
+#set general values
+plot_dir<-"Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken"
+#script_dir
+#data_dir
 #####modified function from FERddyPro Package####
 readEP<-function(dataFile="Filename", na = "NaN"){
   n <- read.table(dataFile, header = TRUE, nrows = 1, sep = ",", 

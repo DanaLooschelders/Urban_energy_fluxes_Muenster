@@ -29,7 +29,7 @@ ggplot(dat=tower, aes(x=datetime, y=co2_flux))+
 #save plot
 ggsave(filename = paste("CO2_Flux_", towername, "_QF.pdf", sep=""),
        device="pdf",width = 297, height = 210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)
 
 #aggregated sensible heat flux
 #plot mean day as boxplot
@@ -44,4 +44,4 @@ ggplot(dat=tower, aes(x=hour, y=co2_flux))+
 ggsave(filename = paste("CO2_Flux_diurnal_",towername, "_boxplot.pdf", 
                         sep=""),
        device="pdf",width = 297, height = 210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = plot_dir)

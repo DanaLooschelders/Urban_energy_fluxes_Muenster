@@ -5,7 +5,7 @@ library(plotly)
 library(Hmisc)
 
 #source script to load flux data from EC02 and EC04 and slow data
-source("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/heat_fluxes_with_meteorology.r")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Flux_data/heat_fluxes_with_meteorology.r")
 
 #flux differences
 #####sensible heat - time series####
@@ -22,7 +22,7 @@ ggplot()+
 #save plot
 ggsave(filename = "H_Flux_both_timeseries.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #plot difference between EC02 and EC04
 dif<-data.frame(datetime=beton$datetime, H_beton=beton$H)
@@ -40,7 +40,7 @@ ggplot(dat=dif, aes(x=datetime, y=flux_dif_H))+
 #save plot
 ggsave(filename = "H_Flux_dif_both.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 ##integrate area under curve (for negative values)
 library(flux)
@@ -91,7 +91,7 @@ ggplot(beton, aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = "H_Flux_diurnal_mean_both_1sd_errorbars_hour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #as aggregated mean line for each half hour
 ggplot(beton, aes(x=as.factor(time), y=H))+
@@ -113,7 +113,7 @@ ggplot(beton, aes(x=as.factor(time), y=H))+
 #save plot
 ggsave(filename = "H_Flux_diurnal_mean_both_1sd_errorbars_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #as aggregated mean line for hour
 ggplot(beton, aes(x=as.factor(hour), y=H))+
@@ -132,7 +132,7 @@ ggplot(beton, aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = "H_Flux_diurnal_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #as aggregated median line for hour
 ggplot(beton, aes(x=as.factor(hour), y=H))+
@@ -151,7 +151,7 @@ ggplot(beton, aes(x=as.factor(hour), y=H))+
 #save plot
 ggsave(filename = "H_Flux_diurnal_median_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #as aggregated mean line for halfhour
 ggplot(beton, aes(x=as.factor(time), y=H))+
@@ -168,7 +168,7 @@ ggplot(beton, aes(x=as.factor(time), y=H))+
 #save plot
 ggsave(filename = "H_Flux_diurnal_mean_both_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 
 #####latent heat - time series####
@@ -187,7 +187,7 @@ ggplot()+
 #save plot
 ggsave(filename = "LE_Flux_both.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #plot difference between EC02 and EC04
 dif$LE_beton<-beton$LE
@@ -205,7 +205,7 @@ ggplot(dat=dif, aes(x=datetime, y=flux_dif_LE))+
 #save plot
 ggsave(filename = "LE_Flux_dif_both.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #####latent heat - diurnal####
 #as aggregated mean line for each hour with errorbars
@@ -229,7 +229,7 @@ ggplot(beton, aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_both_mean_1sd_errorbars_hour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #as aggregated mean line for each half hour
 ggplot(beton, aes(x=as.factor(time), y=LE))+
@@ -252,7 +252,7 @@ ggplot(beton, aes(x=as.factor(time), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_mean_both_1sd_errorbars_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #as aggregated mean line for hour
 ggplot(beton, aes(x=as.factor(hour), y=LE))+
@@ -272,7 +272,7 @@ ggplot(beton, aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_mean_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #as aggregated median line for hour
 ggplot(beton, aes(x=as.factor(hour), y=LE))+
@@ -292,7 +292,7 @@ ggplot(beton, aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_median_both_hour.png",
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
 #as aggregated mean line for halfhour
 ggplot(beton, aes(x=as.factor(time), y=LE))+
@@ -309,5 +309,5 @@ ggplot(beton, aes(x=as.factor(time), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_mean_both_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
-       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
