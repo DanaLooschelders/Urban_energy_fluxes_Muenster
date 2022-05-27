@@ -5,7 +5,7 @@ Sys.setenv(TZ='Etc/GMT') #ewige Winterzeit
 #load libraries
 library(tidyverse)
 #source script to load slow data
-source("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/R_Skripts/prep_slow_data_data.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/prep_slow_data_data.R")
 
 #calculate mean temperature difference
 dat.meteo.merge$temp.diff<-dat.meteo.merge$AirTC_Avg_beton-dat.meteo.merge$AirTC_Avg_kiebitz
