@@ -39,8 +39,10 @@ footprint<-data.frame("windspeed"=dat.beton.flux.meteo$wind_speed,
                       "ustar"=dat.beton.flux.meteo$u.,
                     "winddir"=dat.beton.flux.meteo$wind_dir,
                     "date"=dat.beton.flux.meteo$TIMESTAMP,
-                    "u_comp"=dat.beton.flux.meteo$u_unrot,
-                    "v_comp"=dat.beton.flux.meteo$v_unrot)
+                    "u_unrot"=dat.beton.flux.meteo$u_unrot,
+                    "v_unrot"=dat.beton.flux.meteo$v_unrot,
+                    "u_rot"=dat.beton.flux.meteo$u_rot,
+                    "v_rot"=dat.beton.flux.meteo$v_rot)
 #mean(footprint$winddir)
 #226/7
 #191/5
