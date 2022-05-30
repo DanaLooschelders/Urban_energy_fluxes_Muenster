@@ -24,15 +24,25 @@ footprint_calc<-data.frame("yyyy"=as.numeric(substr(dat.beton.flux.meteo$TIMESTA
                            "zm"=rep(1.84, length(dat.beton.flux.meteo$time)),
                            "d"=rep(0.67*0.01, length(dat.beton.flux.meteo$time)),
                            "z0"=rep(-999, length(dat.beton.flux.meteo$time)),
-                           "u_mean"=dat.beton.flux.meteo$u_unrot,
+                           "u_mean"=dat.beton.flux.meteo$wind_speed,
                            "L"=dat.beton.flux.meteo$L,
                            "sigma_v"=sqrt(dat.beton.flux.meteo$v_var),
                            "u_star"=dat.beton.flux.meteo$u.,
                            "wind_dir"=dat.beton.flux.meteo$wind_dir)
+####QAQC####
+#no NAs in time
+footprint_calc<-footprint_calc[complete.cases(footprint_calc$HH_UTC),]
+#u* > 0.1
+any(footprint_calc$u_star<=0.1, na.rm=T)
+footprint_calc$u_star[footprint_calc$u_star<=0.1]<-NA
+#‐15.5 ≤ zm/L 
+any(footprint_calc$zm/footprint_calc$L>=15.5, na.rm=T) #none
 
-footprint_calc<-footprint_calc[complete.cases(footprint_calc),]
+#check
+names(footprint_calc)==names(template)
+
 setwd("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Footprint_analysis")
-write.csv(footprint_calc, file = "vlaues_for_footprint.csv", row.names = F,na = "-999")
+write.csv(footprint_calc, file = "values_for_footprint.csv", row.names = F,na = "-999")
 getwd()
 
 #coords

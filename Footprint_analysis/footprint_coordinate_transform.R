@@ -5,7 +5,7 @@ library(spdep)
 #library(SMoLR)
 library(sf)
 library(sp)
-
+library(mapview)
 ####coordinate transformation####
 #The trick is to use a rectangular projection for your map, 
 #which is fine for the size ranges of a typical footprint.
@@ -30,21 +30,21 @@ beton_matrix<-as.matrix(beton_dataframe)
 #calculate mean wind dir
 library(rWind)
 
-atan2(mean(footprint$u_comp, na.rm=T),
-      mean(footprint$v_comp, na.rm=T))*(180/pi)+180
+#atan2(mean(footprint$u_comp, na.rm=T),
+#      mean(footprint$v_comp, na.rm=T))*(180/pi)+180
 
 #aus Klimawiki Codeschnipseln
 fun.mean_winddir <- function(u,v) ((180/(pi))*atan2(mean(-v, na.rm = TRUE),mean(u, na.rm = TRUE)))+180 
 fun.mean_winddir(footprint$u_unrot, footprint$v_unrot)
-fun.mean_winddir(footprint$u_rot, footprint$v_rot)
-#mean wind dir is 329.3 -> direction on x axis
-#90 would we east --> rotate -80 degrees --> 280 degrees
-
-#329-90 -> -239 
+#fun.mean_winddir(footprint$u_rot, footprint$v_rot)
+#mean wind dir is 239.3 -> direction on x axis
+#90 would be east --> rotate -90 degrees --> 280 degrees
+239.3-90
+#239-90 -> -149 
 #source function from package
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/functions_from_packages/Coordinate_Rotation_function_from_SMoLR.R")
 beton_matrix_rot<-rotate_coord(x=beton_matrix[,1], y=beton_matrix[,2], 
-             angle = 93, center = c(utm_x_east, utm_y_north), type="degrees",
+             angle = -149.3, center = c(utm_x_east, utm_y_north), type="degrees",
              method="polar")
 
 beton_matrix_unrot<-beton_matrix
