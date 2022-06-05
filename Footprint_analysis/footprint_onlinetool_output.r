@@ -35,3 +35,4 @@ ffp_ras_x<-read.csv2(file="20220530090749803_footprint_raster_x2d_csv.csv", head
 #*_log.txt
         #Log file containing your simulation name, tower coordinates, and simulation details
 
+483*10/60/24

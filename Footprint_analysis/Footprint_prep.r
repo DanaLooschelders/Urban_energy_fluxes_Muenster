@@ -59,7 +59,7 @@ FFP_para <- calc_footprint_FFP_climatology(zm=1.78,
                                       ustar=footprint$ustar, 
                                       wind_dir=footprint$winddir,
                                       domain=c(-80,80,-80,80),
-                                      r=seq(10,80,10), 
+                                      r=seq(10,90,10), 
                                       smooth_data=1)
 #an aggregated footprint, a so-called footprint climatology
 range(footprint$L)
@@ -70,9 +70,4 @@ ffp_y <- c(FFP_para$y_2d) #y-grid of footprint climatology [m]
 ffp_f <- c(FFP_para$fclim_2d) #Normalised footprint function values of footprint climatology [m-2]
 
 #receptor is mounted above the origin (0,0) and positive x indicates upwind distance
-#mean_wind_dir<-mean(circular(footprint$winddir, units = "degrees"))
-
-mean_wind_dir<-atan2(mean(footprint$u_comp, na.rm=T),
-      mean(footprint$v_comp, na.rm=T))*(180/pi)+180
-#mean wind dir is 329.3314
 

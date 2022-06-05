@@ -8,7 +8,8 @@ library(Hmisc)
 #just specify which one and outcomment the other option
 tower=beton
 towername="Beton"
-
+library(parallel)
+?parallel
 #tower=kiebitz
 #towername="Kiebitz"
 

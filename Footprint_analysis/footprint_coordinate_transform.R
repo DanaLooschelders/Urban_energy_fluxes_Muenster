@@ -6,6 +6,7 @@ library(spdep)
 library(sf)
 library(sp)
 library(mapview)
+library(zoo)
 ####coordinate transformation####
 #The trick is to use a rectangular projection for your map, 
 #which is fine for the size ranges of a typical footprint.
@@ -39,12 +40,12 @@ fun.mean_winddir(footprint$u_unrot, footprint$v_unrot)
 #fun.mean_winddir(footprint$u_rot, footprint$v_rot)
 #mean wind dir is 239.3 -> direction on x axis
 #90 would be east --> rotate -90 degrees --> 280 degrees
-239.3-90
+239.3-270
 #239-90 -> -149 
 #source function from package
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/functions_from_packages/Coordinate_Rotation_function_from_SMoLR.R")
 beton_matrix_rot<-rotate_coord(x=beton_matrix[,1], y=beton_matrix[,2], 
-             angle = -149.3, center = c(utm_x_east, utm_y_north), type="degrees",
+             angle = 30.7, center = c(utm_x_east, utm_y_north), type="degrees",
              method="polar")
 
 beton_matrix_unrot<-beton_matrix
@@ -68,18 +69,20 @@ FFP_para$yr_utm<-lapply(FFP_para$yr, function(x) x+utm_y_north)
 #create list with x and y coordinates
 lines_list<-mapply(cbind,FFP_para$xr_utm, FFP_para$yr_utm, SIMPLIFY=FALSE)
 
-#rotate coordinate system
-#lines_list<-lapply(lines_list, function(x) rotate_coord(as.matrix(x)[,1], 
-#                                                            as.matrix(x)[,2],
-#                                            angle = 280, 
-#                                            center = c(utm_x_east, utm_y_north), 
-#                                            type="degrees",
-#                                            method="polar"))
-#remove NAs
+
+#interpolate NAs
 for(i in 1:length(lines_list)){
-  lines_list[[i]]<-lines_list[[i]][complete.cases(lines_list[[i]]),]
+  lines_list[[i]][,1]<-na.approx(lines_list[[i]][,1])
+  lines_list[[i]][,2]<-na.approx(lines_list[[i]][,2])
 }
 
+#rotate coordinate system
+#lines_list<-lapply(lines_list, function(x) rotate_coord(as.matrix(x)[,1], 
+#                                                        as.matrix(x)[,2],
+#                                                        angle = -30.7, 
+#                                                        center = c(utm_x_east, utm_y_north), 
+#                                                        type="degrees",
+#                                                        method="polar"))
 #create polygons
 ps <- lapply(lines_list, Polygon)
 # add id 
@@ -88,8 +91,8 @@ p1 <- lapply(seq_along(ps), function(i) Polygons(list(ps[[i]]),
 # create SpatialPolygons object
 my_spatial_polys <- SpatialPolygons(p1, 
                                     proj4string = CRS("+proj=utm +zone=32U+datum=WGS84") )
-mapview(my_spatial_polys)+mapview(test_raster)
+mapview(my_spatial_polys)+mapview(raster_rot)
 
 mapview(my_spatial_polys)
 plot(my_spatial_polys, axes=T)
-plot(test_raster, axes=T)
+plot(raster_rot, axes=T)
