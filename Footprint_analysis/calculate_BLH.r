@@ -7,15 +7,15 @@ source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/heat_fluxes_with_meteorolo
 #-------------------calculate boundary layer height from paper-------------------------------------#
 
 ####calculate blh for stable conditions####
-
+#L=monin obukvov length
+#ustar as friction velocity
+calculate_blh<-function(L=dat.beton.flux.meteo$L, ustar=dat.beton.flux.meteo$u.){
 #stable/neutral --> formula
 #coriolis Paramter f defined as f<-2*sigma*sinφ 
 sigma<-7.2921 * 10^-5 #angular velocity of earth rotation
 sin_lat<-sin(51.947046) #sinus of latitude
 f<-2*sigma*sin_lat #calculate f
 
-L<-dat.beton.flux.meteo$L #monin obukvov length
-ustar<-dat.beton.flux.meteo$u. #ustar as friction velocity
 
 #calculate blh for stable conditions
 blh_s<-L/3.8*(-1+(1+2.28*(ustar/(f*L)))^1/2) 
@@ -54,16 +54,28 @@ blh$blh[blh$condition=="neutral"]<-blh_n[blh$condition=="neutral"] #neutral, if 
 
 blh$timestamp<-dat.beton.flux.meteo$TIMESTAMP
 blh$timestamp<-as.POSIXct(blh$timestamp)
-blh$tod<-dat.beton.flux.meteo$tod
-#plot
-library(ggplot2)
-ggplot(dat=blh, aes(x=timestamp, y=blh))+
-  geom_line()+
-  theme_bw()
+#blh$tod<-dat.beton.flux.meteo$tod
+return(blh)
+}
+#call function
+blh_beton<-calculate_blh()
+blh_kiebitz<-calculate_blh(L=dat.kiebitz.flux.meteo$L, ustar=dat.kiebitz.flux.meteo$u.)
 
 
 #get boundary layer height to same length as dat.beton.fluxes
+#Beton
 dat.beton.flux.meteo$timestamp<-dat.beton.flux.meteo$TIMESTAMP
+BLH_beton<-full_join(x=dat.beton.flux.meteo[,c("H","timestamp")], y=blh_beton, by="timestamp")
+#Kiebitz
+dat.kiebitz.flux.meteo$timestamp<-dat.kiebitz.flux.meteo$TIMESTAMP
+BLH_kiebitz<-full_join(x=dat.kiebitz.flux.meteo[,c("H","timestamp")], y=blh_kiebitz, by="timestamp")
 
-BLH_full<-full_join(x=dat.beton.flux.meteo[,c("H","timestamp")], y=blh, by="timestamp")
 
+#plot
+library(ggplot2)
+ggplot(dat=blh_beton, aes(x=timestamp, y=blh))+
+  geom_line()+
+  theme_bw()
+ggplot(dat=blh_kiebitz, aes(x=timestamp, y=blh))+
+  geom_line()+
+  theme_bw()

@@ -45,6 +45,10 @@ ggplot(data=flux_meteo,aes(x=airP, y=Hflux_diff))+
 ggsave(filename="airP_hflux.pdf",
        device="pdf",width=297, height=210, units = "mm")
 
+#incoming radiation with le flux
+#net radiation with le flux
+
+
 #air temperature with le flux
 ggplot(data=flux_meteo,aes(x=mean_airT, y=LEflux_diff))+
   geom_point()+
@@ -74,3 +78,6 @@ ggplot(data=flux_meteo,aes(x=airP, y=LEflux_diff))+
   ylab("Difference in h flux [W m^2]")
 ggsave(filename="airP_leflux.pdf",
        device="pdf",width=297, height=210, units = "mm")
+
+#incoming radiation with le flux
+#net radiation with le flux
