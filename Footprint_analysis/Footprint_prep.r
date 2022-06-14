@@ -61,7 +61,7 @@ FFP_beton <- calc_footprint_FFP_climatology(zm=1.78,
                                       ustar=footprint_beton$ustar, 
                                       wind_dir=footprint_beton$winddir,
                                       domain=c(-90,90,-90,90),
-                                      r=seq(10,90,10), 
+                                      r=seq(20,90,10), 
                                       smooth_data=1)
 #an aggregated footprint, a so-called footprint climatology
 range(footprint_beton$L)
@@ -101,7 +101,7 @@ FFP_kiebitz <- calc_footprint_FFP_climatology(zm=1.77,
                                             ustar=footprint_kiebitz$ustar, 
                                             wind_dir=footprint_kiebitz$winddir,
                                             domain=c(-80,80,-80,80),
-                                            r=seq(10,90,10), 
+                                            r=seq(20,90,10), 
                                             smooth_data=1)
 #an aggregated footprint, a so-called footprint climatology
 range(footprint_kiebitz$L)
