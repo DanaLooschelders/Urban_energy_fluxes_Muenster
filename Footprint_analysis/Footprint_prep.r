@@ -60,7 +60,7 @@ FFP_beton <- calc_footprint_FFP_climatology(zm=1.78,
                                       sigmav=footprint_beton$sigmav, 
                                       ustar=footprint_beton$ustar, 
                                       wind_dir=footprint_beton$winddir,
-                                      domain=c(-90,90,-90,90),
+                                      domain=c(-120,120,-120,120),
                                       r=seq(20,90,10), 
                                       smooth_data=1)
 #an aggregated footprint, a so-called footprint climatology
