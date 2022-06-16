@@ -7,7 +7,7 @@ ggplot(dat=dat.beton.flux.meteo, aes(x=TIMESTAMP, y=LE))+
   geom_line()+
   geom_bar(aes(y=Rain_mm_Tot*10), stat="identity", color="blue")+
   geom_hline(yintercept=0, col="red")+
-  ggtitle(label=paste("Latent Heat Flux and Rain"))+
+  ggtitle(label=paste("Beton Latent Heat Flux and Rain"))+
   ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
   xlab("Time")+
   scale_y_continuous(sec.axis = sec_axis(trans = ~ .x / 10,
@@ -24,7 +24,7 @@ ggplot(dat=dat.beton.flux.meteo, aes(x=TIMESTAMP, y=H))+
   geom_line()+
   geom_bar(aes(y=Rain_mm_Tot*10), stat="identity", color="blue")+
   geom_hline(yintercept=0, col="red")+
-  ggtitle(label=paste("Sensible Heat Flux and Rain"))+
+  ggtitle(label=paste("Beton Sensible Heat Flux and Rain"))+
   ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
   xlab("Time")+
   scale_y_continuous(sec.axis = sec_axis(trans = ~ .x / 10,
@@ -33,6 +33,66 @@ ggplot(dat=dat.beton.flux.meteo, aes(x=TIMESTAMP, y=H))+
   theme(axis.text.y.right = element_text(colour = "blue"))
 
 ggsave(filename = "H_rain_beton_timeseries.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
+#plot Latent Heat Flux with Wind speed
+ggplot(dat=dat.beton.flux.meteo, aes(x=TIMESTAMP, y=LE))+
+  geom_line()+
+  geom_line(aes(y=wind_speed*30), color="blue", linetype="dashed")+
+  geom_hline(yintercept=0, col="red")+
+  ggtitle(label=paste("Latent Heat Flux and Wind Speed"))+
+  ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
+  xlab("Hour of Day")+
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ .x/30 ,
+                                         name = "Wind Speed [m/s]"))+
+  theme_bw()+
+  theme(axis.text.y.right = element_text(colour = "blue"))
+
+ggsave(filename = "LE_ws_beton_timeseries.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+#Latent heat flux increases with increasing wind speed
+#-> check wind direction again
+
+#plot regression of latent heat flux and wind speed
+ggplot(dat=dat.beton.flux.meteo, aes(x=LE, y=wind_speed))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method='lm')+
+  ylab("Wind Speed")+
+  xlab("LE flux [W m^2]")
+
+ggsave(filename = "LE_ws_beton_regression.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
+#plot Sensible Heat Flux with Wind speed
+ggplot(dat=dat.beton.flux.meteo, aes(x=TIMESTAMP, y=H))+
+  geom_line()+
+  geom_line(aes(y=wind_speed*30), color="blue", linetype="dashed")+
+  geom_hline(yintercept=0, col="red")+
+  ggtitle(label=paste("Sensible Heat Flux and Wind Speed"))+
+  ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
+  xlab("Hour of Day")+
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ .x/30 ,
+                                         name = "Wind Speed [m/s]"))+
+  theme_bw()+
+  theme(axis.text.y.right = element_text(colour = "blue"))
+
+ggsave(filename = "H_ws_beton_timeseries.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
+#plot regression of sensible heat flux and wind speed
+ggplot(dat=dat.beton.flux.meteo, aes(x=H, y=wind_speed))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method='lm')+
+  ylab("Wind Speed")+
+  xlab("H flux [W m^2]")
+
+ggsave(filename = "H_ws_beton_regression.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = paste(plot_dir,"Meteorology", sep="/"))
 
@@ -124,6 +184,18 @@ ggsave(filename = "LE_SWup_beton_timeseries.pdf",
        path = paste(plot_dir,"Meteorology", sep="/"))
 
 
+#plot regression of latent heat flux and incoming shortwave radiation 
+ggplot(dat=dat.beton.flux.meteo, aes(x=LE, y=SUp_Avg_beton))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method='lm')+
+  ylab("Incoming SW Rad [W m^2]")+
+  xlab("LE flux [W m^2]")
+
+ggsave(filename = "LE_SWUp_beton_regression.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
 #plot sensible heat flux with incoming shortwave radiation
 ggplot(dat=dat.beton.flux.meteo, aes(x=TIMESTAMP, y=H))+
   geom_line()+
@@ -138,6 +210,19 @@ ggplot(dat=dat.beton.flux.meteo, aes(x=TIMESTAMP, y=H))+
   theme(axis.text.y.right = element_text(colour = "red"))
 
 ggsave(filename = "H_SWup_beton_timeseries.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
+
+#plot regression of latent heat flux and incoming shortwave radiation 
+ggplot(dat=dat.beton.flux.meteo, aes(x=H, y=SUp_Avg_beton))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method='lm')+
+  ylab("Incoming SW Rad [W m^2]")+
+  xlab("H flux [W m^2]")
+
+ggsave(filename = "H_SWUp_beton_regression.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = paste(plot_dir,"Meteorology", sep="/"))
 
@@ -235,6 +320,64 @@ ggsave(filename = "H_rain_kiebitz_timeseries.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = paste(plot_dir,"Meteorology", sep="/"))
 
+#plot Latent Heat Flux with Wind speed
+ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=LE))+
+  geom_line()+
+  geom_line(aes(y=wind_speed*30), color="blue", linetype="dashed")+
+  geom_hline(yintercept=0, col="red")+
+  ggtitle(label=paste("Latent Heat Flux and Wind Speed"))+
+  ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
+  xlab("Hour of Day")+
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ .x/30 ,
+                                         name = "Wind Speed [m/s]"))+
+  theme_bw()+
+  theme(axis.text.y.right = element_text(colour = "blue"))
+
+ggsave(filename = "LE_ws_kiebitz_timeseries.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
+#plot regression of sensible heat flux and wind speed
+ggplot(dat=dat.kiebitz.flux.meteo, aes(x=LE, y=wind_speed))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method='lm')+
+  ylab("Wind Speed")+
+  xlab("LE flux [W m^2]")
+
+ggsave(filename = "LE_ws_kiebitz_regression.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
+#plot Sensible Heat Flux with Wind speed
+ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=H))+
+  geom_line()+
+  geom_line(aes(y=wind_speed*30), color="blue", linetype="dashed")+
+  geom_hline(yintercept=0, col="red")+
+  ggtitle(label=paste("Sensible Heat Flux and Wind Speed"))+
+  ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
+  xlab("Hour of Day")+
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ .x/30 ,
+                                         name = "Wind Speed [m/s]"))+
+  theme_bw()+
+  theme(axis.text.y.right = element_text(colour = "blue"))
+
+ggsave(filename = "H_ws_kiebitz_timeseries.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
+#plot regression of sensible heat flux and wind speed
+ggplot(dat=dat.kiebitz.flux.meteo, aes(x=H, y=wind_speed))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method='lm')+
+  ylab("Wind Speed")+
+  xlab("H flux [W m^2]")
+
+ggsave(filename = "H_ws_kiebitz_regression.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
 #plot Latent Heat Flux with relative humidity
 ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=LE))+
   geom_line()+
@@ -321,6 +464,17 @@ ggsave(filename = "LE_SWup_kiebitz_timeseries.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = paste(plot_dir,"Meteorology", sep="/"))
 
+#plot regression of latent heat flux and incoming shortwave radiation 
+ggplot(dat=dat.kiebitz.flux.meteo, aes(x=LE, y=SUp_Avg_beton))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method='lm')+
+  ylab("Incoming SW Rad [W m^2]")+
+  xlab("LE flux [W m^2]")
+
+ggsave(filename = "LE_SWUp_kiebitz_regression.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
 
 #plot sensible heat flux with incoming shortwave radiation
 ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=H))+
@@ -336,6 +490,18 @@ ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=H))+
   theme(axis.text.y.right = element_text(colour = "red"))
 
 ggsave(filename = "H_SWup_kiebitz_timeseries.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+
+#plot regression of latent heat flux and incoming shortwave radiation 
+ggplot(dat=dat.kiebitz.flux.meteo, aes(x=H, y=SUp_Avg_beton))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method='lm')+
+  ylab("Incoming SW Rad [W m^2]")+
+  xlab("H flux [W m^2]")
+
+ggsave(filename = "H_SWUp_kiebitz_regression.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = paste(plot_dir,"Meteorology", sep="/"))
 
