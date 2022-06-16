@@ -46,6 +46,8 @@ beton$LE[beton$qc_LE>6]<-NA
 beton$Tau[beton$qc_Tau>6]<-NA
 beton$H[beton$qc_H>6]<-NA
 
+#exclude unrealistic values
+beton$LE[beton$LE<=c(-100)]<-NA
 #cut data to correct length
 range(beton$datetime)
 
