@@ -5,7 +5,8 @@ Sys.setenv(TZ='Etc/GMT') #ewige Winterzeit
 #load libraries
 library(tidyverse)
 #set wd
-daten_dir <- setwd("Z:/Klimatologie/klima/Projekte/2021_CalmCity/2_Daten")
+setwd("Z:/Klimatologie/klima/Projekte/2021_CalmCity/2_Daten/")
+daten_dir <- "Z:/Klimatologie/klima/Projekte/2021_CalmCity/2_Daten"
 
 #raw data source from EC02 Beton
 dir_beton_meteo <- "./1_EC2_Beton_readonly/meteo/"

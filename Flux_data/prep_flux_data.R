@@ -1,5 +1,5 @@
 #set general values
-plot_dir<-"Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken"
+plot_dir<-"Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken"
 #script_dir
 #data_dir
 #####modified function from FERddyPro Package####
