@@ -13,7 +13,7 @@ flux_meteo<-data.frame("mean_airT"=rowMeans(dat.beton.flux.meteo[c("AirTC_Avg_be
                        "LEflux_diff"=dat.beton.flux.meteo$LE-dat.kiebitz.flux.meteo$LE) #LE flux difference
 
 #set wd to graphics 
-setwd("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Meteorology")
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Meteorology")
 
 #Air temperature with h flux
 ggplot(data=flux_meteo,aes(x=mean_airT, y=Hflux_diff))+

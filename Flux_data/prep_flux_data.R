@@ -1,5 +1,5 @@
 #set general values
-plot_dir<-"Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken"
+plot_dir<-"Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken"
 #script_dir
 #data_dir
 #####modified function from FERddyPro Package####
@@ -13,7 +13,7 @@ readEP<-function(dataFile="Filename", na = "NaN"){
   return(df)
 }
 ####Beton EC02####
-setwd("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/EddyPro/EC02_Ver1/")
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/EddyPro/EC02_Ver1/")
 beton=readEP("eddypro_Ver1_full_output_2021-12-21T092740_adv.csv")
 
 #check
@@ -56,7 +56,7 @@ beton<-beton[beton$datetime>=as.POSIXct("2021-07-23 00:00:00 MEST", tz="MET")&
 
 
 ####Kiebitz EC04####
-setwd("Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/EddyPro/EC04_Ver1/")
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/EddyPro/EC04_Ver1/")
 kiebitz=readEP("eddypro_Ver1_full_output_2021-12-21T114643_adv.csv")
 
 #check

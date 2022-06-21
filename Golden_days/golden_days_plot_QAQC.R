@@ -67,7 +67,7 @@ ggplot()+
 #save plot
 ggsave(filename = paste(label, "H_Flux_QC_EC04.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #H Beton with QC as color
 ggplot()+
@@ -85,7 +85,7 @@ ggplot()+
 #save plot
 ggsave(filename = paste(label, "H_Flux_QC_EC02.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 ####latent heat####
 #LE Kiebitz with QC as color
@@ -104,7 +104,7 @@ ggplot()+
 #save plot
 ggsave(filename = paste(label, "LE_Flux_QC_EC04.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 #LE Beton with QC as color
 ggplot()+
@@ -122,7 +122,7 @@ ggplot()+
 #save plot
 ggsave(filename = paste(label, "LE_Flux_QC_EC02.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 ####with meteorology####
 dif<-GD_Beton$H-GD_Kiebitz$H
@@ -185,7 +185,7 @@ multi_beton
 
 ggsave(filename = paste(label, "multiplot_flux_dif_meteo.png"),
        device="png",width=297, height=210, units = "mm",
-       path = "Z:/Klimatologie/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
+       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Golden_Days")
 
 }
 
