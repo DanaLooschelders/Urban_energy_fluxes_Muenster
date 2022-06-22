@@ -159,15 +159,15 @@ quilt.plot(c(FFP_kiebitz$x_2d_UTM),#vector of x coordinates
            legend.cex=0.8,
            legend.line=4,
            nx=160,ny=160, #nr of grid boxed in x/y
-           xlim=c(406650,406680),ylim=c(5755920,5755970)) #boundaries for plot
+           xlim=c(406630,406690),ylim=c(5755910,5755970)) #boundaries for plot
 for (i in 1:8) lines(FFP_kiebitz$xr_utm[[i]],#x-array for contour line of r
                      FFP_kiebitz$yr_utm[[i]], #y-array for contour line of r
                      type="l", col="#616161", lwd=0.5)
 mtext("Easting [UTM]", side = 1, line = 2.3)#add axis labels
 mtext("Northing [UTM]", side = 2, line = 2.3)#add axis labels
-mtext(paste("Beton Footprint", substr(range(footprint$date)[1],
+mtext(paste("Beton Footprint", substr(range(footprint_kiebitz$date)[1],
                                       start=1, stop=11),
-            "until", substr(range(footprint$date)[2],
+            "until", substr(range(footprint_kiebitz$date)[2],
                             start=1, stop=11)), side = 3, line = 1.5)#add title
 mtext("contour lines depicting percentage of footprint", 
       side=3, line=0.5,cex = 0.9)
@@ -185,5 +185,28 @@ plot(FFP_kiebitz$x_2d,FFP_kiebitz$fclim_2d, type="l")
 #Two-dimensional view of footprint climatology with contour lines of R%.
 
 image.plot(FFP_kiebitz$x_2d[1,], FFP_kiebitz$y_2d[,1], FFP_kiebitz$fclim_2d, 
-           xlim=c(-70,30), ylim=c(-50, 40))
+           xlim=c(-80,31), ylim=c(-80, 40))
 for (i in 1:8) lines(FFP_kiebitz$xr[[i]], FFP_kiebitz$yr[[i]], type="l", col="red")
+
+####plot with tmap
+library(tmap)
+library(tmaptools)
+
+tm_raster()
+
+#FE 
+
+
+map <- tm_shape(deratify(pred_marburg_all),
+                raster.downsample = FALSE) +
+  tm_raster(palette = cols,title = "LUC")+
+  tm_scale_bar(bg.color="white")+
+  tm_grid(n.x=4,n.y=4,projection="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")+
+  tm_layout(legend.position = c("left","bottom"),
+            legend.bg.color = "white",
+            legend.bg.alpha = 0.8)
+
+map
+
+tmap_save(map, "LUC_marburg_all.png")
+
