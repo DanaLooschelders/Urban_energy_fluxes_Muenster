@@ -8,6 +8,12 @@ flux_meteo<-data.frame("mean_airT"=rowMeans(dat.beton.flux.meteo[c("AirTC_Avg_be
                        "mean_rH"=rowMeans(dat.beton.flux.meteo[c("RH_Avg_beton", #mean of air temperature between kiebitz and beton
                                                                  "RH_Avg_kiebitz")], 
                                           na.rm=T),
+                       "mean_inSWRad"=rowMeans(dat.beton.flux.meteo[c("SUp_Avg_beton", #mean of incoming SW rad between kiebitz and beton
+                                                                   "SUp_Avg_kiebitz")], 
+                                          na.rm=T),
+                       "mean_netRad"=rowMeans(dat.beton.flux.meteo[c("RsNet_Avg_beton", #mean of air temperature between kiebitz and beton
+                                                                   "RsNet_Avg_kiebitz")],   
+                                               na.rm=T),
                        "airP"=dat.beton.flux.meteo$AirP_Avg,#air pressure
                        "Hflux_diff"=dat.beton.flux.meteo$H-dat.kiebitz.flux.meteo$H, #H flux difference
                        "LEflux_diff"=dat.beton.flux.meteo$LE-dat.kiebitz.flux.meteo$LE) #LE flux difference
@@ -22,8 +28,18 @@ ggplot(data=flux_meteo,aes(x=mean_airT, y=Hflux_diff))+
   geom_smooth(method='lm')+
   xlab("Mean air temperature [°C]")+
   ylab("Difference in h flux [W m^2]")
+
+ggsave(filename="airT_hflux.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path="C:/00_Dana/Uni/Masterarbeit/Graduiertenkolloquium") #for presentation
+
 ggsave(filename="airT_hflux.pdf",
        device="pdf",width=297, height=210, units = "mm")
+
+#statistically significant?
+summary(lm(flux_meteo$mean_airT~flux_meteo$Hflux_diff))
+plot(lm(flux_meteo$mean_airT~flux_meteo$Hflux_diff))
+#yes!
 
 #relative humidity with h flux
 ggplot(data=flux_meteo,aes(x=mean_rH, y=Hflux_diff))+
@@ -35,6 +51,11 @@ ggplot(data=flux_meteo,aes(x=mean_rH, y=Hflux_diff))+
 ggsave(filename="rH_hflux.pdf",
        device="pdf",width=297, height=210, units = "mm")
 
+#statistically significant?
+summary(lm(flux_meteo$mean_rH~flux_meteo$Hflux_diff))
+plot(lm(flux_meteo$mean_rH~flux_meteo$Hflux_diff))
+#yes
+
 #air pressure with h flux
 ggplot(data=flux_meteo,aes(x=airP, y=Hflux_diff))+
   geom_point()+
@@ -45,8 +66,12 @@ ggplot(data=flux_meteo,aes(x=airP, y=Hflux_diff))+
 ggsave(filename="airP_hflux.pdf",
        device="pdf",width=297, height=210, units = "mm")
 
-#incoming radiation with le flux
-#net radiation with le flux
+#statistically significant?
+summary(lm(flux_meteo$airP~flux_meteo$Hflux_diff))
+plot(lm(flux_meteo$airP~flux_meteo$Hflux_diff))
+
+#incoming radiation with h flux
+#net radiation with h flux
 
 
 #air temperature with le flux
