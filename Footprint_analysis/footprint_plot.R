@@ -215,18 +215,25 @@ map<-tm_basemap(leaflet::providers$OpenStreetMap.DE)+
   tm_borders()+
   tm_shape(kiebitz_polys)+
   tm_borders()+
-  tm_shape(points) + tm_dots()+
+  tm_graticules()+
+  tm_credits(text="Lines display 20 to 90 % contribution")+
+  tm_shape(points) + tm_dots(col="name", 
+                             palette=c(EC04="green", EC02="black"), 
+                             size=0.1,  popup.vars = TRUE)+
   #tm_compass()+
   tm_scale_bar(bg.color="white")+
   tm_grid(n.x=4,n.y=4,projection="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")+
   tm_layout(legend.position = c("left","bottom"),
             legend.bg.color = "white",
             legend.bg.alpha = 0.8)
+  #tm_minimap()
+
+
 
 l_map<-tmap_leaflet(map)
 l_map
 
-mapshot(l_map, file = "leaflet_beton_footprint.png")
+mapshot(l_map, file = "leaflet_beton_kiebitz_footprint.png")
 
 tmap_leaflet(map)
 
