@@ -73,14 +73,14 @@ neg_auc_H_kiebitz/neg_auc_H_beton
 #####sensible heat - diurnal####
 #as aggregated mean line for each hour with errorbars
 ggplot(beton, aes(x=as.factor(hour), y=H))+
-  stat_summary_bin(aes(col="EC02 \n(concrete)"),stroke=2.5,
+  stat_summary_bin(aes(col="EC02 (concrete)"),stroke=2.5,
                    fun = "mean",geom="point")+
   stat_summary_bin(dat=kiebitz, aes(x=as.factor(hour), 
-                                    y=H, col="EC04 \n(grass)"), 
+                                    y=H, col="EC04 (grass)"), 
                    fun="mean", geom="point", stroke=2.5)+
-  stat_summary(dat=beton, aes(col="EC02 \n(concrete)"), fun.data = "mean_sdl", 
+  stat_summary(dat=beton, aes(col="EC02 (concrete)"), fun.data = "mean_sdl", 
                geom = "errorbar", fun.args = list(mult = 1), alpha=0.4, width=0.4)+
-  stat_summary(dat=kiebitz, aes(col="EC04 \n(grass)"),fun.data = "mean_sdl", 
+  stat_summary(dat=kiebitz, aes(col="EC04 (grass)"),fun.data = "mean_sdl", 
                geom = "errorbar", fun.args = list(mult = 1),alpha=0.4, width=0.4)+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Sensible Heat Flux", 
@@ -89,7 +89,7 @@ ggplot(beton, aes(x=as.factor(hour), y=H))+
   xlab("Hour of Day")+
   scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   theme_bw()+
-  theme(text = element_text(size=30))
+  theme(text = element_text(size=30), legend.position="bottom")
 
 #save plot
 ggsave(filename = "H_Flux_diurnal_mean_both_1sd_errorbars_hour.png",
@@ -217,14 +217,14 @@ ggsave(filename = "LE_Flux_dif_both.pdf",
 #####latent heat - diurnal####
 #as aggregated mean line for each hour with errorbars
 ggplot(beton, aes(x=as.factor(hour), y=LE))+
-  stat_summary_bin(aes(col="EC02 \n(concrete)"),stroke=2.5,
+  stat_summary_bin(aes(col="EC02 (concrete)"),stroke=2.5,
                    fun = "mean",geom="point")+
   stat_summary_bin(dat=kiebitz, aes(x=as.factor(hour), 
-                                    y=LE, col="EC04 \n(grass)"), 
+                                    y=LE, col="EC04 (grass)"), 
                    fun="mean", geom="point", stroke=2.5)+
-  stat_summary(dat=beton, aes(col="EC02 \n(concrete)"), fun.data = "mean_sdl", 
+  stat_summary(dat=beton, aes(col="EC02 (concrete)"), fun.data = "mean_sdl", 
                geom = "errorbar", fun.args = list(mult = 1), alpha=0.4, width=0.4)+
-  stat_summary(dat=kiebitz, aes(col="EC04 \n(grass)"),fun.data = "mean_sdl", 
+  stat_summary(dat=kiebitz, aes(col="EC04 (grass)"),fun.data = "mean_sdl", 
                geom = "errorbar", fun.args = list(mult = 1),alpha=0.4, width=0.4)+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Latent Heat Flux", 
@@ -233,7 +233,7 @@ ggplot(beton, aes(x=as.factor(hour), y=LE))+
   xlab("Hour of Day")+
   scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   theme_bw()+
-  theme(text = element_text(size=30))
+  theme(text = element_text(size=30), legend.position="bottom")
 
 #save plot
 ggsave(filename = "LE_Flux_diurnal_mean_both_1sd_errorbars_hour.png",

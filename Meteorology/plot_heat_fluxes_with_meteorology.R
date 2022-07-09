@@ -446,6 +446,25 @@ ggsave(filename = "H_Temperature_kiebitz_timeseries.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = paste(plot_dir,"Meteorology", sep="/"))
 
+#latent heat with soil moisture
+dat.kiebitz.flux.meteo$VWC_Avg<-rowMeans(dat.kiebitz.flux.meteo[,c("WC01_VWC_Avg", "WC02_VWC_Avg","WC01_VWC_Avg")])
+ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=LE))+
+  geom_line()+
+  geom_line(aes(y=VWC_Avg*300), color="blue", linetype="dashed")+
+  geom_hline(yintercept=0, col="red")+
+  ggtitle(label=paste("Latent Heat Flux"))+
+  ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
+  xlab("Hour of Day")+
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ .x/300 ,
+                                         name = "Volumetric Water Content"))+
+  theme_bw()+
+  theme(axis.text.y.right = element_text(colour = "blue"))
+
+ggsave(filename = "LE_Temperature_kiebitz_timeseries.pdf",
+       device="pdf",width=297, height=210, units = "mm",
+       path = paste(plot_dir,"Meteorology", sep="/"))
+plot(dat.kiebitz.flux.meteo$VWC_Avg~dat.kiebitz.flux.meteo$LE)
+
 #Shortwave radiation
 #plot latent heat flux with incoming shortwave radiation
 ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=LE))+

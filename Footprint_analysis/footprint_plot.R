@@ -70,7 +70,7 @@ quilt.plot(c(FFP_beton$x_2d_UTM),#vector of x coordinates
            legend.cex=0.8,
            legend.line=4,
            nx=160,ny=160, #nr of grid boxed in x/y
-           xlim=c(406510,406610),ylim=c(5755970,5756050)) #boundaries for plot
+           xlim=c(406460,406645),ylim=c(5755910,5756070)) #boundaries for plot
 for (i in 1:8) lines(FFP_beton$xr_utm[[i]],#x-array for contour line of r
                      FFP_beton$yr_utm[[i]], #y-array for contour line of r
                      type="l", col="#616161", lwd=0.5)
@@ -191,22 +191,76 @@ for (i in 1:8) lines(FFP_kiebitz$xr[[i]], FFP_kiebitz$yr[[i]], type="l", col="re
 ####plot with tmap
 library(tmap)
 library(tmaptools)
+library(stars)
+library(leaflet)
+library(leaflet.providers)
+library(leaflet.extras)
+library(OpenStreetMap)
+#tmap
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Footprint")
+tmap_options(check.and.fix = TRUE)
+#add location point
+points <- data.frame(name = c("EC02", "EC04"),
+                     y = c(51.9470462,51.94644),
+                     x = c(7.6407622, 7.64214 ),
+                     stringsAsFactors = F)
 
-tm_raster()
+points <- st_as_sf(points, coords = c("x", "y"), crs = 4326)
 
-#FE 
-
-
-map <- tm_shape(deratify(pred_marburg_all),
-                raster.downsample = FALSE) +
-  tm_raster(palette = cols,title = "LUC")+
+map<-tm_basemap(leaflet::providers$OpenStreetMap.DE)+
+  #tm_shape(raster_rot_b,
+               # raster.downsample = FALSE)+
+#tm_raster(title = "Footprint Climatology")+ #palette = cols,
+  tm_shape(beton_polys)+
+  tm_borders()+
+  tm_shape(kiebitz_polys)+
+  tm_borders()+
+  tm_shape(points) + tm_dots()+
+  #tm_compass()+
   tm_scale_bar(bg.color="white")+
   tm_grid(n.x=4,n.y=4,projection="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")+
   tm_layout(legend.position = c("left","bottom"),
             legend.bg.color = "white",
             legend.bg.alpha = 0.8)
 
-map
+l_map<-tmap_leaflet(map)
+l_map
 
-tmap_save(map, "LUC_marburg_all.png")
+mapshot(l_map, file = "leaflet_beton_footprint.png")
 
+tmap_leaflet(map)
+
+tmap_save(map, "Footprint_map_Beton.png")
+
+#save with basemap
+c_osm <- tmaptools::read_osm(bb(NLD_muni))#, ext = 1.05
+
+
+map_wb <- tm_shape(c_osm)+
+  tm_rgb() 
+  #tm_shape(raster_rot_b,
+  # raster.downsample = FALSE)+
+  #tm_raster(title = "Footprint Climatology")+ #palette = cols,
+  tm_shape(beton_polys)+
+  tm_borders()+
+  #tm_compass()+
+  tm_scale_bar(bg.color="white")+
+  tm_grid(n.x=4,n.y=4,projection="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")+
+  tm_layout(legend.position = c("left","bottom"),
+            legend.bg.color = "white",
+            legend.bg.alpha = 0.8)
+map_wb
+
+####ggmap####
+library(ggplot2)
+library(ggmap)
+ggmap::get_stamenmap()%>%ggmap()
+?ggmap
+
+qmplot(lat=x_2d_UTM, lon=y_2d_UTM, data=FFP_kiebitz)
+qmap(location="muenster")
+?register_google
+?qmplot
+(FFP_kiebitz$x_2d_UTM),#vector of x coordinates
+c(FFP_kiebitz$y_2d_UTM),#vector of y coordinates
+c(FFP_kiebitz$fclim_2d)
