@@ -9,6 +9,7 @@ source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Flux_data/heat_fluxes_with
 
 #flux differences
 #####sensible heat - time series####
+beton[beton$datetime=="2021-08-13 00:00",]
 
 #plot EC02 and EC04 together
 ggplot()+
@@ -23,6 +24,40 @@ ggplot()+
 ggsave(filename = "H_Flux_both_timeseries.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+
+range(dat.beton.flux.meteo$datetime[1056:1122])
+
+#782:882,
+ggplot()+
+  geom_line(dat=dat.beton.flux.meteo[1056:1122,],
+            aes(x=datetime, y=H, color="EC02", linetype="Sensible heat flux"))+
+  geom_line(dat=dat.kiebitz.flux.meteo[1056:1122,],
+            aes(x=datetime,y=H, color="EC04",linetype="Sensible heat flux"))+
+  #geom_line(dat=dat.beton.flux.meteo[1058:1122,], aes(x=datetime, y=SUp_Avg_beton/10))+
+  geom_line(dat=dat.beton.flux.meteo[1056:1122,], 
+            aes(x=datetime, y= TotRNet_Avg_beton/1.7, 
+                color="EC02", linetype="Net Radiation"))+
+  geom_line(dat=dat.kiebitz.flux.meteo[1056:1122,], 
+            aes(x=datetime, y= TotRNet_Avg_kiebitz/1.7, 
+                color="EC04", linetype="Net Radiation"))+
+  #geom_line(dat=dat.beton.flux.meteo[1058:1122,], aes(x=datetime, y= AirTC_Avg_beton*10))+
+  geom_hline(yintercept=0, col="black")+
+  ggtitle(label="Sensible Heat flux EC02 and EC04\n 12.08 12:00 to 14.08 21:00")+
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ .x * 1.7,
+                                         name = bquote('Net Radiation [W' ~m^-2* ']')))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77","#1f78b4", "#1b9e77"))+
+  scale_linetype_manual("Linetype", values=c("dashed","solid"))+
+  ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
+  xlab("time")+
+  theme_bw()+
+  theme(text = element_text(size=30), legend.position="bottom")+
+  guides(color = guide_legend(nrow = 2, byrow = TRUE),
+        linetype= guide_legend(nrow = 2, byrow = TRUE))
+
+#save plot
+ggsave(filename = "H_Flux_both_timeseries_exampleday.png",
+       device="png",width=297, height=210, units = "mm",
+       path = "C:/00_Dana/Uni/Masterarbeit/Graduiertenkolloquium/")
 
 #plot difference between EC02 and EC04
 dif<-data.frame(datetime=beton$datetime, H_beton=beton$H)
@@ -182,6 +217,34 @@ ggsave(filename = "H_Flux_diurnal_mean_both_halfhour.pdf",
 #plot EC02 and EC04 together
 #remove outlier 
 beton$LE[beton$LE<=-100]<-NA
+dat.kiebitz.flux.meteo$VWC_Avg<-rowMeans(dat.kiebitz.flux.meteo[,c("WC01_VWC_Avg", "WC02_VWC_Avg","WC01_VWC_Avg")])
+
+
+ggplot()+
+  geom_line(dat=dat.beton.flux.meteo[470:630,],
+            aes(x=datetime, y=LE, color="EC02"))+
+  geom_line(dat=dat.kiebitz.flux.meteo[470:630,],
+            aes(x=datetime,y=LE, color="EC04"))+
+  geom_line(dat=dat.kiebitz.flux.meteo[470:630,],
+            aes(x=datetime,y=VWC_Avg*1000))+#, color="EC04",linetype="Sensible heat flux"))+
+  geom_bar(dat=dat.kiebitz.flux.meteo[470:630,],aes(x=datetime, y=Rain_mm_Tot*10), stat="identity", color="blue")+
+  geom_hline(yintercept=0, col="black")+
+  ggtitle(label="Latent Heat flux EC02 and EC04")+
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ .x /1000,
+                                         name = bquote('Volumetric Water Content [' ~m^-2/m^-2* ']')))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77","#1f78b4", "#1b9e77"))+
+  #scale_linetype_manual("Linetype", values=c("dashed","solid"))+
+  ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
+  xlab("time")+
+  theme_bw()+
+  theme(text = element_text(size=30), legend.position="bottom")#+
+  #guides(color = guide_legend(nrow = 2, byrow = TRUE))#,
+        # linetype= guide_legend(nrow = 2, byrow = TRUE))
+
+#save plot
+ggsave(filename = "LE_Flux_both_timeseries_rain_soilwatercontent.png",
+       device="png",width=297, height=210, units = "mm",
+       path = "C:/00_Dana/Uni/Masterarbeit/Graduiertenkolloquium/")
 
 ggplot()+
   geom_line(dat=beton,aes(x=datetime, y=LE, color="EC02 Beton"))+
