@@ -460,7 +460,7 @@ ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=LE))+
   theme_bw()+
   theme(axis.text.y.right = element_text(colour = "blue"))
 
-ggsave(filename = "LE_Temperature_kiebitz_timeseries.pdf",
+ggsave(filename = "LE_soilmoisture_kiebitz_timeseries.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = paste(plot_dir,"Meteorology", sep="/"))
 plot(dat.kiebitz.flux.meteo$VWC_Avg~dat.kiebitz.flux.meteo$LE)
