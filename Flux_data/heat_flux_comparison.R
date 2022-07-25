@@ -135,6 +135,30 @@ ggsave(filename = "H_Flux_diurnal_mean_both_1sd_errorbars_hour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
+#as aggregated mean line for each hour with errorbars
+ggplot(beton, aes(x=as.factor(hour), y=H))+
+  stat_summary_bin(aes(col="EC02 (concrete)"),stroke=2.5,
+                   fun = "median",geom="point")+
+  stat_summary_bin(dat=kiebitz, aes(x=as.factor(hour), 
+                                    y=H, col="EC04 (grass)"), 
+                   fun="median", geom="point", stroke=2.5)+
+  stat_summary(dat=beton, aes(col="EC02 (concrete)"), fun.data = "mean_sdl", 
+               geom = "errorbar", fun.args = list(mult = 1), alpha=0.4, width=0.4)+
+  stat_summary(dat=kiebitz, aes(col="EC04 (grass)"),fun.data = "mean_sdl", 
+               geom = "errorbar", fun.args = list(mult = 1),alpha=0.4, width=0.4)+
+  geom_hline(yintercept=0, col="black")+
+  ggtitle(label="Aggregated Sensible Heat Flux", 
+          subtitle = "Median with errorbars displaying 1 SD" )+
+  ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
+  xlab("Hour of Day")+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
+  theme_bw()+
+  theme(text = element_text(size=30), legend.position="bottom")
+
+#save plot
+ggsave(filename = "H_Flux_diurnal_median_both_1sd_errorbars_hour.png",
+       device="png",width=350, height=210, units = "mm",
+       path = "C:/00_Dana/Uni/Masterarbeit/Graduiertenkolloquium") #for presentation
 #as aggregated mean line for each half hour
 ggplot(beton, aes(x=as.factor(time), y=H))+
   stat_summary_bin(aes(col="beton"),
@@ -307,7 +331,30 @@ ggsave(filename = "LE_Flux_diurnal_mean_both_1sd_errorbars_hour.png",
 ggsave(filename = "LE_Flux_diurnal_both_mean_1sd_errorbars_hour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+#as aggregated median line for each hour with errorbars
+ggplot(beton, aes(x=as.factor(hour), y=LE))+
+  stat_summary_bin(aes(col="EC02 (concrete)"),stroke=2.5,
+                   fun = "median",geom="point")+
+  stat_summary_bin(dat=kiebitz, aes(x=as.factor(hour), 
+                                    y=LE, col="EC04 (grass)"), 
+                   fun="median", geom="point", stroke=2.5)+
+  stat_summary(dat=beton, aes(col="EC02 (concrete)"), fun.data = "mean_sdl", 
+               geom = "errorbar", fun.args = list(mult = 1), alpha=0.4, width=0.4)+
+  stat_summary(dat=kiebitz, aes(col="EC04 (grass)"),fun.data = "mean_sdl", 
+               geom = "errorbar", fun.args = list(mult = 1),alpha=0.4, width=0.4)+
+  geom_hline(yintercept=0, col="black")+
+  ggtitle(label="Aggregated Latent Heat Flux", 
+          subtitle = "Median with errorbars displaying 1 SD" )+
+  ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
+  xlab("Hour of Day")+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
+  theme_bw()+
+  theme(text = element_text(size=30), legend.position="bottom")
 
+#save plot
+ggsave(filename = "LE_Flux_diurnal_median_both_1sd_errorbars_hour.png",
+       device="png",width=350, height=210, units = "mm",
+       path = "C:/00_Dana/Uni/Masterarbeit/Graduiertenkolloquium") #for presentation
 #as aggregated mean line for each half hour
 ggplot(beton, aes(x=as.factor(time), y=LE))+
   stat_summary_bin(aes(col="beton"),
