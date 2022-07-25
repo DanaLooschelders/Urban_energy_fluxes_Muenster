@@ -1,6 +1,7 @@
 #load scripts
 #source script to load flux data from EC02 and EC04 and slow data
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Ratios")
 
 #calculate Bowen ratio
   #Bo=sensible/latent   
