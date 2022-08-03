@@ -20,7 +20,7 @@ library(ggplot2)
 
 #questions:
   #which coefficient for drag? -> google
-  #Leaf area index --> estimate? calculate with GLI?
+  #Leaf area index --> this years data? Sentinel-2 data?
   #temperature at canopy height? same as height z? Literature, supp. data?
 
   #horizontal windspeed at canopy height -> calculate with log function from wind speed at height z?
@@ -112,7 +112,7 @@ for(i in 1:length(in.files)){
 }
 
 library(mapview)
-library(leafem)
+#library(leafem)
 
 #load bands
 B8<-raster("T32UMC_20210825T103619_B08_10m.tif")
@@ -142,11 +142,27 @@ mapview(B8_crop)
 #(B8-B4)/(B8+B4)
 NDVI<-(B8_crop-B4_crop)/(B8_crop+B4_crop)
 mapview(NDVI)
-#estimate LAi
-LAI<-0.0875*exp(4.372*NDVI)
-LAI_2<- 10.575*NDVI-6.0645 
-mapview(LAI)
-mapview(LAI_2)
 
-diff_LAI<-LAI_2-LAI
-mapview(diff_LAI)
+#crop to study site
+polys_ex<-extent(kiebitz_polys+beton_polys)
+NDVI_crop<-crop(NDVI, polys_ex)
+
+mapview(NDVI_crop)+
+  mapview(kiebitz_polys[8], alpha.regions=0, col.region="black", lwd=1)+
+  mapview(beton_polys[8], alpha.regions=0, col.region="black", lwd=1)
+
+#estimate LAI
+#semi-arid grassland in Inner Mongolia 
+LAI<-0.0875*exp(4.372*NDVI_crop)
+mapview(LAI)+
+  mapview(kiebitz_polys[8], alpha.regions=0, col.region="black", lwd=1)+
+  mapview(beton_polys[8], alpha.regions=0, col.region="black", lwd=1)
+
+#calculate LAI for Kiebitz
+LAI_kiebitz<-mask(LAI, kiebitz_polys[8])
+mapview(LAI_kiebitz)
+round(mean(values(LAI_kiebitz), na.rm=T),2)
+#calculate LAI for Beton
+LAI_beton<-mask(LAI, beton_polys[8])
+mapview(LAI_beton)
+round(mean(values(LAI_beton), na.rm=T),2)
