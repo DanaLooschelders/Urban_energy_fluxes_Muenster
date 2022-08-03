@@ -331,7 +331,8 @@ ggplot(beton, aes(x=as.factor(hour), y=LE))+
 #save plot
 ggsave(filename = "LE_Flux_diurnal_median_both_mad_errorbars_hour.png",
        device="png",width=350, height=210, units = "mm",
-       path = "C:/00_Dana/Uni/Masterarbeit/Graduiertenkolloquium") #for presentation
+       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+
 #as aggregated  median_mad line for each half hour
 ggplot(beton, aes(x=as.factor(time), y=LE))+
   stat_summary_bin(aes(col="beton"),
@@ -356,7 +357,12 @@ ggsave(filename = "LE_Flux_diurnal_median_both_mad_errorbars_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
-#as aggregated  median_mad line for hour
+#save plot
+ggsave(filename = "LE_Flux_diurnal_median_both_mad_errorbars_halfhour.png",
+       device="png",width=297, height=210, units = "mm",
+       path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+
+#as aggregated  median line for hour
 ggplot(beton, aes(x=as.factor(hour), y=LE))+
   stat_summary_bin(aes(col="beton"),
                    fun = "median",geom="point", size=5)+
@@ -413,4 +419,3 @@ ggplot(beton, aes(x=as.factor(time), y=LE))+
 ggsave(filename = "LE_Flux_diurnal_median_both_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
-
