@@ -49,7 +49,7 @@ ggsave(filename="BowenRatio_ts_kiebitz.pdf",
 ggsave(filename="BowenRatio_ts_kiebitz.png",
        device="png",width=297, height=210, units = "mm")
 
-  #mean day bowen ratio beton
+  #median day bowen ratio beton
 ggplot(dat=subset(dat.beton.flux.meteo, !is.na(hour)), 
               aes(x=as.factor(hour), y=BR_beton))+
   stat_summary_bin(stroke=2.5,
@@ -85,10 +85,10 @@ ggplot(dat=subset(dat.kiebitz.flux.meteo, !is.na(hour)),
   xlab("Hour of Day")+
   ylab("Bowen Ratio")
 
-ggsave(filename="BowenRatio_diurnal_mean_sd_kiebitz.pdf",
+ggsave(filename="BowenRatio_diurnal_median_mad_kiebitz.pdf",
        device="pdf",width=297, height=210, units = "mm")
   
-ggsave(filename="BowenRatio_diurnal_mean_sd_kiebitz.png",
+ggsave(filename="BowenRatio_diurnal_median_mad_kiebitz.png",
        device="png",width=297, height=210, units = "mm")
     
 #overall mean
@@ -112,7 +112,7 @@ ggsave(filename="BowenRatio_ts_beton_kiebitz.pdf",
 ggsave(filename="BowenRatio_ts_beton_kiebitz.png",
        device="png",width=297, height=210, units = "mm")
 
-#aggregated mean day bowen ratio kiebitz beton
+#aggregated median day bowen ratio kiebitz beton
 ggplot(dat=subset(dat.kiebitz.flux.meteo, !is.na(hour)), 
        aes(x=as.factor(hour), y=BR_kiebitz))+
   stat_summary_bin(aes(col="EC02 Kiebitz"), stroke=2.5,
@@ -136,10 +136,10 @@ ggplot(dat=subset(dat.kiebitz.flux.meteo, !is.na(hour)),
   xlab("Hour of Day")+
   ylab("Bowen Ratio")
 
-ggsave(filename="BowenRatio_diurnal_mean_sd_kiebitz_beton.pdf",
+ggsave(filename="BowenRatio_diurnal_median_mad_kiebitz_beton.pdf",
        device="pdf",width=297, height=210, units = "mm")
 
-ggsave(filename="BowenRatio_diurnal_mean_sd_kiebitz_beton.png",
+ggsave(filename="BowenRatio_diurnal_median_mad_kiebitz_beton.png",
        device="png",width=297, height=210, units = "mm")
 
 #calculate ratio between EC02 and EC04
@@ -177,7 +177,7 @@ dat.beton.flux.meteo$TIMESTAMP[857]
 dat.beton.flux.meteo$H[857]
 dat.kiebitz.flux.meteo$H[857]
 
-#mean day ratio sensible EC02/EC04
+#median day ratio sensible EC02/EC04
 ggplot(dat=subset(dat.beton.flux.meteo, !is.na(hour)), 
        aes(x=as.factor(hour), y=H_ratio_EC02_to_EC04))+
   stat_summary_bin(stroke=2.5,
@@ -192,10 +192,10 @@ ggplot(dat=subset(dat.beton.flux.meteo, !is.na(hour)),
   xlab("Hour of Day")+
   ylab(bquote('Ratio of H Flux [W' ~m^-2* ']'))
 
-ggsave(filename="H_Ratio_diurnal_mean_sd_beton.pdf",
+ggsave(filename="H_Ratio_diurnal_median_mad_beton.pdf",
        device="pdf",width=297, height=210, units = "mm")
 
-ggsave(filename="H_Ratio_diurnal_mean_sd_beton.png",
+ggsave(filename="H_Ratio_diurnal_median_mad_beton.png",
        device="png",width=297, height=210, units = "mm")
   #mean
 mean(dat.beton.flux.meteo$H, na.rm=T)/mean(dat.kiebitz.flux.meteo$H, na.rm=T) #1.93
@@ -224,7 +224,7 @@ ggsave(filename="LE_Ratio_ts_beton.pdf",
 ggsave(filename="LE_Ratio_ts_beton.png",
        device="png",width=297, height=210, units = "mm")
 
-#mean day ratio sensible EC02/EC04
+#median day ratio sensible EC02/EC04
 ggplot(dat=subset(dat.beton.flux.meteo, !is.na(hour)), 
        aes(x=as.factor(hour), y=LE_ratio_EC02_to_EC04))+
   stat_summary_bin(stroke=2.5,
@@ -239,10 +239,11 @@ ggplot(dat=subset(dat.beton.flux.meteo, !is.na(hour)),
   xlab("Hour of Day")+
   ylab(bquote('Ratio of LE Flux [W' ~m^-2* ']'))
 
-ggsave(filename="LE_Ratio_diurnal_mean_sd_beton.pdf",
+ggsave(filename="LE_Ratio_diurnal_median_mad_beton.pdf",
        device="pdf",width=297, height=210, units = "mm")
 
-ggsave(filename="LE_Ratio_diurnal_mean_sd_beton.png",
+ggsave(filename="LE_Ratio_diurnal_median_mad_beton.png",
        device="png",width=297, height=210, units = "mm")
 #mean
 mean(dat.beton.flux.meteo$LE, na.rm=T)/mean(dat.kiebitz.flux.meteo$LE, na.rm=T) #0.52
+
