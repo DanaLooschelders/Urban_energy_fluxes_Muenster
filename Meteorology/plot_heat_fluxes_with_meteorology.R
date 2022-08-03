@@ -581,3 +581,33 @@ swup.kiebitz<-ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=SUp_Avg_beto
   xlab("Hour of Day")+
   theme_bw()
 grid.arrange(sh.kiebitz,swup.kiebitz, nrow=2)
+
+
+dat.kiebitz.flux.meteo$VWC_Avg<-rowMeans(dat.kiebitz.flux.meteo[,c("WC01_VWC_Avg", "WC02_VWC_Avg","WC01_VWC_Avg")])
+
+
+ggplot()+
+  geom_line(dat=dat.beton.flux.meteo[470:630,],
+            aes(x=datetime, y=LE, color="EC02"))+
+  geom_line(dat=dat.kiebitz.flux.meteo[470:630,],
+            aes(x=datetime,y=LE, color="EC04"))+
+  geom_line(dat=dat.kiebitz.flux.meteo[470:630,],
+            aes(x=datetime,y=VWC_Avg*1000))+#, color="EC04",linetype="Sensible heat flux"))+
+  geom_bar(dat=dat.kiebitz.flux.meteo[470:630,],aes(x=datetime, y=Rain_mm_Tot*10), stat="identity", color="blue")+
+  geom_hline(yintercept=0, col="black")+
+  ggtitle(label="Latent Heat flux EC02 and EC04")+
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ .x /1000,
+                                         name = bquote('Volumetric Water Content [' ~m^-2/m^-2* ']')))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77","#1f78b4", "#1b9e77"))+
+  #scale_linetype_manual("Linetype", values=c("dashed","solid"))+
+  ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
+  xlab("time")+
+  theme_bw()+
+  theme(text = element_text(size=30), legend.position="bottom")#+
+#guides(color = guide_legend(nrow = 2, byrow = TRUE))#,
+# linetype= guide_legend(nrow = 2, byrow = TRUE))
+
+#save plot
+ggsave(filename = "LE_Flux_both_timeseries_rain_soilwatercontent.png",
+       device="png",width=297, height=210, units = "mm",
+       path = "C:/00_Dana/Uni/Masterarbeit/Graduiertenkolloquium/")

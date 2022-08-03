@@ -17,6 +17,7 @@ ggplot()+
   geom_line(dat=kiebitz,aes(x=datetime,y=H, color="EC04 Kiebitz"))+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Sensible Heat flux EC02 and EC04")+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
   xlab("time")+
   theme_bw()
@@ -119,7 +120,7 @@ ggplot(beton, aes(x=as.factor(hour), y=H))+
                geom = "errorbar",alpha=0.4, width=0.4)+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Sensible Heat Flux", 
-          subtitle = " median_mad with errorbars displaying median absolute deviation" )+
+          subtitle = " Median with errorbars displaying median absolute deviation" )+
   ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
   xlab("Hour of Day")+
   scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
@@ -127,11 +128,11 @@ ggplot(beton, aes(x=as.factor(hour), y=H))+
   theme(text = element_text(size=30), legend.position="bottom")
 
 #save plot
-ggsave(filename = "H_Flux_diurnal_ median_mad_both_mad_errorbars_hour.pdf",
+ggsave(filename = "H_Flux_diurnal_median_both_mad_errorbars_hour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
-ggsave(filename = "H_Flux_diurnal_ median_mad_both_mad_errorbars_hour.png",
+ggsave(filename = "H_Flux_diurnal_median_both_mad_errorbars_hour.png",
        device="png",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
@@ -173,12 +174,13 @@ ggplot(beton, aes(x=as.factor(time), y=H))+
                geom = "errorbar" )+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Sensible Heat Flux", 
-          subtitle = "EC02 (Beton) and EC04 (Kiebitz)\n median_mad with errorbars displaying median absolute deviation")+
+          subtitle = "EC02 (Beton) and EC04 (Kiebitz)\n Median with errorbars displaying median absolute deviation")+
   ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   xlab("Hour of Day")+
   theme_bw()
 #save plot
-ggsave(filename = "H_Flux_diurnal_ median_mad_both_mad_errorbars_halfhour.pdf",
+ggsave(filename = "H_Flux_diurnal_median_both_mad_errorbars_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
@@ -192,12 +194,12 @@ ggplot(beton, aes(x=as.factor(hour), y=H))+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Sensible Heat Flux", 
           subtitle = " median_mad of EC02 (Beton) and EC04 (Kiebitz)")+
-  scale_color_manual(values=c("#a6cee3","#1f78b4"))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
   xlab("Hour of Day")+
   theme_bw()
 #save plot
-ggsave(filename = "H_Flux_diurnal_ median_mad_both_hour.png",
+ggsave(filename = "H_Flux_diurnal_median_both_hour.png",
        device="png",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
@@ -211,7 +213,7 @@ ggplot(beton, aes(x=as.factor(hour), y=H))+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Sensible Heat Flux", 
           subtitle = "Median of EC02 (Beton) and EC04 (Kiebitz)")+
-  scale_color_manual(values=c("#a6cee3","#1f78b4"))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
   xlab("Hour of Day")+
   theme_bw()
@@ -230,10 +232,11 @@ ggplot(beton, aes(x=as.factor(time), y=H))+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Sensible Heat Flux EC02 and EC04")+
   ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   xlab("Hour of Day")+
   theme_bw()
 #save plot
-ggsave(filename = "H_Flux_diurnal_ median_mad_both_halfhour.pdf",
+ggsave(filename = "H_Flux_diurnal_median_both_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
@@ -242,34 +245,6 @@ ggsave(filename = "H_Flux_diurnal_ median_mad_both_halfhour.pdf",
 #plot EC02 and EC04 together
 #remove outlier 
 beton$LE[beton$LE<=-100]<-NA
-dat.kiebitz.flux.meteo$VWC_Avg<-rowMeans(dat.kiebitz.flux.meteo[,c("WC01_VWC_Avg", "WC02_VWC_Avg","WC01_VWC_Avg")])
-
-
-ggplot()+
-  geom_line(dat=dat.beton.flux.meteo[470:630,],
-            aes(x=datetime, y=LE, color="EC02"))+
-  geom_line(dat=dat.kiebitz.flux.meteo[470:630,],
-            aes(x=datetime,y=LE, color="EC04"))+
-  geom_line(dat=dat.kiebitz.flux.meteo[470:630,],
-            aes(x=datetime,y=VWC_Avg*1000))+#, color="EC04",linetype="Sensible heat flux"))+
-  geom_bar(dat=dat.kiebitz.flux.meteo[470:630,],aes(x=datetime, y=Rain_mm_Tot*10), stat="identity", color="blue")+
-  geom_hline(yintercept=0, col="black")+
-  ggtitle(label="Latent Heat flux EC02 and EC04")+
-  scale_y_continuous(sec.axis = sec_axis(trans = ~ .x /1000,
-                                         name = bquote('Volumetric Water Content [' ~m^-2/m^-2* ']')))+
-  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77","#1f78b4", "#1b9e77"))+
-  #scale_linetype_manual("Linetype", values=c("dashed","solid"))+
-  ylab(bquote('Sensible heat flux [W' ~m^-2* ']'))+
-  xlab("time")+
-  theme_bw()+
-  theme(text = element_text(size=30), legend.position="bottom")#+
-  #guides(color = guide_legend(nrow = 2, byrow = TRUE))#,
-        # linetype= guide_legend(nrow = 2, byrow = TRUE))
-
-#save plot
-ggsave(filename = "LE_Flux_both_timeseries_rain_soilwatercontent.png",
-       device="png",width=297, height=210, units = "mm",
-       path = "C:/00_Dana/Uni/Masterarbeit/Graduiertenkolloquium/")
 
 ggplot()+
   geom_line(dat=beton,aes(x=datetime, y=LE, color="EC02 Beton"))+
@@ -277,6 +252,7 @@ ggplot()+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Latent Heat flux EC02 and EC04")+
   ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   xlab("time")+
   theme_bw()
 #save plot
@@ -316,7 +292,7 @@ ggplot(beton, aes(x=as.factor(hour), y=LE))+
                geom = "errorbar" ,alpha=0.4, width=0.4)+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Latent Heat Flux", 
-          subtitle = " median_mad with errorbars displaying median absolute deviation" )+
+          subtitle = " Median with errorbars displaying median absolute deviation" )+
   ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
   xlab("Hour of Day")+
   scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
@@ -324,12 +300,12 @@ ggplot(beton, aes(x=as.factor(hour), y=LE))+
   theme(text = element_text(size=30), legend.position="bottom")
 
 #save plot
-ggsave(filename = "LE_Flux_diurnal_ median_mad_both_mad_errorbars_hour.png",
+ggsave(filename = "LE_Flux_diurnal_median_both_mad_errorbars_hour.png",
        device="png",width=350, height=210, units = "mm",
        path = "C:/00_Dana/Uni/Masterarbeit/Graduiertenkolloquium") #for presentation
 
 #save plot
-ggsave(filename = "LE_Flux_diurnal_both_ median_mad_mad_errorbars_hour.pdf",
+ggsave(filename = "LE_Flux_diurnal_both_median_mad_errorbars_hour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 #as aggregated median line for each hour with errorbars
@@ -369,13 +345,14 @@ ggplot(beton, aes(x=as.factor(time), y=LE))+
                geom = "errorbar" )+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Latent Heat Flux", 
-          subtitle = "EC02 (Beton) and EC04 (Kiebitz)\n median_mad with errorbars displaying median absolute deviation")+
+          subtitle = "EC02 (Beton) and EC04 (Kiebitz)\n median with errorbars displaying median absolute deviation")+
   ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   xlab("Hour of Day")+
   theme_bw()
 
 #save plot
-ggsave(filename = "LE_Flux_diurnal_ median_mad_both_mad_errorbars_halfhour.pdf",
+ggsave(filename = "LE_Flux_diurnal_median_both_mad_errorbars_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
@@ -390,12 +367,12 @@ ggplot(beton, aes(x=as.factor(hour), y=LE))+
   ggtitle(label="Aggregated Latent Heat Flux", 
           subtitle = " median_mad of EC02 (Beton) and EC04 (Kiebitz)")+
   ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
-  scale_color_manual(values=c("#a6cee3","#1f78b4"))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   xlab("Hour of Day")+
   theme_bw()
 
 #save plot
-ggsave(filename = "LE_Flux_diurnal_ median_mad_both_hour.png",
+ggsave(filename = "LE_Flux_diurnal_median_both_hour.png",
        device="png",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
@@ -410,7 +387,7 @@ ggplot(beton, aes(x=as.factor(hour), y=LE))+
   ggtitle(label="Aggregated Latent Heat Flux", 
           subtitle = "Median of EC02 (Beton) and EC04 (Kiebitz)")+
   ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
-  scale_color_manual(values=c("#a6cee3","#1f78b4"))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   xlab("Hour of Day")+
   theme_bw()
 
@@ -429,10 +406,11 @@ ggplot(beton, aes(x=as.factor(time), y=LE))+
   geom_hline(yintercept=0, col="black")+
   ggtitle(label="Aggregated Latent Heat Flux EC02 and EC04")+
   ylab(bquote('Latent heat flux [W' ~m^-2* ']'))+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
   xlab("Hour of Day")+
   theme_bw()
 #save plot
-ggsave(filename = "LE_Flux_diurnal_ median_mad_both_halfhour.pdf",
+ggsave(filename = "LE_Flux_diurnal_median_both_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
 
