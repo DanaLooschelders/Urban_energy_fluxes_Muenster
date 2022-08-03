@@ -72,6 +72,46 @@ ggsave(filename="BowenRatio_diurnal_mean_sd_kiebitz.pdf",
     #overall mean
 mean(dat.beton.flux.meteo$BR_beton, na.rm=T) #3.31
 mean(dat.kiebitz.flux.meteo$BR_kiebitz, na.rm=T) #0.86
+    #Bowen ratio for both
+      #time series
+ggplot(data=dat.kiebitz.flux.meteo)+
+  geom_line(aes(x=TIMESTAMP, y=BR_kiebitz, col="EC02 Beton"))+
+  geom_line(data=dat.beton.flux.meteo, aes(x=TIMESTAMP, y=BR_beton, col="EC04 Kiebitz"))+
+  theme_bw()+
+  geom_hline(aes(yintercept=0),color="red")+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
+  ylab(label="Bowen ratio")+
+  xlab(label="time")+
+  ggtitle(label="Bowen ratio EC04 and EC02", subtitle = "Bo = H/LE")
+
+ggsave(filename="BowenRatio_ts_beton_kiebitz.pdf",
+       device="pdf",width=297, height=210, units = "mm")
+
+ggplot(dat=subset(dat.kiebitz.flux.meteo, !is.na(hour)), 
+       aes(x=as.factor(hour), y=BR_kiebitz))+
+  stat_summary_bin(aes(col="EC02 Kiebitz"), stroke=2.5,
+                   fun = "mean",geom="point", show.legend = F, na.rm = T)+
+  stat_summary(dat=dat.kiebitz.flux.meteo, aes(col="EC02 Kiebitz"), fun.data = "mean_sdl", 
+               geom = "errorbar", fun.args = list(mult = 1), alpha=1, width=0.4,
+               show.legend = F, na.rm=T)+
+  stat_summary_bin(dat=subset(dat.beton.flux.meteo, !is.na(hour)), 
+                   aes(x=as.factor(hour), y=BR_beton, col="EC02 Beton"), stroke=2.5,
+                   fun = "mean",geom="point", show.legend = F, 
+                   na.rm = T)+
+  stat_summary(dat=subset(dat.beton.flux.meteo, !is.na(hour)), 
+               aes(x=as.factor(hour), y=BR_beton, col="EC02 Beton"),  fun.data = "mean_sdl", 
+               geom = "errorbar", fun.args = list(mult = 1), alpha=1, width=0.4,
+               show.legend = F, na.rm=T)+
+  ggtitle(label="Aggregated Bowen Ratio EC04 and EC02", 
+          subtitle = "Mean with errorbars displaying 1 SD" )+
+  theme_bw()+
+  geom_hline(aes(yintercept=0),color="black")+
+  scale_color_manual("Color", values=c("#1f78b4", "#1b9e77"))+
+  xlab("Hour of Day")+
+  ylab("Bowen Ratio")
+
+ggsave(filename="BowenRatio_diurnal_mean_sd_kiebitz_beton.pdf",
+       device="pdf",width=297, height=210, units = "mm")
 
 #calculate ratio between EC02 and EC04
   #sensible EC02/EC04
