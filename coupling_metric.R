@@ -2,6 +2,10 @@
 #install.packages("bigleaf")
 library(bigleaf)
 library(ggplot2)
+library(rgdal)
+library(gdalUtils)
+library(mapview)
+#library(leafem)
 
 #z: height above the ground
 #h canopy height
@@ -99,8 +103,7 @@ range(windprofile_beton, na.rm=T)
 #install.packages("sen2r")
 #install.packages(c("shinyFiles", "shinydashboard", "shinyWidgets"))
 setwd("C:/00_Dana/Uni/Masterarbeit/LAI_Sentinel/S2B_MSIL2A_20210825T103619_N0301_R008_T32UMC_20210825T140331/S2B_MSIL2A_20210825T103619_N0301_R008_T32UMC_20210825T140331.SAFE/GRANULE/L2A_T32UMC_A023343_20210825T103907/IMG_DATA/R10m")
-library(rgdal)
-library(gdalUtils)
+
 #read in files
 in.files<-list.files(pattern=".jp2")
 #convert to tif
@@ -111,8 +114,6 @@ for(i in 1:length(in.files)){
                       overwrite = TRUE)
 }
 
-library(mapview)
-#library(leafem)
 
 #load bands
 B8<-raster("T32UMC_20210825T103619_B08_10m.tif")
@@ -153,6 +154,11 @@ mapview(NDVI_crop)+
 
 #estimate LAI
 #semi-arid grassland in Inner Mongolia 
+LAI_nexp<-0.0897+1.424*NDVI_crop #not exp
+LAI_exp<-0.128*exp(NDVI_crop/0.311) #exp
+mapview(LAI_exp)
+mapview(LAI_nexp)
+
 LAI<-0.0875*exp(4.372*NDVI_crop)
 mapview(LAI)+
   mapview(kiebitz_polys[8], alpha.regions=0, col.region="black", lwd=1)+
