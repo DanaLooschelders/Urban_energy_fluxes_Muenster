@@ -164,6 +164,9 @@ mapview(LAI)+
   mapview(kiebitz_polys[8], alpha.regions=0, col.region="black", lwd=1)+
   mapview(beton_polys[8], alpha.regions=0, col.region="black", lwd=1)
 
+#temperate (Alexandre et al. 2017)
+#0.0037*exp(8.5314*NDVI) 
+
 #calculate LAI for Kiebitz
 LAI_kiebitz<-mask(LAI, kiebitz_polys[8])
 mapview(LAI_kiebitz)
