@@ -5,6 +5,8 @@ library(ggplot2)
 library(rgdal)
 library(gdalUtils)
 library(mapview)
+library(raster)
+library(sp)
 #library(leafem)
 
 #z: height above the ground
@@ -166,12 +168,18 @@ mapview(LAI)+
 
 #temperate (Alexandre et al. 2017)
 #0.0037*exp(8.5314*NDVI) 
+LAI_3<-0.0037*exp(8.5314*NDVI_crop) 
+mapview(LAI_3)+
+  mapview(kiebitz_polys[8], alpha.regions=0, col.region="black", lwd=1)+
+  mapview(beton_polys[8], alpha.regions=0, col.region="black", lwd=1)
 
 #calculate LAI for Kiebitz
 LAI_kiebitz<-mask(LAI, kiebitz_polys[8])
 mapview(LAI_kiebitz)
-round(mean(values(LAI_kiebitz), na.rm=T),2)
+round(mean(values(LAI_kiebitz), na.rm=T),2) #1.9
+round(sd(values(LAI_kiebitz), na.rm=T),2) #0.61
 #calculate LAI for Beton
 LAI_beton<-mask(LAI, beton_polys[8])
 mapview(LAI_beton)
-round(mean(values(LAI_beton), na.rm=T),2)
+round(mean(values(LAI_beton), na.rm=T),2) #0.2
+round(sd(values(LAI_beton), na.rm=T),2) #0.25
