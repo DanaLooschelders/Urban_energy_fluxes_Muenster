@@ -137,6 +137,7 @@ compareCRS(B8, ms)
 #crop to size of MS
 B4_crop<-crop(B4, ms)
 B8_crop<-crop(B8, ms)
+
 #check
 mapview(B4_crop)
 mapview(B8_crop)
@@ -154,12 +155,7 @@ mapview(NDVI_crop)+
   mapview(kiebitz_polys[8], alpha.regions=0, col.region="black", lwd=1)+
   mapview(beton_polys[8], alpha.regions=0, col.region="black", lwd=1)
 
-#estimate LAI
-#semi-arid grassland in Inner Mongolia 
-LAI_nexp<-0.0897+1.424*NDVI_crop #not exp
-LAI_exp<-0.128*exp(NDVI_crop/0.311) #exp
-mapview(LAI_exp)
-mapview(LAI_nexp)
+
 
 LAI<-0.0875*exp(4.372*NDVI_crop)
 mapview(LAI)+
