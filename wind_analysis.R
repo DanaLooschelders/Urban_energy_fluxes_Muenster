@@ -14,7 +14,8 @@ files_list=list.files(pattern ="\\.csv")
 #mean(sqrt((test_file$u^2)+(test_file$v^2))) #scalar
 #sqrt(mean(test_file$u^2)+mean(test_file$v^2)) #vector
 rm(output)
-for(i in files_list){
+i=files_list[5]
+for(i in files_list[1:100]){
   if(!exists("output")){
     j=1
     print(i)
@@ -27,8 +28,8 @@ for(i in files_list){
     output<-data.frame(name = i,											### was alles ausgegeben werden soll, Dateiname
                        timestamp_start = dat$TIMESTAMP[1],									### timestamp start of Interval 
                        timestamp_end=dat$TIMESTAMP[length(dat$TIMESTAMP)], ###timestamp end of interval
-                       vector_windspeed = sqrt(mean(dat$u^2, na.rm=T)+mean(dat$v^2, na.rm=T)),	
-                       scalar_windspeed = mean(sqrt((dat$u^2)+(dat$v^2)), na.rm=T)
+                       vector_windspeed = sqrt(mean(dat$u, na.rm=T)^2+mean(dat$v, na.rm=T)^2),	
+                       scalar_windspeed = timeAverage(mydata=dat, avg.time="30 min", vector.ws = FALSE) #mean(sqrt((dat$u^2)+(dat$v^2)), na.rm=T)
                            )
     }else{}
   } else {
@@ -44,7 +45,7 @@ for(i in files_list){
     output_temp<-data.frame(name = i,											### was alles ausgegeben werden soll, Dateiname
                             timestamp_start = dat$TIMESTAMP[1],									### timestamp start of Interval 
                             timestamp_end=dat$TIMESTAMP[length(dat$TIMESTAMP)], ###timestamp end of interval
-                            vector_windspeed = sqrt(mean(dat$u^2, na.rm=T)+mean(dat$v^2, na.rm=T)),
+                            vector_windspeed = sqrt(mean(dat$u, na.rm=T)^2+mean(dat$v, na.rm=T)^2),
                             scalar_windspeed = mean(sqrt((dat$u^2)+(dat$v^2)), na.rm=T)
                                 )
     output=rbind(output, output_temp)
@@ -53,6 +54,12 @@ for(i in files_list){
   }
 }
 
+output$vector_windspeed
+plot(output$vector_windspeed, type="l")
+lines(output$scalar_windspeed, type="l", col="red")
+#test:
+mean(c(3.47, 2.96,2.27)) #scalar
+sqrt((-0.43^2)+(-2.77^2))
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Data")
 #write.csv(output, file = "wind_beton.csv", row.names = F)
@@ -84,6 +91,8 @@ ggplot(data=wind_beton)+
   ggtitle(label="Vector vs Scalar Windspeed - EC02")
 ggsave(filename="Vector_scalar_ws_EC02.pdf",
        device="pdf",width=297, height=210, units = "mm")
+#The vector average wind speeds are always lower than the scalar average wind speeds because of the behaviour of vectors
+
 #steadiness
 ggplot(data=wind_beton)+
   geom_line(aes(x=TIMESTAMP, y=steadiness))+
