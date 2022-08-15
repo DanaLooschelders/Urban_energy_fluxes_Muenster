@@ -1,5 +1,5 @@
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
-
+library(tidyverse)
 ####BETON####
 #Rain
 #plot latent heat flux with rain
@@ -463,7 +463,13 @@ ggplot(dat=dat.kiebitz.flux.meteo, aes(x=TIMESTAMP, y=LE))+
 ggsave(filename = "LE_soilmoisture_kiebitz_timeseries.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = paste(plot_dir,"Meteorology", sep="/"))
-plot(dat.kiebitz.flux.meteo$VWC_Avg~dat.kiebitz.flux.meteo$LE)
+
+ggplot(data=dat.kiebitz.flux.meteo,aes(x=LE, y=VWC_Avg)) +
+  geom_point() +
+  geom_smooth(method='lm')+
+  theme_bw()
+
+
 
 #Shortwave radiation
 #plot latent heat flux with incoming shortwave radiation

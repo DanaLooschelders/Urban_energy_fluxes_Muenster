@@ -1,4 +1,6 @@
 library(tidyverse)
+library(openair)
+options(digits.secs = 0)
 #wind analysis
 #meandering 
 #calculate scalar and vector wind speed
@@ -10,12 +12,11 @@ setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/03_Rohdaten_konvertiert
 
 #execute once for EC02 and once for EC04!!!!
 files_list=list.files(pattern ="\\.csv")
-
 #mean(sqrt((test_file$u^2)+(test_file$v^2))) #scalar
 #sqrt(mean(test_file$u^2)+mean(test_file$v^2)) #vector
 rm(output)
-i=files_list[5]
-for(i in files_list[1:100]){
+
+for(i in files_list){
   if(!exists("output")){
     j=1
     print(i)
@@ -24,12 +25,17 @@ for(i in files_list[1:100]){
                    col.names = read.table(i, 
                                           skip=1, sep=",", dec=".", nrows = 1))
     if(any(is.numeric(dat$u)&any(is.numeric(dat$v)))){
+      dat$ws<-sqrt(dat$u^2+dat$v^2)
+      dat$wd<-(atan2(dat$u, dat$v) * 360/2/pi) + 180
+      names(dat)[1]<-"date"
+      dat$date<-as.POSIXct(dat$date, format = "%Y-%m-%d %H:%M:%OS") #format date
+      dat<-dat[,c("date", "ws", "wd")] #remove unneccessary columns
     #write in output
-    output<-data.frame(name = i,											### was alles ausgegeben werden soll, Dateiname
-                       timestamp_start = dat$TIMESTAMP[1],									### timestamp start of Interval 
-                       timestamp_end=dat$TIMESTAMP[length(dat$TIMESTAMP)], ###timestamp end of interval
-                       vector_windspeed = sqrt(mean(dat$u, na.rm=T)^2+mean(dat$v, na.rm=T)^2),	
-                       scalar_windspeed = timeAverage(mydata=dat, avg.time="30 min", vector.ws = FALSE) #mean(sqrt((dat$u^2)+(dat$v^2)), na.rm=T)
+    output<-data.frame("name" = i,											### was alles ausgegeben werden soll, Dateiname
+                       "timestamp_start" = dat$date[1],									### timestamp start of Interval 
+                       "timestamp_end"=dat$date[length(dat$date)], ###timestamp end of interval
+                       "vector_windspeed" = timeAverage(mydata=dat, vector.ws = TRUE)$ws,	
+                       "scalar_windspeed" = timeAverage(mydata=dat, vector.ws = FALSE)$ws 
                            )
     }else{}
   } else {
@@ -39,15 +45,19 @@ for(i in files_list[1:100]){
                    na.strings = c("-9999"), stringsAsFactors = FALSE,
                    col.names = read.table(i, 
                                           skip=1, sep=",", dec=".", nrows = 1))
-   
-       #write in output
-      if(any(is.numeric(dat$u)&any(is.numeric(dat$v))&nrow(dat)>=1)){  #error handling
-    output_temp<-data.frame(name = i,											### was alles ausgegeben werden soll, Dateiname
-                            timestamp_start = dat$TIMESTAMP[1],									### timestamp start of Interval 
-                            timestamp_end=dat$TIMESTAMP[length(dat$TIMESTAMP)], ###timestamp end of interval
-                            vector_windspeed = sqrt(mean(dat$u, na.rm=T)^2+mean(dat$v, na.rm=T)^2),
-                            scalar_windspeed = mean(sqrt((dat$u^2)+(dat$v^2)), na.rm=T)
-                                )
+    if(any(is.numeric(dat$u)&any(is.numeric(dat$v)))){
+    dat$ws<-sqrt(dat$u^2+dat$v^2)
+    names(dat)[1]<-"date"
+    dat$wd<-(atan2(dat$u, dat$v) * 360/2/pi) + 180
+    dat$date<-as.POSIXct(dat$date, format = "%Y-%m-%d %H:%M:%OS") #format date
+    dat<-dat[,c("date", "ws", "wd")] #remove unneccessary columns 
+    #write in output
+    output_temp<-data.frame("name" = i,											### was alles ausgegeben werden soll, Dateiname
+                       "timestamp_start" = dat$date[1],									### timestamp start of Interval 
+                       "timestamp_end"=dat$date[length(dat$date)], ###timestamp end of interval
+                       "vector_windspeed" = timeAverage(mydata=dat,vector.ws = TRUE)$ws,	
+                       "scalar_windspeed" = timeAverage(mydata=dat, vector.ws = FALSE)$ws 
+    )
     output=rbind(output, output_temp)
     remove(output_temp)
       }else{}
@@ -57,13 +67,12 @@ for(i in files_list[1:100]){
 output$vector_windspeed
 plot(output$vector_windspeed, type="l")
 lines(output$scalar_windspeed, type="l", col="red")
-#test:
-mean(c(3.47, 2.96,2.27)) #scalar
-sqrt((-0.43^2)+(-2.77^2))
+#wind_kiebitz<-output
+#wind_beton<-output
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Data")
-#write.csv(output, file = "wind_beton.csv", row.names = F)
-write.csv(output, file = "wind_kiebitz.csv", row.names = F)
+write.csv(wind_beton, file = "wind_beton.csv", row.names = F)
+write.csv(wind_kiebitz, file = "wind_kiebitz.csv", row.names = F)
 
 #read csv files
 wind_beton<-read.csv(file="wind_beton.csv")
@@ -72,14 +81,41 @@ wind_kiebitz<-read.csv(file="wind_kiebitz.csv")
 #convert timestamp
 wind_beton$TIMESTAMP<-as.POSIXct(wind_beton$timestamp_start)
 wind_kiebitz$TIMESTAMP<-as.POSIXct(wind_kiebitz$timestamp_start)
+
+#create continious timestamp for beton
+cont_time<- data.frame(TIMESTAMP=seq(as.POSIXct("2021-07-23 00:00:00 MEST", tz="MET"), 
+                                     as.POSIXct("2021-08-23 08:00:00 MEST", tz="MET"), by="30 min"))
+wind_beton <- right_join(wind_beton,cont_time,by.x='TIMESTAMP',by.y='TIMESTAMP')
+#remove rows with duplicated timestamps
+wind_beton <- wind_beton %>%   distinct(TIMESTAMP, .keep_all = TRUE)
+#for kiebitz
+wind_kiebitz <- merge(wind_kiebitz,cont_time,by.x='TIMESTAMP',by.y='TIMESTAMP',all.x=F,all.y=T)
+#remove rows with duplicated timestamps
+wind_kiebitz <- wind_kiebitz %>%   distinct(TIMESTAMP, .keep_all = TRUE)
+
 #wind steadiness: vector wind / scalar wind
 wind_beton$steadiness<-wind_beton$vector_windspeed/wind_beton$scalar_windspeed
+range(wind_beton$steadiness, na.rm=T)
 wind_kiebitz$steadiness<-wind_kiebitz$vector_windspeed/wind_kiebitz$scalar_windspeed
+range(wind_kiebitz$steadiness, na.rm=T)
+#wind persistance 
+#P = 2/pi * sin^-1(k)
+wind_beton$Persistance<-(2/pi)*asin(wind_beton$steadiness)
+range(wind_beton$Persistance, na.rm=T)
+hist(wind_beton$Persistance)
+wind_kiebitz$Persistance<-(2/pi)*asin(wind_kiebitz$steadiness)
+range(wind_kiebitz$Persistance, na.rm=T)
+hist(wind_kiebitz$Persistance)
 
-#create continious timestamp
-cont_time<- data.frame(TIMESTAMP=seq(as.POSIXct(wind_beton$TIMESTAMP[1]), as.POSIXct(wind_beton$TIMESTAMP[nrow(wind_beton)]), by="30 min"))
-wind_beton <- merge(wind_beton,cont_time,by.x='TIMESTAMP',by.y='TIMESTAMP',all.x=T,all.y=T)
-wind_kiebitz <- merge(wind_kiebitz,cont_time,by.x='TIMESTAMP',by.y='TIMESTAMP',all.x=T,all.y=T)
+plot(diff(wind_beton$TIMESTAMP))
+plot(diff(wind_kiebitz$TIMESTAMP))
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Data")
+write.csv(wind_beton, file = "wind_beton_calc.csv", row.names = F)
+write.csv(wind_kiebitz, file = "wind_kiebitz_calc.csv", row.names = F)
+
+
+
 ##### plot 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Ratios")
 #####beton
@@ -102,7 +138,17 @@ ggplot(data=wind_beton)+
 ggsave(filename="wind_steadiness_EC02.pdf",
        device="pdf",width=297, height=210, units = "mm")
 
+#persistance
+ggplot(data=wind_beton)+
+  geom_line(aes(x=TIMESTAMP, y=Persistance))+
+  theme_bw()+
+  geom_abline(aes(intercept=1, slope=0), col="red")+
+  ggtitle(label="Wind persistance EC02", subtitle = "P = 2/pi*sin^-1(k)")
+ggsave(filename="wind_persistance_EC02.pdf",
+       device="pdf",width=297, height=210, units = "mm")
+
 ####kiebitz
+#scalar and vector
 ggplot(data=wind_kiebitz)+
   geom_line(aes(x=TIMESTAMP, y=scalar_windspeed, col="scalar"))+
   geom_line(aes(x=TIMESTAMP, y=vector_windspeed, col="vector"))+
@@ -110,12 +156,21 @@ ggplot(data=wind_kiebitz)+
   ggtitle(label="Vector vs Scalar Windspeed - EC04")
 ggsave(filename="Vector_scalar_ws_EC04.pdf",
        device="pdf",width=297, height=210, units = "mm")
-
+#steadiness
 ggplot(data=wind_kiebitz)+
   geom_line(aes(x=TIMESTAMP, y=steadiness))+
   theme_bw()+
   geom_abline(aes(intercept=1, slope=0), col="red")+
   ggtitle(label="Wind steadiness", subtitle = "Vector windspeed [m/s] /scalar windspeed [m/s]")
 ggsave(filename="wind_steadiness_EC04.pdf",
+       device="pdf",width=297, height=210, units = "mm")
+
+#persistance
+ggplot(data=wind_kiebitz)+
+  geom_line(aes(x=TIMESTAMP, y=Persistance))+
+  theme_bw()+
+  geom_abline(aes(intercept=1, slope=0), col="red")+
+  ggtitle(label="Wind persistance EC04", subtitle = "P = 2/pi*sin^-1(k)")
+ggsave(filename="wind_persistance_EC04.pdf",
        device="pdf",width=297, height=210, units = "mm")
 

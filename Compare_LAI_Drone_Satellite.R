@@ -103,3 +103,6 @@ LAI_Sentinel_2022<-0.128*exp(NDVI_Sentinel_crop_2022/0.311)
 mapview(LAI_Sentinel_2022, layer.name="Sentinel 2022", at=c(seq(0,3, by=0.5)))+
   mapview(kiebitz_polys[8], alpha.regions=0, col.region="black", lwd=1)+
   mapview(beton_polys[8], alpha.regions=0, col.region="black", lwd=1)
+
+mapview(kiebitz_polys)+mapview(beton_polys)
+#surface or wind speed?

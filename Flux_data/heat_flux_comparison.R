@@ -4,6 +4,7 @@ library(ggplot2)
 library(plotly)
 library(Hmisc)
 library(ggpubr)
+
 #source script to load flux data from EC02 and EC04 and slow data
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Flux_data/heat_fluxes_with_meteorology.r")
 
@@ -419,3 +420,5 @@ ggplot(beton, aes(x=as.factor(time), y=LE))+
 ggsave(filename = "LE_Flux_diurnal_median_both_halfhour.pdf",
        device="pdf",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+
+#AUC: TIMESTAMP*30*60
