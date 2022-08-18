@@ -72,11 +72,11 @@ library(rootSolve) #when all derivatives have been
 
 #create grid
 xgrid<-setup.grid.1D(x.up = std[1,1], #position of upper boundary
-              x.down = std[1,5], #position of downward boundary
               L = 5, #length of domain
               N = 5) #Number of grid points (divides L)
+plot(xgrid)
 
-xgrid<-setup.grid.1D(x.up=0, x.down=1, N=N)
+#xgrid<-setup.grid.1D(x.up=0, x.down=1, N=N)
 x<-xgrid$x.mid
 D.coeff<-0.01
 
@@ -84,6 +84,7 @@ tran<-tran.1D(C=std[1,], C.up=std[1,1],
               C.down=std[1,5], dx=xgrid)
 
 ?tran.1D
+
 Diffusion <- function (t, Y, parms){
   tran <- tran.1D(C = Y, C.up = 0, C.down = 1,
                   D = D.coeff, dx = xgrid)
