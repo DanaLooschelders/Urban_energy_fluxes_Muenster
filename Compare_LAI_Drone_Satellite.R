@@ -105,4 +105,47 @@ mapview(LAI_Sentinel_2022, layer.name="Sentinel 2022", at=c(seq(0,3, by=0.5)))+
   mapview(beton_polys[8], alpha.regions=0, col.region="black", lwd=1)
 
 mapview(kiebitz_polys)+mapview(beton_polys)
-#surface or wind speed?
+#surface or wind speed?#
+
+####Planet scope ####
+setwd("D:/Hafen_14092021_psscene_analytic_sr_udm2/files/")
+planetscope_2021<-stack("20210814_094102_69_2450_3B_AnalyticMS_SR_harmonized_clip.tif")
+names(planetscope_2021)
+mapview(planetscope_2021)
+#crop to study area
+crs(planetscope_2021) # +proj=utm +zone=32 +datum=WGS84 +units=m +no_defs
+planetscope_2021_crop<-crop(planetscope_2021, polys_ex)
+mapview(planetscope_2021_crop)
+
+#calculate NDVI Index
+NDVI_planetscope_2021<-(planetscope_2021_crop[[4]]-planetscope_2021_crop[[3]])/(planetscope_2021_crop[[4]]+planetscope_2021_crop[[3]])
+mapview(NDVI_planetscope_2021)
+
+LAI_planetscope_2021<-0.128*exp(NDVI_planetscope_2021/0.311)
+mapview(LAI_planetscope_2021)
+#plot
+mapview(LAI_planetscope_2021, layer.name="Planetscope 2021", at=c(seq(0,3, by=0.5)))+
+  mapview(kiebitz_polys[8], alpha.regions=0, col.region="black", lwd=1)+
+  mapview(beton_polys[8], alpha.regions=0, col.region="black", lwd=1)
+
+#### for 2022
+setwd("D:/Hafen_07082022_psscene_analytic_sr_udm2/files/")
+planetscope_2022<-stack("20220807_092939_50_2449_3B_AnalyticMS_SR_harmonized_clip.tif")
+names(planetscope_2022)
+mapview(planetscope_2022)
+#crop to study area
+crs(planetscope_2022) # +proj=utm +zone=32 +datum=WGS84 +units=m +no_defs
+planetscope_2022_crop<-crop(planetscope_2022, polys_ex)
+mapview(planetscope_2022_crop)
+
+#calculate NDVI Index
+NDVI_planetscope_2022<-(planetscope_2022_crop[[4]]-planetscope_2022_crop[[3]])/(planetscope_2022_crop[[4]]+planetscope_2022_crop[[3]])
+mapview(NDVI_planetscope_2022)
+
+LAI_planetscope_2022<-0.128*exp(NDVI_planetscope_2022/0.311)
+mapview(LAI_planetscope_2022)
+
+#plot
+mapview(LAI_planetscope_2022, layer.name="Planetscope 2022", at=c(seq(0,3, by=0.5)))+
+  mapview(kiebitz_polys[8], alpha.regions=0, col.region="black", lwd=1)+
+  mapview(beton_polys[8], alpha.regions=0, col.region="black", lwd=1)
