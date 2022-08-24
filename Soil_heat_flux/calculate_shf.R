@@ -44,6 +44,7 @@ ggplot() +
 # alpha = k/(p*Cp)
   # alpha = thermal diffusivity
   # k = thermal conductivity
+  # p = density
   # Cp = specific heat capacity
 
 #intial condition: first measured temperature profile

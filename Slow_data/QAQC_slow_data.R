@@ -5,6 +5,7 @@ Sys.setenv(TZ='Etc/GMT') #ewige Winterzeit
 #load libraries
 library(tidyverse)
 library(dplyr)
+library(tidyr)
 #source script to load slow data
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/prep_slow_data_data.R")
 
@@ -88,10 +89,35 @@ dat.meteo.merge$diff_AirP[1:length(dat.meteo.merge$AirP_Avg)-1]<-abs(diff(dat.me
 dat.meteo.merge$AirP_Avg[!is.na(dat.meteo.merge$AirP_Avg)&dat.meteo.merge$diff_AirP>5]<-NA
 #remove diff column
 dat.meteo.merge$diff_AirP<-NULL
+
 ####SHF check if it is between X and X ####
 plot(dat.meteo.merge$shf_Avg.1., type="l")
 lines(dat.meteo.merge$shf_Avg.2., col="red")
 lines(dat.meteo.merge$shf_Avg.3., col="blue")
+
+#Foken (2016): Bodenwärmestrom ca. 50–100 Wm−2
+#plot in three panels
+dat.meteo.merge[,c(1,18:20)] %>% 
+  as.data.frame()%>%
+  gather(key, value, -TIMESTAMP) %>% 
+  ggplot(aes(x=TIMESTAMP, y=value)) +
+  geom_line()+
+  theme_bw()+
+  xlab(label="Time")+
+  ylab(label="Soil Heat Flux [W m^2]")+
+  facet_wrap(~ key, nrow = 3) 
+
+dat.meteo.merge[,c(1,18:20)] %>% 
+  as.data.frame()%>%
+  gather(key, value, -TIMESTAMP) %>% 
+  ggplot(aes(x=TIMESTAMP, y=value, color=key)) +
+  geom_line()+
+  xlab(label="Time")+
+  theme_bw()+
+  ylab(label="Soil Heat Flux [W m^2]")
+
+plot(dat.rain.merge$TIMESTAMP, dat.rain.merge$Rain_mm_Tot)
+plot(dat.meteo.merge$TIMESTAMP, dat.meteo.merge$SDn_Avg_beton, type="l")
 
 #####Rain - check for negative values ####
 plot(dat.rain.merge$Rain_mm_Tot, type="l")
