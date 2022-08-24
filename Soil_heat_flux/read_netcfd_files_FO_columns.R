@@ -10,33 +10,146 @@ library(tidyr)
 ####grass column####
 setwd("Z:/klima/Projekte/2021_CalmCity/2_Daten/11_FODS_Columns/FO-column-grass/FO-column-grass/final")
 files<-list.files(pattern="nc")
-i=1
 #create output list
 FO_grass_list<-vector(mode='list', length=length(files))
 names(FO_grass_list)<-files
   for (i in 1:length(files)){
+    print(i)
       #check if file exists
       if(file.exists(files[i])==TRUE && !is.null(files[i])){
         #check if file is empty (if empty, skip)
         info=file.info(files[i])
         if(info$size!=0){
           #open file
-          i=1
           nc_tmp = nc_open(paste0(files[i]))
           #read out parameters and write into list
-          cal_temp <- list(data.frame(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[1])))
-          LAF = list(as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[2])))
-          unheated_PVC = list(as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[3])))
-          x_dim = list(as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[4])))
-          y_dim = list(as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[5])))
-          z_dim = list(as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[6])))
+          names<-attributes(nc_tmp$var)$names
+          cal_temp <- data.frame(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[1]))
+          LAF = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[2]))
+          unheated_PVC = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[3]))
+          x_dim = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[4]))
+          y_dim = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[5]))
+          z_dim = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[6]))
           #close file
           nc_close(nc_tmp)
           #create nested list
-          FO_grass_list[i]<-list(cal_temp, LAF, unheated_PVC, x_dim, y_dim, z_dim)
-          
+          temp_list<-list(cal_temp, LAF, unheated_PVC, x_dim, y_dim, z_dim)
+          FO_grass_list[[i]]<-temp_list
+          names(FO_grass_list[[i]])<-names
         }else{}
       }else{}
   }
 ####concrete column####
 setwd("Z:/klima/Projekte/2021_CalmCity/2_Daten/11_FODS_Columns/FO-column-concrete/FO-column-concrete/final")
+
+files<-list.files(pattern="nc")
+#create output list
+FO_concrete_list<-vector(mode='list', length=length(files))
+names(FO_concrete_list)<-files
+for (i in 1:length(files)){
+  print(i)
+  #check if file exists
+  if(file.exists(files[i])==TRUE && !is.null(files[i])){
+    #check if file is empty (if empty, skip)
+    info=file.info(files[i])
+    if(info$size!=0){
+      #open file
+      nc_tmp = nc_open(paste0(files[i]))
+      #read out parameters and write into list
+      names<-attributes(nc_tmp$var)$names
+      cal_temp <- data.frame(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[1]))
+      LAF = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[2]))
+      unheated_PVC = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[3]))
+      x_dim = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[4]))
+      y_dim = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[5]))
+      z_dim = as.vector(ncvar_get(nc_tmp, attributes(nc_tmp$var)$names[6]))
+      #close file
+      nc_close(nc_tmp)
+      #create nested list
+      temp_list<-list(cal_temp, LAF, unheated_PVC, x_dim, y_dim, z_dim)
+      FO_concrete_list[[i]]<-temp_list
+      names(FO_concrete_list[[i]])<-names
+    }else{}
+  }else{}
+}
+
+####data exploration####
+#access metadata for grass
+setwd("Z:/klima/Projekte/2021_CalmCity/2_Daten/11_FODS_Columns/FO-column-grass/FO-column-grass/final")
+files<-list.files(pattern="nc")
+file<-nc_open(filename=files[2])
+print(file)
+nc_close(filename=files[2])
+#access metadata for concrete
+
+head(FO_concrete_list[[2]]$LAF)
+
+table(FO_concrete_list[[2]]$unheated_PVC)
+length(FO_concrete_list[[2]]$unheated_PVC)
+
+head(FO_concrete_list[[2]]$cal_temp)
+dim(FO_concrete_list[[2]]$cal_temp)
+
+#time var:  time  Size:149 units: seconds since 2021-07-29 15:00:24
+#dt: 24s (-> 60*60/24 = 150)
+#dLAF: 0.254
+#unheated_PVC: wrap_1cm;wrap_2cm;wrap_5cm;wrap_8cm
+#length(FO_concrete_list[[1]]$LAF)
+#60*60/24
+#x y z
+head(FO_concrete_list[[1]]$x)
+tail(FO_concrete_list[[1]]$x)
+
+head(FO_concrete_list[[1]]$y)
+tail(FO_concrete_list[[1]]$y)
+
+head(FO_concrete_list[[1]]$z)
+tail(FO_concrete_list[[1]]$z)
+length(FO_concrete_list[[1]]$z)
+
+plot(FO_concrete_list[[1]]$unheated_PVC)
+
+#test plot concrete
+dat<-data.frame(t(FO_concrete_list[[3]]$cal_temp))
+colnames(dat)<-FO_concrete_list[[3]]$z
+dat$time<-seq(from=1, 60*60, by=24)
+
+dat_long<-gather(data = dat, key, value, -time)
+dat_long$key<-as.numeric(dat_long$key)
+ggplot(dat_long, aes(time, key)) +
+  geom_tile(aes(fill=value)) +
+  scale_fill_viridis_c()+
+  theme_bw()
+
+#test plot grass
+dat<-data.frame(t(FO_grass_list[[3]]$cal_temp))
+
+colnames(dat)<-FO_grass_list[[3]]$z
+dat$time<-seq(from=1, 60*60, by=24)
+
+dat_long<-gather(data = dat, key, value, -time)
+dat_long$key<-as.numeric(dat_long$key)
+ggplot(dat_long, aes(time, key)) +
+  geom_tile(aes(fill=value)) +
+  scale_fill_viridis_c()+
+  theme_bw()
+
+####aggregate and subset data####
+#grass
+#output data frame
+df_grass <- data.frame(matrix(ncol = dim(FO_grass_list[[300]]$cal_temp)[1] , #column for every space var
+                        nrow = length(FO_grass_list)))  #row for aggregated time vars
+colnames(df_grass)<-FO_grass_list[[300]]$z
+df_grass$file<-names(FO_grass_list) #file identifier for time
+options(warn=1)
+#aggregate to one hour 
+for(i in names(FO_grass_list)){ #loop through files
+  print(i)
+  if(dim(FO_grass_list[[i]]$cal_temp)[2]>=135){ #check if recording is continious, otherwise skip (no more than 10% missing)
+  df_grass[df_grass$file==i,1:dim(FO_grass_list[[i]]$cal_temp)[1]]<-rowMeans(FO_grass_list[[i]]$cal_temp, na.rm = T)
+  }else{} #skip
+}
+
+#subset to column height of 1m
+which(colnames(df_grass)=="0.998")
+df_grass<-df_grass[,1:199]
