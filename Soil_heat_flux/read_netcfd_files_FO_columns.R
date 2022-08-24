@@ -152,4 +152,30 @@ for(i in names(FO_grass_list)){ #loop through files
 
 #subset to column height of 1m
 which(colnames(df_grass)=="0.998")
-df_grass<-df_grass[,1:199]
+df_grass<-df_grass[,c(1:199,378)] 
+#get nchars for subset
+df_grass$file[1]
+nchar("FO-column-grass_final_") #22
+nchar("FO-column-grass_final_20210729-1400") #35
+#rename file to just time
+df_grass$file<-substr(df_grass$file, start=23, stop = 35)
+#convert time to POSIXct
+df_grass$time<-strptime(df_grass$file, format="%Y%m%d-%H%M")
+df_grass$time<-as.POSIXct(df_grass$time)
+#check how many NA rows there are
+any(is.na(rowSums(df_grass[,1:199])))
+which(is.na(rowSums(df_grass[,1:199]))) #only first
+df_grass<-df_grass[-1,]#drop first row
+#reshape into long format for plotting
+df_grass_long<-gather(data = df_grass, key, value, -time)
+#transform class of vars to numeric
+df_grass_long$key<-as.numeric(df_grass_long$key)
+df_grass_long$value<-as.numeric(df_grass_long$value)
+#plot as heatmap
+ggplot(df_grass_long, aes(time, key)) +
+  geom_tile(aes(fill=value)) +
+  scale_fill_viridis_c()+
+  scale_y_discrete("Height [m]" )+
+  theme_bw()
+
+?geom_tile
