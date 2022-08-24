@@ -171,11 +171,13 @@ df_grass_long<-gather(data = df_grass, key, value, -time)
 #transform class of vars to numeric
 df_grass_long$key<-as.numeric(df_grass_long$key)
 df_grass_long$value<-as.numeric(df_grass_long$value)
+#get mean difference in height
+mean(diff(unique(df_grass_long$key)), na.rm=T)#0.005040404
 #plot as heatmap
 ggplot(df_grass_long, aes(time, key)) +
-  geom_tile(aes(fill=value)) +
-  scale_fill_viridis_c()+
-  scale_y_discrete("Height [m]" )+
+  geom_tile(aes(fill=value), height=0.005) +
+  scale_fill_viridis_c("Temperature [°C]")+
+  ylab(label="Height [m]")+
   theme_bw()
-
-?geom_tile
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggsave(filename="FO_Column_grass.png")
