@@ -141,7 +141,7 @@ df_grass <- data.frame(matrix(ncol = dim(FO_grass_list[[300]]$cal_temp)[1] , #co
                         nrow = length(FO_grass_list)))  #row for aggregated time vars
 colnames(df_grass)<-FO_grass_list[[300]]$z
 df_grass$file<-names(FO_grass_list) #file identifier for time
-options(warn=1)
+
 #aggregate to one hour 
 for(i in names(FO_grass_list)){ #loop through files
   print(i)
@@ -175,9 +175,60 @@ df_grass_long$value<-as.numeric(df_grass_long$value)
 mean(diff(unique(df_grass_long$key)), na.rm=T)#0.005040404
 #plot as heatmap
 ggplot(df_grass_long, aes(time, key)) +
-  geom_tile(aes(fill=value), height=0.005) +
+  geom_tile(aes(fill=value), height=0.005) + #
   scale_fill_viridis_c("Temperature [°C]")+
   ylab(label="Height [m]")+
-  theme_bw()
+  theme_bw()+
+  ggtitle(label="FO Column Grass")
+
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
 ggsave(filename="FO_Column_grass.png")
+
+#####concrete
+#output data frame
+df_concrete <- data.frame(matrix(ncol = dim(FO_concrete_list[[300]]$cal_temp)[1] , #column for every space var
+                              nrow = length(FO_concrete_list)))  #row for aggregated time vars
+colnames(df_concrete)<-FO_concrete_list[[300]]$z
+df_concrete$file<-names(FO_concrete_list) #file identifier for time
+
+#aggregate to one hour 
+for(i in names(FO_concrete_list)){ #loop through files
+  print(i)
+  if(dim(FO_concrete_list[[i]]$cal_temp)[2]>=135){ #check if recording is continious, otherwise skip (no more than 10% missing)
+    df_concrete[df_concrete$file==i,1:dim(FO_concrete_list[[i]]$cal_temp)[1]]<-rowMeans(FO_concrete_list[[i]]$cal_temp, na.rm = T)
+  }else{} #skip
+}
+
+#subset to column height of 1m
+which(colnames(df_concrete)=="0.995")
+df_concrete<-df_concrete[,c(1:195,377)] 
+#get nchars for subset
+df_concrete$file[1]
+nchar("FO-column-concrete_final_") #25
+nchar("FO-column-concrete_final_20210729-1400") #38
+#rename file to just time
+df_concrete$file<-substr(df_concrete$file, start=26, stop = 38)
+#convert time to POSIXct
+df_concrete$time<-strptime(df_concrete$file, format="%Y%m%d-%H%M")
+df_concrete$time<-as.POSIXct(df_concrete$time)
+#check how many NA rows there are
+any(is.na(rowSums(df_concrete[,1:195])))
+which(is.na(rowSums(df_concrete[,1:195]))) #only first
+df_concrete<-df_concrete[-c(1,594),]#drop first and last row
+#reshape into long format for plotting
+df_concrete_long<-gather(data = df_concrete, key, value, -time)
+#transform class of vars to numeric
+df_concrete_long$key<-as.numeric(df_concrete_long$key)
+df_concrete_long$value<-as.numeric(df_concrete_long$value)
+#get mean difference in height
+mean(diff(unique(df_concrete_long$key)), na.rm=T)#0.005128866
+#plot as heatmap
+ggplot(df_concrete_long, aes(time, key)) +
+  geom_tile(aes(fill=value)) +
+  scale_fill_viridis_c("Temperature [°C]")+
+  ylab(label="Height [m]")+
+  theme_bw()+
+  ggtitle(label="FO Column Concrete")
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggsave(filename="FO_Column_concrete.png")
