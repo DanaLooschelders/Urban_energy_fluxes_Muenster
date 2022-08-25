@@ -6,6 +6,7 @@ library(data.table)
 library(lubridate)
 library(ggplot2)
 library(tidyr)
+library(SiZer)
 
 ####grass column####
 setwd("Z:/klima/Projekte/2021_CalmCity/2_Daten/11_FODS_Columns/FO-column-grass/FO-column-grass/final")
@@ -227,8 +228,146 @@ ggplot(df_concrete_long, aes(time, key)) +
   geom_tile(aes(fill=value)) +
   scale_fill_viridis_c("Temperature [°C]")+
   ylab(label="Height [m]")+
-  theme_bw()+
+  theme_bw()
   ggtitle(label="FO Column Concrete")
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
 ggsave(filename="FO_Column_concrete.png")
+
+####find breaking point between soil and atmosphere####
+####grass
+df_grass_t<-data.frame(t(df_grass)) #transpose
+df_grass_t<-df_grass_t[-c(200:201),] #remove date rows
+df_grass_t$height<-rownames(df_grass_t)
+
+ymin<-as.numeric(min(unlist(df_grass_t[,1:198])))
+ymax<-as.numeric(max(unlist(df_grass_t[,1:198])))
+
+#visualize
+plot(as.numeric(df_grass_t$height), as.numeric(df_grass_t$X2),
+     type="l", ylim=c(ymin-1, ymax+5), xlab="Height [m]",
+     ylab="Temperature [°C]")
+
+for(i in 3:ncol(df_grass_t)-1){
+  lines(df_grass_t$height, df_grass_t[,i])
+}
+#create output vector
+changepoint_grass<-as.vector(rep(NA, ncol(df_grass_t)-1))
+#find changing point for every function
+for(i in 2:ncol(df_grass_t)-1){
+print(i)
+  temp_res<-piecewise.linear(x = as.numeric(df_grass_t$height),
+                 y =  as.numeric(df_grass_t[,i]), 
+                 middle = 1)
+changepoint_grass[i]<-temp_res[[1]]
+rm(temp_res)
+}
+#plot
+plot(changepoint_grass, type="l")
+threshold_grass<-mean(changepoint_grass) #0.5361664 
+#take mean change point as air/soil threshold --> tbd
+
+#plot as heatmap with threshold
+ggplot(df_grass_long, aes(time, key)) +
+  geom_tile(aes(fill=value), height=0.005) + #
+  scale_fill_viridis_c("Temperature [°C]")+
+  ylab(label="Height [m]")+
+  theme_bw()+
+  geom_hline(aes(yintercept=threshold_grass, col="Boundary"))+
+  scale_color_manual(values = c("black"))+
+  ggtitle(label="FO Column Grass")
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggsave(filename="FO_Column_grass_threshold.png")
+
+#subset dataframe to only soil values
+df_grass_soil<-df_grass_t[df_grass_t$height<=threshold_grass,]
+####concrete  
+df_concrete_t<-data.frame(t(df_concrete)) #transpose
+df_concrete_t<-df_concrete_t[-c(196:197),] #remove date rows
+df_concrete_t$height<-rownames(df_concrete_t)
+
+ymin<-as.numeric(min(unlist(df_concrete_t[,1:198])))
+ymax<-as.numeric(max(unlist(df_concrete_t[,1:198])))
+
+#visualize
+plot(as.numeric(df_concrete_t$height), as.numeric(df_concrete_t$X2),
+     type="l", ylim=c(ymin-1, ymax+1), xlab="Height [m]",
+     ylab="Temperature [°C]")
+
+for(i in 3:ncol(df_concrete_t)-1){
+  lines(df_concrete_t$height, df_concrete_t[,i])
+}
+
+#create output vector
+changepoint_concrete<-as.vector(rep(NA, ncol(df_concrete_t)-1))
+#find changing point for every function
+for(i in 2:ncol(df_concrete_t)-1){
+  print(i)
+  temp_res<-piecewise.linear(x = as.numeric(df_concrete_t$height),
+                             y =  as.numeric(df_concrete_t[,i]), 
+                             middle = 1)
+  changepoint_concrete[i]<-temp_res[[1]]
+  rm(temp_res)
+}
+#plot
+plot(changepoint_concrete, type="l")
+threshold_concrete<-mean(changepoint_concrete) #0.5336696
+#take mean change point as air/soil threshold --> tbd
+
+#plot as heatmap
+ggplot(df_concrete_long, aes(time, key)) +
+  geom_tile(aes(fill=value)) +
+  scale_fill_viridis_c("Temperature [°C]")+
+  ylab(label="Height [m]")+
+  geom_hline(aes(yintercept=threshold_concrete, col="Boundary"))+
+  scale_color_manual(values = c("black"))+
+  theme_bw()+
+  ggtitle(label="FO Column Concrete")
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggsave(filename="FO_Column_concrete_with_Threshold.png")
+
+#subset dataframe to only soil values
+df_concrete_soil<-df_concrete_t[df_concrete_t$height<=threshold_concrete,]
+
+####Thermal diffusivity####
+####for concrete
+z = as.vector(df_grass_soil$height)
+T = as.vector(df_grass_soil$X2) #??????????
+time = dg["time"].to_numpy()  #??????????
+
+#create the gradiants 
+dT = diff(as.numeric(df_grass_soil$X2)) #Temperature
+dz = diff(as.numeric(df_grass_soil$height)) #height
+
+#Python code
+#T(t) as vector with all temperature for definite time
+#z(t) as vector with all height for definite time
+
+#e = {}
+#steigungen = []
+
+#for t in d: #loop through times
+ # Tt, zt = d[t]
+#Tt = Tt[4:]
+#zt = zt[4:]
+# Nehme 0.075m als Schneehöhe an.
+#idx = find_nearest(zt, 0.075)
+# z Werte für Fit
+#fit_z = zt[idx-2:idx+3]
+#fit_T = Tt[idx-2:idx+3]
+# dT/dz = m * z + b
+# Primitive of dT/dz
+# => T = m/2 * z**2 + b*z + c = a * z**2 + b * z + c
+# => Fitte Polynom zweiter Ordnung an T(z)
+# dann ist d²T/dz² = 2*a
+#a, b, c = np.polyfit(fit_z, fit_T, 2)
+sec_poly<-poly(dT, dz, degree = 2)
+plot(sec_poly)
+m=2*sec_poly
+plot(m)
+#m = 2*a
+#e[t] = m
+#steigungen.append(m)
+
