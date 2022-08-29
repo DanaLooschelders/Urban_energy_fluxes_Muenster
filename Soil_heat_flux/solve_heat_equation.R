@@ -4,7 +4,7 @@ source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/read_netcfd
 library(cmna)
 library(plyr)
 ####Grass####
-i=1
+
 #use not aggregated data
 FO_grass_temp_time<-vector(mode='list', length=length(files))
 for(i in 1:length(FO_grass_only_temp)){
@@ -58,6 +58,7 @@ for(i in 1:length(FO_concrete_only_temp)){
 FO_concrete_temp_time_df<-rbind.fill(FO_concrete_temp_time)
 #order columns
 FO_concrete_temp_time_df_order<-FO_concrete_temp_time_df[ ,order(colnames(FO_concrete_temp_time_df))]
+threshold_concrete<-0.5336696
 #get index of columns over threshold
 cols<-which(as.numeric(colnames(FO_concrete_temp_time_df_order[, -length(FO_concrete_temp_time_df_order)]))>=threshold_concrete)
 #remove those columns
@@ -69,6 +70,10 @@ heights_concrete<-diff(as.numeric(colnames(FO_concrete_df[-length(FO_concrete_df
 difftime_conrete<-as.vector(diff.POSIXt(FO_concrete_df$time))
 #remove column with time
 FO_concrete_df<-FO_concrete_df[,-length(FO_concrete_df)]
+
+#clear up environment
+rm(FO_concrete_temp_time, FO_concrete_list, FO_concrete_only_temp)
+rm(FO_concrete_temp_time_df_order, FO_grass_temp_time_df_short)
 
 #####heat function####
     #u = initial values of u
@@ -121,7 +126,7 @@ rownames(FO_concrete_df_pred)<-rownames(FO_concrete_df_t)
 #run heat function for every time step
 for(i in 1:ncol(FO_concrete_df_t)){
   print(i)
-pred_temp<-heat(u=FO_concrete_df_t[,1], alpha=0.5*10^-6, 
+pred_temp<-heat(u=FO_concrete_df_t[,i], alpha=0.5*10^-6, 
      xdelta=0.005089005, tdelta=difftime_conrete[i], n=2)
 FO_concrete_df_pred[,i+1]<-pred_temp[2,]
 }
@@ -139,13 +144,13 @@ FO_concrete_df_pred_long$key<-as.numeric(FO_concrete_df_pred_long$key)
 FO_concrete_df_pred_long$value<-as.numeric(FO_concrete_df_pred_long$value)
 
 #plot as heatmap
-ggplot(FO_concrete_df_pred_long[1:5000,], aes(time, key)) +
+ggplot(FO_concrete_df_pred_long, aes(time, key)) +
   geom_tile(aes(fill=value)) +
   scale_fill_viridis_c("Temperature [°C]")+
   ylab(label="Height [m]")+
-  geom_hline(aes(yintercept=threshold_concrete, col="Boundary"))+
+  #geom_hline(aes(yintercept=threshold_concrete, col="Boundary"))+
   scale_color_manual(values = c("black"))+
   theme_bw()+
-  ggtitle(label="FO Column Concrete")
+  ggtitle(label="FO Column Concrete Prediction")
 
 #prüfen hinreichend/notwenig --> bei Tiefpunktberechnung rms für alpha
