@@ -112,24 +112,40 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
   return ( uarray )
 }
 #transpose dataframe
-FO_concrete_df_t<-t(FO_concrete_df)
+FO_concrete_df_t<-as.data.frame(t(FO_concrete_df))
 #create output dataframe
-FO_concrete_df_pred<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df), 
-                                                nrow = nrow(FO_concrete_df))), 
-                              colnames(FO_concrete_df))
-
+FO_concrete_df_pred<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_t), 
+                                                nrow = nrow(FO_concrete_df_t))), 
+                              colnames(FO_concrete_df_t))
+rownames(FO_concrete_df_pred)<-rownames(FO_concrete_df_t)
 #run heat function for every time step
-for(i in 1:nrow(FO_concrete_df)){
-pred_temp<-heat(u=as.vector(FO_concrete_df[1,]), alpha=0.5*10^-6, 
+for(i in 1:ncol(FO_concrete_df_t)){
+  print(i)
+pred_temp<-heat(u=FO_concrete_df_t[,1], alpha=0.5*10^-6, 
      xdelta=0.005089005, tdelta=difftime_conrete[i], n=2)
-FO_concrete_df_pred[i+1,]<-pred_temp
+FO_concrete_df_pred[,i+1]<-pred_temp[2,]
 }
 
-test<-as.data.frame(test)
-test[1,]==df_grass_soil[,1]
+#reshape into long format for plotting
+FO_concrete_df_pred_t<-data.frame(t(FO_concrete_df_pred))
+colnames(FO_concrete_df_pred_t)<-colnames(FO_concrete_df) #set proper colnames
+FO_concrete_df_pred_t<-FO_concrete_df_pred_t[-c(dim(FO_concrete_df_pred_t)[1]),] #drop last empty row
+FO_concrete_df_pred_t$time<-FO_concrete_temp_time_df_short$time #add time as var
+FO_concrete_df_pred_t$time<-as.POSIXct(FO_concrete_df_pred_t$time) #reformat time
+FO_concrete_df_pred_long<-gather(data = FO_concrete_df_pred_t, key, value, -time) #get into long format
 
-15+17-(2*16)
-13+17-(2*16)
-15+18-(2*16)
+#transform class of vars to numeric
+FO_concrete_df_pred_long$key<-as.numeric(FO_concrete_df_pred_long$key)
+FO_concrete_df_pred_long$value<-as.numeric(FO_concrete_df_pred_long$value)
 
-#hinreichend/notwenig --> bei Tiefpunktberechnung
+#plot as heatmap
+ggplot(FO_concrete_df_pred_long[1:5000,], aes(time, key)) +
+  geom_tile(aes(fill=value)) +
+  scale_fill_viridis_c("Temperature [°C]")+
+  ylab(label="Height [m]")+
+  geom_hline(aes(yintercept=threshold_concrete, col="Boundary"))+
+  scale_color_manual(values = c("black"))+
+  theme_bw()+
+  ggtitle(label="FO Column Concrete")
+
+#prüfen hinreichend/notwenig --> bei Tiefpunktberechnung rms für alpha
