@@ -67,7 +67,7 @@ FO_concrete_temp_time_df_short<-FO_concrete_temp_time_df_order[,-cols]
 FO_concrete_df<-FO_concrete_temp_time_df_short
 #get spatial difference of measurements
 heights_concrete<-diff(as.numeric(colnames(FO_concrete_df[-length(FO_concrete_df)])))
-difftime_conrete<-as.vector(diff.POSIXt(FO_concrete_df$time))
+
 #remove column with time
 FO_concrete_df<-FO_concrete_df[,-length(FO_concrete_df)]
 
@@ -122,25 +122,56 @@ FO_concrete_df_t<-as.data.frame(t(FO_concrete_df))
 #2/3 test and 1/3 Validation
 #subset test
 FO_concrete_df_test<-FO_concrete_df_t[,1:round(length(FO_concrete_df_t)/3*2, 0)]
-#choose only 2 one hour periods from test dataframe to reduce computational cost
-#one from 9 to 10 o'clock
-FO_concrete_df_test_subset<-
+#choose only 2 one hour periods from test data.frame to reduce computational cost
+60*60/24 #150 Files sind eine h
+#subset hour 1
+FO_concrete_df_test_subset_1<-FO_concrete_df_test[,2000:2150]
+range(FO_concrete_temp_time_df$time[2000:2150]) #timespan subset 1
+#get time differences for subset 1
+difftime_conrete_1<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time[2000:2150]))
+#subset hour 2
+FO_concrete_df_test_subset_2<-FO_concrete_df_test[,3500:3650]
+range(FO_concrete_temp_time_df$time[3500:3650]) #timespan subset 2
+
 #subset validation
 FO_concrete_df_validation<-FO_concrete_df_t[,1:round(length(FO_concrete_df_t)/3, 0)]
-#create output dataframe
-FO_concrete_df_pred<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_t), 
-                                                nrow = nrow(FO_concrete_df_t))), 
-                              colnames(FO_concrete_df_t))
-rownames(FO_concrete_df_pred)<-rownames(FO_concrete_df_t)
 
 #run heat function for every time step
-for(i in 1:ncol(FO_concrete_df_test)){
-  print(i)
-pred_temp<-heat(u=FO_concrete_df_t[,i], alpha=0.5*10^-6, 
-     xdelta=0.005089005, tdelta=difftime_conrete[i], n=2)
-FO_concrete_df_pred[,i+1]<-pred_temp[2,]
+#Effects-of-aggregate-types-on-thermal-properties-of-concrete (2012)
+alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
+#create output dataframe for alpha and RMSEs
+alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+#create vector of measured data for RMSE calculation
+FO_concrete_df_test_subset_1_measured<-FO_concrete_df_test_subset_1
+FO_concrete_df_test_subset_1_measured<-FO_concrete_df_test_subset_1_measured[-1,] #remove first row (invalid)
+FO_concrete_df_test_subset_1_measured<-FO_concrete_df_test_subset_1_measured[,-1]  #remove first column (cant be predicted)
+data_measured<-as.vector(t(FO_concrete_df_test_subset_1_measured))
+
+for(x in 1:length(alpha.range)){
+  print(x)
+  #create output dataframe for subset 1
+  FO_concrete_df_pred_1<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_test_subset_1), 
+                                                    nrow = nrow(FO_concrete_df_test_subset_1))), 
+                                  colnames(FO_concrete_df_test_subset_1))
+  rownames(FO_concrete_df_pred_1)<-rownames(FO_concrete_df_test_subset_1)
+for(i in 1:ncol(FO_concrete_df_test_subset_1)){
+  #print(i)
+pred_temp<-heat(u=FO_concrete_df_test_subset_1[,i], alpha=alpha.range[x], 
+     xdelta=0.005089005, tdelta=difftime_conrete_1[i], n=2)
+FO_concrete_df_pred_1[,i+1]<-pred_temp[2,]
+}
+  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[-1,] #remove first row (invalid)
+  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[,-1] #remove first column (cannot be predicted)
+  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[,-dim(FO_concrete_df_pred_1)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_concrete_df_pred_1))
+  alpha_rmse_1$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+ 
 }
 
+plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #2.4e-07
+min(alpha_rmse_1$RMSE) #0.07550493
+#
 #reshape into long format for plotting
 FO_concrete_df_pred_t<-data.frame(t(FO_concrete_df_pred))
 colnames(FO_concrete_df_pred_t)<-colnames(FO_concrete_df) #set proper colnames
