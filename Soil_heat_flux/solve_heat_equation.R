@@ -58,7 +58,7 @@ for(i in 1:length(FO_concrete_only_temp)){
 FO_concrete_temp_time_df<-rbind.fill(FO_concrete_temp_time)
 #order columns
 FO_concrete_temp_time_df_order<-FO_concrete_temp_time_df[ ,order(colnames(FO_concrete_temp_time_df))]
-threshold_concrete<-0.5336696
+threshold_concrete #0.6846209 (median value)
 #get index of columns over threshold
 cols<-which(as.numeric(colnames(FO_concrete_temp_time_df_order[, -length(FO_concrete_temp_time_df_order)]))>=threshold_concrete)
 #remove those columns
@@ -118,13 +118,23 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
 }
 #transpose dataframe
 FO_concrete_df_t<-as.data.frame(t(FO_concrete_df))
+#split data in test and validation data
+#2/3 test and 1/3 Validation
+#subset test
+FO_concrete_df_test<-FO_concrete_df_t[,1:round(length(FO_concrete_df_t)/3*2, 0)]
+#choose only 2 one hour periods from test dataframe to reduce computational cost
+#one from 9 to 10 o'clock
+FO_concrete_df_test_subset<-
+#subset validation
+FO_concrete_df_validation<-FO_concrete_df_t[,1:round(length(FO_concrete_df_t)/3, 0)]
 #create output dataframe
 FO_concrete_df_pred<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_t), 
                                                 nrow = nrow(FO_concrete_df_t))), 
                               colnames(FO_concrete_df_t))
 rownames(FO_concrete_df_pred)<-rownames(FO_concrete_df_t)
+
 #run heat function for every time step
-for(i in 1:ncol(FO_concrete_df_t)){
+for(i in 1:ncol(FO_concrete_df_test)){
   print(i)
 pred_temp<-heat(u=FO_concrete_df_t[,i], alpha=0.5*10^-6, 
      xdelta=0.005089005, tdelta=difftime_conrete[i], n=2)

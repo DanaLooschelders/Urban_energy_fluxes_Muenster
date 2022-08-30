@@ -271,7 +271,7 @@ for(i in 2:ncol(df_concrete_t)-1){
 }
 #plot
 plot(df_concrete$time,changepoint_concrete, type="l")
-threshold_concrete<-mean(changepoint_concrete) #0.5336696
+#threshold_concrete<-mean(changepoint_concrete) #0.5336696
 #take mean change point as air/soil threshold --> tbd
 changepoint_concrete_df<-data.frame("time"=df_concrete$time, 
                                        "changepoint"=changepoint_concrete)
@@ -279,7 +279,8 @@ changepoint_concrete_df$hour<-hour(changepoint_concrete_df$time)
 
 changepoint_concrete_subset<-changepoint_concrete_df[changepoint_concrete_df$hour>=0&changepoint_concrete_df$hour<=5,]
 mean(changepoint_concrete_subset$changepoint) #0.6588681
-median(changepoint_concrete_subset$changepoint) #0.6846209
+threshold_concrete<-median(changepoint_concrete_subset$changepoint) #0.6846209
+
 #plot as heatmap
 ggplot(df_concrete_long, aes(time, key)) +
   geom_tile(aes(fill=value)) +
