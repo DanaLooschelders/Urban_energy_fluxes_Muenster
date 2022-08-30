@@ -146,7 +146,7 @@ FO_concrete_df_test_subset_1_measured<-FO_concrete_df_test_subset_1
 FO_concrete_df_test_subset_1_measured<-FO_concrete_df_test_subset_1_measured[-1,] #remove first row (invalid)
 FO_concrete_df_test_subset_1_measured<-FO_concrete_df_test_subset_1_measured[,-1]  #remove first column (cant be predicted)
 data_measured<-as.vector(t(FO_concrete_df_test_subset_1_measured))
-
+#run loop for broad range of alphas
 for(x in 1:length(alpha.range)){
   print(x)
   #create output dataframe for subset 1
@@ -171,7 +171,41 @@ FO_concrete_df_pred_1[,i+1]<-pred_temp[2,]
 plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
 alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #2.4e-07
 min(alpha_rmse_1$RMSE) #0.07550493
-#
+
+#optimal alpha was 2.4e-7
+alpha.range<-seq(2*10^-7, 3*10^-7, by=0.01*10^-7)
+#create output dataframe for alpha and RMSEs
+alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+#run loop with narrow range of alpha
+for(x in 1:length(alpha.range)){
+  print(x)
+  #create output dataframe for subset 1
+  FO_concrete_df_pred_1<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_test_subset_1), 
+                                                    nrow = nrow(FO_concrete_df_test_subset_1))), 
+                                  colnames(FO_concrete_df_test_subset_1))
+  rownames(FO_concrete_df_pred_1)<-rownames(FO_concrete_df_test_subset_1)
+  for(i in 1:ncol(FO_concrete_df_test_subset_1)){
+    #print(i)
+    pred_temp<-heat(u=FO_concrete_df_test_subset_1[,i], alpha=alpha.range[x], 
+                    xdelta=0.005089005, tdelta=difftime_conrete_1[i], n=2)
+    FO_concrete_df_pred_1[,i+1]<-pred_temp[2,]
+  }
+  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[-1,] #remove first row (invalid)
+  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[,-1] #remove first column (cannot be predicted)
+  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[,-dim(FO_concrete_df_pred_1)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_concrete_df_pred_1))
+  alpha_rmse_1$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+  
+}
+
+#plot results
+ggplot(data=alpha_rmse_1)+
+  geom_point(aes(x=alpha, y=RMSE))+
+  theme_bw()
+
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #2.38e-07
+min(alpha_rmse_1$RMSE) #0.07550471
+
 #reshape into long format for plotting
 FO_concrete_df_pred_t<-data.frame(t(FO_concrete_df_pred))
 colnames(FO_concrete_df_pred_t)<-colnames(FO_concrete_df) #set proper colnames
