@@ -81,23 +81,6 @@ rm(FO_concrete_temp_time_df_order, FO_grass_temp_time_df_short)
     #xdelta = change in x (space) at each step in u
     #tdelta = time step
     #n = number of steps to take
-#original function
-heat <- function (u, alpha , xdelta , tdelta , n) {
-  m <- length (u)
-  uarray <- matrix (u, nrow = 1)
-  newu <- u
-  for(i in 1:n) {
-    for(j in 2:(m - 1)) {
-      h <- alpha * tdelta / xdelta ^2 
-      ustep <- (u[j - 1] + u[j + 1] - 2 * u[j])
-      newu [j] <- u[j] + h * ustep
-    }
-    u <- newu
-    u[1] <- u[m]
-    uarray <- rbind (uarray , u)
-  }
-  return ( uarray )
-}
 
 #change original heat function to use a vector of heights and times
 heat_heights <- function (u, alpha , xdelta , tdelta , n) {
@@ -122,23 +105,23 @@ FO_concrete_df_t<-as.data.frame(t(FO_concrete_df))
 #2/3 test and 1/3 Validation
 #subset test
 FO_concrete_df_test<-FO_concrete_df_t[,1:round(length(FO_concrete_df_t)/3*2, 0)]
-#choose only 2 one hour periods from test data.frame to reduce computational cost
-60*60/24 #150 Files sind eine h
+#choose only 2 1 day periods from test data.frame to reduce computational cost
+60*60*24/24 #3600 Files sind 1 tag
 #subset hour 1
-FO_concrete_df_test_subset_1<-FO_concrete_df_test[,2000:2150]
-range(FO_concrete_temp_time_df$time[2000:2150]) #timespan subset 1
+FO_concrete_df_test_subset_1<-FO_concrete_df_test[,10000:13600]
+range(FO_concrete_temp_time_df$time[10000:13600]) #timespan subset 1
 #get time differences for subset 1
-difftime_conrete_1<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time[2000:2150]))
-#subset hour 2
-FO_concrete_df_test_subset_2<-FO_concrete_df_test[,3500:3650]
-range(FO_concrete_temp_time_df$time[3500:3650]) #timespan subset 2
+difftime_conrete_1<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time[10000:13600]))
 
 #subset validation
 FO_concrete_df_validation<-FO_concrete_df_t[,1:round(length(FO_concrete_df_t)/3, 0)]
-
+####run  loop for subset 1 ####
 #run heat function for every time step
 #Effects-of-aggregate-types-on-thermal-properties-of-concrete (2012)
-alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
+alpha.range<-seq(1*10^-50, 11*10^-7, by=0.1*10^-7)
+#try a log sequence to cover greater range of values
+library(bigsnpr)
+alpha.range<-seq_log(1*10^-10, 1*10^-6, length.out = 100)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #create vector of measured data for RMSE calculation
@@ -147,6 +130,7 @@ FO_concrete_df_test_subset_1_measured<-FO_concrete_df_test_subset_1_measured[-1,
 FO_concrete_df_test_subset_1_measured<-FO_concrete_df_test_subset_1_measured[,-1]  #remove first column (cant be predicted)
 data_measured<-as.vector(t(FO_concrete_df_test_subset_1_measured))
 #run loop for broad range of alphas
+
 for(x in 1:length(alpha.range)){
   print(x)
   #create output dataframe for subset 1
@@ -168,12 +152,13 @@ FO_concrete_df_pred_1[,i+1]<-pred_temp[2,]
  
 }
 
-plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #2.4e-07
-min(alpha_rmse_1$RMSE) #0.07550493
 
-#optimal alpha was 2.4e-7
-alpha.range<-seq(2*10^-7, 3*10^-7, by=0.01*10^-7)
+plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for an hour 2.4e-07 and for a day 8.111308e-08
+min(alpha_rmse_1$RMSE) #for an hour 0.07550493 and for a day  0.1258294
+
+#optimal alpha was 8.111308e-08
+alpha.range<-seq(7*10^-8, 9*10^-8, by=0.01*10^-8)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -203,9 +188,89 @@ ggplot(data=alpha_rmse_1)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #2.38e-07
-min(alpha_rmse_1$RMSE) #0.07550471
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for one hour 2.38e-07 for one day 8.5e-08
+min(alpha_rmse_1$RMSE) #for one hour 0.07550471 for one day 0.125828
 
+
+#####try for second subset####
+#subset hour 2
+FO_concrete_df_test_subset_2<-FO_concrete_df_test[,40000:43600]
+range(FO_concrete_temp_time_df$time[40000:43600]) #timespan subset 2
+
+#get time differences for subset 1
+difftime_conrete_2<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time[40000:43600]))
+#run heat function for every time step
+#Effects-of-aggregate-types-on-thermal-properties-of-concrete (2012)
+alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
+alpha.range<-seq_log(1*10^-10, 1*10^-6, length.out = 100)
+#create output dataframe for alpha and RMSEs
+alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+#create vector of measured data for RMSE calculation
+FO_concrete_df_test_subset_2_measured<-FO_concrete_df_test_subset_2
+FO_concrete_df_test_subset_2_measured<-FO_concrete_df_test_subset_2_measured[-1,] #remove first row (invalid)
+FO_concrete_df_test_subset_2_measured<-FO_concrete_df_test_subset_2_measured[,-1]  #remove first column (cant be predicted)
+data_measured<-as.vector(t(FO_concrete_df_test_subset_2_measured))
+#run loop for broad range of alphas
+for(x in 1:length(alpha.range)){
+  print(x)
+  #create output dataframe for subset 1
+  FO_concrete_df_pred_2<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_test_subset_2), 
+                                                    nrow = nrow(FO_concrete_df_test_subset_2))), 
+                                  colnames(FO_concrete_df_test_subset_2))
+  rownames(FO_concrete_df_pred_2)<-rownames(FO_concrete_df_test_subset_2)
+  for(i in 1:ncol(FO_concrete_df_test_subset_2)){
+    #print(i)
+    pred_temp<-heat(u=FO_concrete_df_test_subset_2[,i], alpha=alpha.range[x], 
+                    xdelta=0.005089005, tdelta=difftime_conrete_2[i], n=2)
+    FO_concrete_df_pred_2[,i+1]<-pred_temp[2,]
+  }
+  FO_concrete_df_pred_2<-FO_concrete_df_pred_2[-1,] #remove first row (invalid)
+  FO_concrete_df_pred_2<-FO_concrete_df_pred_2[,-1] #remove first column (cannot be predicted)
+  FO_concrete_df_pred_2<-FO_concrete_df_pred_2[,-dim(FO_concrete_df_pred_2)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_concrete_df_pred_2))
+  alpha_rmse_2$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+  
+}
+
+plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for an hour 2.4e-07 for a day 8.902151e-08
+min(alpha_rmse_2$RMSE) #for an hour 0.07550493 for a day 0.1242301
+
+#optimal alpha was 2.4e-7  for a day 8.902151e-08
+alpha.range<-seq(7.9*10^-8, 9.5*10^-8, by=0.01*10^-8)
+#create output dataframe for alpha and RMSEs
+alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+#run loop with narrow range of alpha
+for(x in 1:length(alpha.range)){
+  print(x)
+  #create output dataframe for subset 1
+  FO_concrete_df_pred_1<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_test_subset_1), 
+                                                    nrow = nrow(FO_concrete_df_test_subset_1))), 
+                                  colnames(FO_concrete_df_test_subset_1))
+  rownames(FO_concrete_df_pred_1)<-rownames(FO_concrete_df_test_subset_1)
+  for(i in 1:ncol(FO_concrete_df_test_subset_1)){
+    #print(i)
+    pred_temp<-heat(u=FO_concrete_df_test_subset_1[,i], alpha=alpha.range[x], 
+                    xdelta=0.005089005, tdelta=difftime_conrete_1[i], n=2)
+    FO_concrete_df_pred_1[,i+1]<-pred_temp[2,]
+  }
+  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[-1,] #remove first row (invalid)
+  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[,-1] #remove first column (cannot be predicted)
+  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[,-dim(FO_concrete_df_pred_1)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_concrete_df_pred_1))
+  alpha_rmse_1$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+  
+}
+
+#plot results
+ggplot(data=alpha_rmse_2)+
+  geom_point(aes(x=alpha, y=RMSE))+
+  theme_bw()
+
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #2.38e-07  for a day 8.902151e-08
+min(alpha_rmse_2$RMSE) #for an hour 0.07550471 for a day 0.1242301
+
+####plot first prediction try####
 #reshape into long format for plotting
 FO_concrete_df_pred_t<-data.frame(t(FO_concrete_df_pred))
 colnames(FO_concrete_df_pred_t)<-colnames(FO_concrete_df) #set proper colnames
