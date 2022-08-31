@@ -1,10 +1,10 @@
 #source script to loead netcdf files
-source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/read_netcfd_files_FO_columns.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/data_FO_columns_calc_threshold_grass.R")
 #calculate diffusivity
 library(cmna)
 library(plyr)
 library(bigsnpr)
-
+library(dplyr)
 #####heat function####
 #u = initial values of u
 #alpha = thermal diffusivity
@@ -30,7 +30,7 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
   return ( uarray )
 }
 
-####Grass####
+####prep data####
 
 #use not aggregated data
 FO_grass_temp_time<-vector(mode='list', length=length(files))
@@ -52,7 +52,24 @@ for(i in 1:length(FO_grass_only_temp)){
 FO_grass_temp_time_df<-rbind.fill(FO_grass_temp_time)
 #order columns
 FO_grass_temp_time_df_order<-FO_grass_temp_time_df[ ,order(colnames(FO_grass_temp_time_df))]
-threshold_grass<-0.6846209  #0.6846209 (median value)
+#height of measurements shiftet slightly during measurements
+#if difference in heights is less than a threshold --> merge
+cols_to_keep<-which(diff(as.numeric(colnames(FO_grass_temp_time_df_order)[-length(FO_grass_temp_time_df_order)]))>0.006)
+FO_grass_temp_time_df_order_merged<-FO_grass_temp_time_df_order[,cols_to_keep]
+
+i="0.957253886010363"
+#if difference less than 0.006 -> merge
+for(i in colnames(FO_grass_temp_time_df_order)[1:length(FO_grass_temp_time_df_order)-1]){
+  print(i)
+  x<-which(colnames(FO_grass_temp_time_df_order) == i) 
+  if(diff(c(as.numeric(colnames(FO_grass_temp_time_df_order)[x]),
+          as.numeric(colnames(FO_grass_temp_time_df_order)[x+1]))) <0.006){
+  FO_grass_temp_time_df_order_merged[,i]<-coalesce(FO_grass_temp_time_df_order[,x], 
+                                                   FO_grass_temp_time_df_order[,x+1])
+  }else{}
+}
+
+threshold_grass<-0.5986373 #0.5986373 (median value)
 #get index of columns over threshold
 cols<-which(as.numeric(colnames(FO_grass_temp_time_df_order[, -length(FO_grass_temp_time_df_order)]))>=threshold_grass)
 #remove those columns

@@ -1,11 +1,10 @@
 #source script to loead netcdf files
-source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/read_netcfd_files_FO_columns.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/data_FO_columns_calc_threshold_concrete.R")
 #calculate diffusivity
 library(cmna)
 library(plyr)
 library(bigsnpr)
 
-####concrete####
 #use not aggregated data
 FO_concrete_temp_time<-vector(mode='list', length=length(files))
 for(i in 1:length(FO_concrete_only_temp)){

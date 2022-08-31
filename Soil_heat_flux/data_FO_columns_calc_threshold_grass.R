@@ -131,7 +131,7 @@ for(i in 2:ncol(df_grass_t)-1){
 }
 #plot
 plot(changepoint_grass, type="l")
-threshold_grass<-mean(changepoint_grass) #0.5361664 
+threshold_grass<-mean(changepoint_grass) #0.5942249
 #take mean change point as air/soil threshold --> tbd
 
 changepoint_grass_df<-data.frame("time"=df_grass$time, 
@@ -139,8 +139,8 @@ changepoint_grass_df<-data.frame("time"=df_grass$time,
 changepoint_grass_df$hour<-hour(changepoint_grass_df$time)
 
 changepoint_grass_subset<-changepoint_grass_df[changepoint_grass_df$hour>=0&changepoint_grass_df$hour<=5,]
-mean(changepoint_grass_subset$changepoint) #0.6588681
-threshold_grass<-median(changepoint_grass_subset$changepoint) #0.6846209
+mean(changepoint_grass_subset$changepoint) #0.5942249
+threshold_grass<-median(changepoint_grass_subset$changepoint) #0.5986373
 
 #plot as heatmap with threshold
 ggplot(df_grass_long, aes(time, key)) +
