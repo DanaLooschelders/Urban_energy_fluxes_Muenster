@@ -269,28 +269,3 @@ difftime_concrete_3<-as.vector(diff.POSIXt(as.POSIXct(colnames(FO_concrete_df_va
   FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-dim(FO_concrete_df_pred_3)[2]] #remove last column -> no measured values
   data_predicted<-as.vector(t(FO_concrete_df_pred_3))
   RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.1258283
-
-####plot first prediction try####
-#reshape into long format for plotting
-FO_concrete_df_pred_t<-data.frame(t(FO_concrete_df_pred))
-colnames(FO_concrete_df_pred_t)<-colnames(FO_concrete_df) #set proper colnames
-FO_concrete_df_pred_t<-FO_concrete_df_pred_t[-c(dim(FO_concrete_df_pred_t)[1]),] #drop last empty row
-FO_concrete_df_pred_t$time<-FO_concrete_temp_time_df_short$time #add time as var
-FO_concrete_df_pred_t$time<-as.POSIXct(FO_concrete_df_pred_t$time) #reformat time
-FO_concrete_df_pred_long<-gather(data = FO_concrete_df_pred_t, key, value, -time) #get into long format
-
-#transform class of vars to numeric
-FO_concrete_df_pred_long$key<-as.numeric(FO_concrete_df_pred_long$key)
-FO_concrete_df_pred_long$value<-as.numeric(FO_concrete_df_pred_long$value)
-
-#plot as heatmap
-ggplot(FO_concrete_df_pred_long, aes(time, key)) +
-  geom_tile(aes(fill=value)) +
-  scale_fill_viridis_c("Temperature [°C]")+
-  ylab(label="Height [m]")+
-  #geom_hline(aes(yintercept=threshold_concrete, col="Boundary"))+
-  scale_color_manual(values = c("black"))+
-  theme_bw()+
-  ggtitle(label="FO Column Concrete Prediction")
-
-#prüfen hinreichend/notwenig --> bei Tiefpunktberechnung rms für alpha
