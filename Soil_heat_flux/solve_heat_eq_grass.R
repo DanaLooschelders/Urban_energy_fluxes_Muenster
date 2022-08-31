@@ -54,20 +54,32 @@ FO_grass_temp_time_df<-rbind.fill(FO_grass_temp_time)
 FO_grass_temp_time_df_order<-FO_grass_temp_time_df[ ,order(colnames(FO_grass_temp_time_df))]
 #height of measurements shiftet slightly during measurements
 #if difference in heights is less than a threshold --> merge
-cols_to_keep<-which(diff(as.numeric(colnames(FO_grass_temp_time_df_order)[-length(FO_grass_temp_time_df_order)]))>0.006)
-FO_grass_temp_time_df_order_merged<-FO_grass_temp_time_df_order[,cols_to_keep]
+#cols_to_keep<-which(diff(as.numeric(colnames(FO_grass_temp_time_df_order)[-length(FO_grass_temp_time_df_order)]))>0.006)
+#FO_grass_temp_time_df_order_merged<-FO_grass_temp_time_df_order[,cols_to_keep]
 
-i="0.957253886010363"
+FO_grass_merged<-FO_grass_temp_time_df_order
 #if difference less than 0.006 -> merge
-for(i in colnames(FO_grass_temp_time_df_order)[1:length(FO_grass_temp_time_df_order)-1]){
-  print(i)
-  x<-which(colnames(FO_grass_temp_time_df_order) == i) 
-  if(diff(c(as.numeric(colnames(FO_grass_temp_time_df_order)[x]),
-          as.numeric(colnames(FO_grass_temp_time_df_order)[x+1]))) <0.006){
-  FO_grass_temp_time_df_order_merged[,i]<-coalesce(FO_grass_temp_time_df_order[,x], 
-                                                   FO_grass_temp_time_df_order[,x+1])
-  }else{}
+#loop through every second column and compare with column after
+i=1
+for(i in seq(1, length(FO_grass_merged)-2, by=2)){
+  print(i) #check
+  #if difference smaller than 0.006
+  if(diff(c(as.numeric(colnames(FO_grass_merged)[i]),
+          as.numeric(colnames(FO_grass_merged)[i+1]))) <0.006){
+    #merge those two columns and write result in first column
+    FO_grass_merged[,i]<-coalesce(FO_grass_merged[,i], 
+                                            FO_grass_merged[,i+1])
+  #rename column to mean of the two columns
+  colnames(FO_grass_merged)[i]<-as.character(mean(c(as.numeric(colnames(FO_grass_merged)[i]),
+                                                               as.numeric(colnames(FO_grass_merged)[i+1]))))
+  FO_grass_merged[,i+1]<-NA #set second column to NA
+  }else{} #do nothing
 }
+
+#drop all columns that are only NA (the ones that were merged previously)
+FO_grass_merged_short<-FO_grass_merged[colSums(!is.na(FO_grass_merged)) > 0]
+any(diff(as.numeric(colnames(FO_grass_merged_short)[1:length(FO_grass_merged_short)-1]))<0.006)
+which(diff(as.numeric(colnames(FO_grass_merged_short)[1:length(FO_grass_merged_short)-1]))<0.006)
 
 threshold_grass<-0.5986373 #0.5986373 (median value)
 #get index of columns over threshold
