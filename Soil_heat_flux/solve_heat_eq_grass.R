@@ -96,6 +96,8 @@ length(which(is.na(FO_grass_merged_short_cut)))
 FO_grass_df<-FO_grass_merged_short_cut
 #get spatial difference of measurements
 heights_grass<-diff(as.numeric(colnames(FO_grass_df)))
+mean(heights_grass) # 0.0051
+sd(heights_grass) #0.00028
 
 #clear up environment
 rm(FO_grass_temp_time, FO_grass_list, FO_grass_merged, 
@@ -166,7 +168,6 @@ FO_grass_df_test_subset_1_measured<-FO_grass_df_test_subset_1_measured[-1,] #rem
 FO_grass_df_test_subset_1_measured<-FO_grass_df_test_subset_1_measured[,-1]  #remove first column (cant be predicted)
 data_measured<-as.vector(t(FO_grass_df_test_subset_1_measured))
 #run loop for broad range of alphas
-length(heights_grass)
 
 for(x in 1:length(alpha.range)){
   print(x)
@@ -307,7 +308,7 @@ ggplot(data=alpha_rmse_2)+
 alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day  1.14e-07
 min(alpha_rmse_2$RMSE) #for a day 0.1387406
 
-mean_alpha<-mean(c(8.5*10^-8, 8.9*10^-8))
+mean_alpha<-mean(c(1.56*10^-7, 1.14*10^-7))
 
 #####validate for day in last third of dataframe####
 #subset hour 1

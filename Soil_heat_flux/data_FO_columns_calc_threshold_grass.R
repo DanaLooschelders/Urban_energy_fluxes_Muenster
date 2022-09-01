@@ -142,6 +142,13 @@ changepoint_grass_subset<-changepoint_grass_df[changepoint_grass_df$hour>=0&chan
 mean(changepoint_grass_subset$changepoint) #0.5942249
 threshold_grass<-median(changepoint_grass_subset$changepoint) #0.5986373
 
+#alternative method with segmented package
+#davies.test() to test if there is breakpoint --> there should be
+#then 
+#fit normal lm model: testM2 <- lm(y2 ~ x)
+#use segmented: testM2s <- segmented(testM2, seg.Z=~x, psi=50)
+#access breakpoint: summary.segmented(seg.o)$psi [1,2]
+
 #plot as heatmap with threshold
 ggplot(df_grass_long, aes(time, key)) +
   geom_tile(aes(fill=value), height=0.005) + #

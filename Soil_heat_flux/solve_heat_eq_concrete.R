@@ -49,23 +49,6 @@ FO_concrete_df<-FO_concrete_df[,-length(FO_concrete_df)]
     #tdelta = time step
     #n = number of steps to take
 
-#change original heat function to use a vector of heights and times
-heat_heights <- function (u, alpha , xdelta , tdelta , n) {
-  m <- length (u)
-  uarray <- matrix (u, nrow = 1)
-  newu <- u
-  for(i in 1:n) {
-    for(j in 2:(m - 1)) {
-      h <- alpha * tdelta / xdelta[j - 1] ^2 #set xdelta to individual height
-      ustep <- (u[j - 1] + u[j + 1] - 2 * u[j])
-      newu [j] <- u[j] + h * ustep
-    }
-    u <- newu
-    u[1] <- u[m]
-    uarray <- rbind (uarray , u)
-  }
-  return ( uarray )
-}
 #transpose dataframe
 FO_concrete_df_t<-as.data.frame(t(FO_concrete_df))
 colnames(FO_concrete_df_t)<-FO_concrete_temp_time_df$time #set time as colnames
@@ -86,7 +69,7 @@ FO_concrete_df_validation<-FO_concrete_df_t[,1:round(length(FO_concrete_df_t)/3,
 ####run  loop for subset 1 ####
 #run heat function for every time step
 #Effects-of-aggregate-types-on-thermal-properties-of-concrete (2012)
-alpha.range<-seq(1*10^-50, 11*10^-7, by=0.1*10^-7)
+#alpha.range<-seq(1*10^-50, 11*10^-7, by=0.1*10^-7)
 #try a log sequence to cover greater range of values
 
 alpha.range<-seq_log(1*10^-10, 1*10^-6, length.out = 100)
@@ -169,7 +152,7 @@ range(FO_concrete_temp_time_df$time[40000:43600]) #timespan subset 2
 difftime_concrete_2<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time[40000:43600]))
 #run heat function for every time step
 #Effects-of-aggregate-types-on-thermal-properties-of-concrete (2012)
-alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
+#alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
 alpha.range<-seq_log(1*10^-10, 1*10^-6, length.out = 100)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
@@ -207,7 +190,7 @@ min(alpha_rmse_2$RMSE) #for an hour 0.07550493 for a day 0.1242301
 #optimal alpha was 2.4e-7  for a day 8.902151e-08
 alpha.range<-seq(7.9*10^-8, 9.5*10^-8, by=0.01*10^-8)
 #create output dataframe for alpha and RMSEs
-alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
 for(x in 1:length(alpha.range)){
   print(x)
@@ -235,10 +218,10 @@ ggplot(data=alpha_rmse_2)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #2.38e-07  for a day 8.902151e-08
-min(alpha_rmse_2$RMSE) #for an hour 0.07550471 for a day 0.1242301
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #2.38e-07  for a day 9.18e-08
+min(alpha_rmse_2$RMSE) #for an hour 0.07550471 for a day 0.1242295
 
-mean_alpha<-mean(c(8.5*10^-8, 8.9*10^-8))
+mean_alpha<-mean(c(8.5*10^-8, 9.18*10^-8))
 
 #####validate for day in last third of dataframe####
 #subset hour 1
@@ -267,4 +250,4 @@ difftime_concrete_3<-as.vector(diff.POSIXt(as.POSIXct(colnames(FO_concrete_df_va
   FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-1] #remove first column (cannot be predicted)
   FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-dim(FO_concrete_df_pred_3)[2]] #remove last column -> no measured values
   data_predicted<-as.vector(t(FO_concrete_df_pred_3))
-  RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.1258283
+  RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.125829
