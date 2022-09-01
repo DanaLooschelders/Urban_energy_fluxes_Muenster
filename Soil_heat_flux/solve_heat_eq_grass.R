@@ -5,6 +5,8 @@ library(cmna)
 library(plyr)
 library(bigsnpr)
 library(dplyr)
+library(ggplot2)
+
 #####heat function####
 #u = initial values of u
 #alpha = thermal diffusivity
@@ -57,10 +59,12 @@ FO_grass_temp_time_df_order<-FO_grass_temp_time_df[ ,order(colnames(FO_grass_tem
 #cols_to_keep<-which(diff(as.numeric(colnames(FO_grass_temp_time_df_order)[-length(FO_grass_temp_time_df_order)]))>0.006)
 #FO_grass_temp_time_df_order_merged<-FO_grass_temp_time_df_order[,cols_to_keep]
 
-FO_grass_merged<-FO_grass_temp_time_df_order
+#shorten dataframe to height below 80 cm to reducue computing time
+FO_grass_temp_time_df_short<-FO_grass_temp_time_df_order[,1:354]
 #if difference less than 0.006 -> merge
+FO_grass_merged<-FO_grass_temp_time_df_short
 #loop through every second column and compare with column after
-i=1
+
 for(i in seq(1, length(FO_grass_merged)-2, by=2)){
   print(i) #check
   #if difference smaller than 0.006
@@ -76,26 +80,27 @@ for(i in seq(1, length(FO_grass_merged)-2, by=2)){
   }else{} #do nothing
 }
 
-#drop all columns that are only NA (the ones that were merged previously)
-FO_grass_merged_short<-FO_grass_merged[colSums(!is.na(FO_grass_merged)) > 0]
-any(diff(as.numeric(colnames(FO_grass_merged_short)[1:length(FO_grass_merged_short)-1]))<0.006)
-which(diff(as.numeric(colnames(FO_grass_merged_short)[1:length(FO_grass_merged_short)-1]))<0.006)
-
 threshold_grass<-0.5986373 #0.5986373 (median value)
 #get index of columns over threshold
-cols<-which(as.numeric(colnames(FO_grass_temp_time_df_order[, -length(FO_grass_temp_time_df_order)]))>=threshold_grass)
+cols<-which(as.numeric(colnames(FO_grass_merged))>=threshold_grass)
 #remove those columns
-FO_grass_temp_time_df_short<-FO_grass_temp_time_df_order[,-cols]
-#rename for convenience
-FO_grass_df<-FO_grass_temp_time_df_short
-#get spatial difference of measurements
-heights_grass<-diff(as.numeric(colnames(FO_grass_df[-length(FO_grass_df)])))
+FO_grass_merged_short<-FO_grass_merged[,-cols]
 
-#remove column with time
-FO_grass_df<-FO_grass_df[,-length(FO_grass_df)]
+#drop all columns that are only NA (the ones that were merged previously)
+FO_grass_merged_short_cut<-FO_grass_merged_short[colSums(!is.na(FO_grass_merged_short)) > 0]
+#QAQC
+#check that values are NA
+length(which(is.na(FO_grass_merged_short_cut)))
+
+#rename for convenience
+FO_grass_df<-FO_grass_merged_short_cut
+#get spatial difference of measurements
+heights_grass<-diff(as.numeric(colnames(FO_grass_df)))
 
 #clear up environment
-#rm(FO_grass_temp_time, FO_grass_list, FO_grass_only_temp, FO_grass_temp_time_df_order)
+rm(FO_grass_temp_time, FO_grass_list, FO_grass_merged, 
+   FO_grass_merged_short, FO_grass_merged_short_cut, FO_grass_temp_time_df, 
+   FO_grass_temp_time_df_short, FO_grass_temp_time_df_order_merged)
 
 
 #####heat function####
@@ -124,7 +129,7 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
 }
 #transpose dataframe
 FO_grass_df_t<-as.data.frame(t(FO_grass_df))
-colnames(FO_grass_df_t)<-FO_grass_temp_time_df$time #set time as colnames
+colnames(FO_grass_df_t)<-FO_grass_temp_time_df_order$time #set time as colnames
 #split data in test and validation data
 #2/3 test and 1/3 Validation
 #subset test
@@ -133,19 +138,26 @@ FO_grass_df_test<-FO_grass_df_t[,1:round(length(FO_grass_df_t)/3*2, 0)]
 60*60*24/24 #3600 Files sind 1 tag
 #subset day 1
 FO_grass_df_test_subset_1<-FO_grass_df_test[,10000:13600]
-range(FO_grass_temp_time_df$time[10000:13600]) #timespan subset 1
+range(FO_grass_temp_time_df_order$time[10000:13600]) #timespan subset 1
 #get time differences for subset 1
-difftime_grass_1<-as.vector(diff.POSIXt(FO_grass_temp_time_df$time[10000:13600]))
+difftime_grass_1<-as.vector(diff.POSIXt(FO_grass_temp_time_df_order$time[10000:13600]))
 
 #subset validation
 FO_grass_df_validation<-FO_grass_df_t[,1:round(length(FO_grass_df_t)/3, 0)]
+
 ####run  loop for subset 1 ####
 #run heat function for every time step
-#Effects-of-aggregate-types-on-thermal-properties-of-grass (2012)
-alpha.range<-seq(1*10^-50, 11*10^-7, by=0.1*10^-7)
+#Mineral soils of different textures, containing the same amount of water, 
+#exhibit very different thermal conductivities. 
+#hen they are compared at the same moisture tensions, 
+#their thermal conductivities are similar. 
+#Moisture variations have a much greater effect on thermal conductivity of soils 
+#than bulk density and grain size.
+
+#alpha.range<-seq(1*10^-50, 11*10^-7, by=0.1*10^-7)
 #try a log sequence to cover greater range of values
 
-alpha.range<-seq_log(1*10^-10, 1*10^-6, length.out = 100)
+alpha.range<-seq_log(1*10^-15, 1*10^-3, length.out = 100)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #create vector of measured data for RMSE calculation
@@ -154,6 +166,7 @@ FO_grass_df_test_subset_1_measured<-FO_grass_df_test_subset_1_measured[-1,] #rem
 FO_grass_df_test_subset_1_measured<-FO_grass_df_test_subset_1_measured[,-1]  #remove first column (cant be predicted)
 data_measured<-as.vector(t(FO_grass_df_test_subset_1_measured))
 #run loop for broad range of alphas
+length(heights_grass)
 
 for(x in 1:length(alpha.range)){
   print(x)
@@ -164,8 +177,8 @@ for(x in 1:length(alpha.range)){
   rownames(FO_grass_df_pred_1)<-rownames(FO_grass_df_test_subset_1)
   for(i in 1:ncol(FO_grass_df_test_subset_1)){
     #print(i)
-    pred_temp<-heat(u=FO_grass_df_test_subset_1[,i], alpha=alpha.range[x], 
-                    xdelta=0.005089005, tdelta=difftime_grass_1[i], n=2)
+    pred_temp<-heat_heights(u=FO_grass_df_test_subset_1[,i], alpha=alpha.range[x], 
+                    xdelta=heights_grass, tdelta=difftime_grass_1[i], n=2)
     FO_grass_df_pred_1[,i+1]<-pred_temp[2,]
   }
   FO_grass_df_pred_1<-FO_grass_df_pred_1[-1,] #remove first row (invalid)
@@ -178,11 +191,11 @@ for(x in 1:length(alpha.range)){
 
 
 plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for an hour 2.4e-07 and for a day 8.111308e-08
-min(alpha_rmse_1$RMSE) #for an hour 0.07550493 and for a day  0.1258294
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for a day 1.747528e-07
+min(alpha_rmse_1$RMSE) #for a day  0.1372653
 
-#optimal alpha was 8.111308e-08
-alpha.range<-seq(7*10^-8, 9*10^-8, by=0.01*10^-8)
+#optimal alpha was 1.747528e-07
+alpha.range<-seq(1*10^-7, 2*10^-7, by=0.01*10^-7)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -195,8 +208,8 @@ for(x in 1:length(alpha.range)){
   rownames(FO_grass_df_pred_1)<-rownames(FO_grass_df_test_subset_1)
   for(i in 1:ncol(FO_grass_df_test_subset_1)){
     #print(i)
-    pred_temp<-heat(u=FO_grass_df_test_subset_1[,i], alpha=alpha.range[x], 
-                    xdelta=0.005089005, tdelta=difftime_grass_1[i], n=2)
+    pred_temp<-heat_heights(u=FO_grass_df_test_subset_1[,i], alpha=alpha.range[x], 
+                    xdelta=heights_grass, tdelta=difftime_grass_1[i], n=2)
     FO_grass_df_pred_1[,i+1]<-pred_temp[2,]
   }
   FO_grass_df_pred_1<-FO_grass_df_pred_1[-1,] #remove first row (invalid)
@@ -212,8 +225,8 @@ ggplot(data=alpha_rmse_1)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for one hour 2.38e-07 for one day 8.5e-08
-min(alpha_rmse_1$RMSE) #for one hour 0.07550471 for one day 0.125828
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for one day 1.56e-07
+min(alpha_rmse_1$RMSE) #for one day 0.1372462
 
 
 #####try for second subset####
