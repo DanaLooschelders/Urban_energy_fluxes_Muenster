@@ -212,21 +212,21 @@ alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 for(x in 1:length(alpha.range)){
   print(x)
   #create output dataframe for subset 1
-  FO_concrete_df_pred_1<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_test_subset_1), 
-                                                    nrow = nrow(FO_concrete_df_test_subset_1))), 
-                                  colnames(FO_concrete_df_test_subset_1))
-  rownames(FO_concrete_df_pred_1)<-rownames(FO_concrete_df_test_subset_1)
-  for(i in 1:ncol(FO_concrete_df_test_subset_1)){
+  FO_concrete_df_pred_2<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_test_subset_2), 
+                                                    nrow = nrow(FO_concrete_df_test_subset_2))), 
+                                  colnames(FO_concrete_df_test_subset_2))
+  rownames(FO_concrete_df_pred_2)<-rownames(FO_concrete_df_test_subset_2)
+  for(i in 1:ncol(FO_concrete_df_test_subset_2)){
     #print(i)
-    pred_temp<-heat(u=FO_concrete_df_test_subset_1[,i], alpha=alpha.range[x], 
-                    xdelta=0.005089005, tdelta=difftime_concrete_1[i], n=2)
-    FO_concrete_df_pred_1[,i+1]<-pred_temp[2,]
+    pred_temp<-heat(u=FO_concrete_df_test_subset_2[,i], alpha=alpha.range[x], 
+                    xdelta=0.005089005, tdelta=difftime_concrete_2[i], n=2)
+    FO_concrete_df_pred_2[,i+1]<-pred_temp[2,]
   }
-  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[-1,] #remove first row (invalid)
-  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[,-1] #remove first column (cannot be predicted)
-  FO_concrete_df_pred_1<-FO_concrete_df_pred_1[,-dim(FO_concrete_df_pred_1)[2]] #remove last column -> no measured values
-  data_predicted<-as.vector(t(FO_concrete_df_pred_1))
-  alpha_rmse_1$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+  FO_concrete_df_pred_2<-FO_concrete_df_pred_2[-1,] #remove first row (invalid)
+  FO_concrete_df_pred_2<-FO_concrete_df_pred_2[,-1] #remove first column (cannot be predicted)
+  FO_concrete_df_pred_2<-FO_concrete_df_pred_2[,-dim(FO_concrete_df_pred_2)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_concrete_df_pred_2))
+  alpha_rmse_2$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
   
 }
 

@@ -232,14 +232,14 @@ min(alpha_rmse_1$RMSE) #for one day 0.1372462
 #####try for second subset####
 #subset hour 2
 FO_grass_df_test_subset_2<-FO_grass_df_test[,40000:43600]
-range(FO_grass_temp_time_df$time[40000:43600]) #timespan subset 2
+range(FO_grass_temp_time_df_order$time[40000:43600]) #timespan subset 2
 
 #get time differences for subset 1
-difftime_grass_2<-as.vector(diff.POSIXt(FO_grass_temp_time_df$time[40000:43600]))
+difftime_grass_2<-as.vector(diff.POSIXt(FO_grass_temp_time_df_order$time[40000:43600]))
 #run heat function for every time step
 #Effects-of-aggregate-types-on-thermal-properties-of-grass (2012)
-alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
-alpha.range<-seq_log(1*10^-10, 1*10^-6, length.out = 100)
+#alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
+alpha.range<-seq_log(1*10^-15, 1*10^-3, length.out = 100)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #create vector of measured data for RMSE calculation
@@ -257,8 +257,8 @@ for(x in 1:length(alpha.range)){
   rownames(FO_grass_df_pred_2)<-rownames(FO_grass_df_test_subset_2)
   for(i in 1:ncol(FO_grass_df_test_subset_2)){
     #print(i)
-    pred_temp<-heat(u=FO_grass_df_test_subset_2[,i], alpha=alpha.range[x], 
-                    xdelta=0.005089005, tdelta=difftime_grass_2[i], n=2)
+    pred_temp<-heat_heights(u=FO_grass_df_test_subset_2[,i], alpha=alpha.range[x], 
+                    xdelta=heights_grass, tdelta=difftime_grass_2[i], n=2)
     FO_grass_df_pred_2[,i+1]<-pred_temp[2,]
   }
   FO_grass_df_pred_2<-FO_grass_df_pred_2[-1,] #remove first row (invalid)
@@ -270,32 +270,32 @@ for(x in 1:length(alpha.range)){
 }
 
 plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for an hour 2.4e-07 for a day 8.902151e-08
-min(alpha_rmse_2$RMSE) #for an hour 0.07550493 for a day 0.1242301
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day 1e-07
+min(alpha_rmse_2$RMSE) #for a day 0.1387557
 
-#optimal alpha was 2.4e-7  for a day 8.902151e-08
-alpha.range<-seq(7.9*10^-8, 9.5*10^-8, by=0.01*10^-8)
+#optimal alpha was for a day 1e-07
+alpha.range<-seq(8*10^-8, 2*10^-7, by=0.01*10^-7)
 #create output dataframe for alpha and RMSEs
-alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
 for(x in 1:length(alpha.range)){
   print(x)
   #create output dataframe for subset 1
-  FO_grass_df_pred_1<-setNames(data.frame(matrix(ncol = ncol(FO_grass_df_test_subset_1), 
-                                                    nrow = nrow(FO_grass_df_test_subset_1))), 
-                                  colnames(FO_grass_df_test_subset_1))
-  rownames(FO_grass_df_pred_1)<-rownames(FO_grass_df_test_subset_1)
-  for(i in 1:ncol(FO_grass_df_test_subset_1)){
+  FO_grass_df_pred_2<-setNames(data.frame(matrix(ncol = ncol(FO_grass_df_test_subset_2), 
+                                                    nrow = nrow(FO_grass_df_test_subset_2))), 
+                                  colnames(FO_grass_df_test_subset_2))
+  rownames(FO_grass_df_pred_2)<-rownames(FO_grass_df_test_subset_2)
+  for(i in 1:ncol(FO_grass_df_test_subset_2)){
     #print(i)
-    pred_temp<-heat(u=FO_grass_df_test_subset_1[,i], alpha=alpha.range[x], 
-                    xdelta=0.005089005, tdelta=difftime_grass_1[i], n=2)
-    FO_grass_df_pred_1[,i+1]<-pred_temp[2,]
+    pred_temp<-heat_heights(u=FO_grass_df_test_subset_2[,i], alpha=alpha.range[x], 
+                    xdelta=heights_grass, tdelta=difftime_grass_2[i], n=2)
+    FO_grass_df_pred_2[,i+1]<-pred_temp[2,]
   }
-  FO_grass_df_pred_1<-FO_grass_df_pred_1[-1,] #remove first row (invalid)
-  FO_grass_df_pred_1<-FO_grass_df_pred_1[,-1] #remove first column (cannot be predicted)
-  FO_grass_df_pred_1<-FO_grass_df_pred_1[,-dim(FO_grass_df_pred_1)[2]] #remove last column -> no measured values
-  data_predicted<-as.vector(t(FO_grass_df_pred_1))
-  alpha_rmse_1$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+  FO_grass_df_pred_2<-FO_grass_df_pred_2[-1,] #remove first row (invalid)
+  FO_grass_df_pred_2<-FO_grass_df_pred_2[,-1] #remove first column (cannot be predicted)
+  FO_grass_df_pred_2<-FO_grass_df_pred_2[,-dim(FO_grass_df_pred_2)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_grass_df_pred_2))
+  alpha_rmse_2$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
   
 }
 
@@ -304,8 +304,8 @@ ggplot(data=alpha_rmse_2)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #2.38e-07  for a day 8.902151e-08
-min(alpha_rmse_2$RMSE) #for an hour 0.07550471 for a day 0.1242301
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day  1.14e-07
+min(alpha_rmse_2$RMSE) #for a day 0.1387406
 
 mean_alpha<-mean(c(8.5*10^-8, 8.9*10^-8))
 
