@@ -32,6 +32,7 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
   return ( uarray )
 }
 
+
 ####prep data####
 
 #use not aggregated data
@@ -105,30 +106,6 @@ rm(FO_grass_temp_time, FO_grass_list, FO_grass_merged,
    FO_grass_temp_time_df_short, FO_grass_temp_time_df_order_merged)
 
 
-#####heat function####
-#u = initial values of u
-#alpha = thermal diffusivity
-#xdelta = change in x (space) at each step in u
-#tdelta = time step
-#n = number of steps to take
-
-#change original heat function to use a vector of heights and times
-heat_heights <- function (u, alpha , xdelta , tdelta , n) {
-  m <- length (u)
-  uarray <- matrix (u, nrow = 1)
-  newu <- u
-  for(i in 1:n) {
-    for(j in 2:(m - 1)) {
-      h <- alpha * tdelta / xdelta[j - 1] ^2 #set xdelta to individual height
-      ustep <- (u[j - 1] + u[j + 1] - 2 * u[j])
-      newu [j] <- u[j] + h * ustep
-    }
-    u <- newu
-    u[1] <- u[m]
-    uarray <- rbind (uarray , u)
-  }
-  return ( uarray )
-}
 #transpose dataframe
 FO_grass_df_t<-as.data.frame(t(FO_grass_df))
 colnames(FO_grass_df_t)<-FO_grass_temp_time_df_order$time #set time as colnames
