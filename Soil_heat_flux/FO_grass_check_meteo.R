@@ -1,4 +1,3 @@
-source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R")
 
 library(tidyr)
 library(ggplot2)
@@ -38,6 +37,7 @@ ggplot(meteo_1_long, aes(TIMESTAMP, value)) +
   geom_line()+
 facet_wrap(variable ~ ., ncol=3, scales="free")+
   theme_bw()
+
 #get stats
 meteo_stats<-data.frame("meteo_1"=colMeans(meteo_1[,3:length(meteo_1)], na.rm=T))
 #meteo
@@ -127,3 +127,58 @@ soil_stats_2<-data.frame("VWC_1"=mean(soil_2$WC01_VWC_Avg),
 soil_stats<-rbind(soil_stats_1, soil_stats_2)
 
 meteo_stats<-cbind(meteo_stats, soil_stats)
+
+#####calculate overall stats to compare####
+####meteo###
+#convert timestamp
+dat.kiebitz.meteo$TIMESTAMP<-as.POSIXct(dat.kiebitz.meteo$TIMESTAMP)
+#meteo_1$Record<-seq(1, nrow(meteo_1), by=1)
+#reshape
+dat_kiebitz_meteo_long <- dat.kiebitz.meteo %>%                             
+  gather(variable, value, -c(TIMESTAMP))
+
+#plot
+ggplot(dat_kiebitz_meteo_long, aes(TIMESTAMP, value)) + 
+  geom_line()+
+  facet_wrap(variable ~ ., ncol=3, scales="free")+
+  theme_bw()
+##add green background for sample days!
+
+#get stats
+meteo_whole_stats<-data.frame("meteo_1"=colMeans(dat.kiebitz.meteo[,3:length(dat.kiebitz.meteo)], na.rm=T))
+
+#convert timestamp
+dat.kiebitz.rain$TIMESTAMP<-as.POSIXct(dat.kiebitz.rain$TIMESTAMP)
+#reshape
+dat_kiebitz_rain_long <- dat.kiebitz.rain %>%                             
+  gather(variable, value, -c(TIMESTAMP))
+
+#plot
+ggplot(dat_kiebitz_rain_long, aes(TIMESTAMP, value)) + 
+  geom_line()+
+  facet_wrap(variable ~ ., ncol=2, scales="free")+
+  theme_bw()
+#add col for rain
+meteo_whole_stats$rain<-NA
+#stats
+meteo_whole_stats$rain[1]<-mean(dat.kiebitz.rain$Rain_mm_Tot)
+#soil
+#convert timestamp
+dat.kiebitz.soil$TIMESTAMP<-as.POSIXct(dat.kiebitz.soil$TIMESTAMP)
+#remove unneccessary columns
+dat.kiebitz.soil<-dat.kiebitz.soil[,c(1, 3, 9, 15)]
+#reshape
+dat_kiebitz_soil_long <- dat.kiebitz.soil %>%                             
+  gather(variable, value, -c(TIMESTAMP))
+
+#plot
+ggplot(dat_kiebitz_soil_long, aes(TIMESTAMP, value)) + 
+  geom_line()+
+  facet_wrap(variable ~ ., nrow=3, scales="free")+
+  theme_bw()
+#stats
+soil_stats_whole<-data.frame("VWC_1"=mean(dat.kiebitz.soil$WC01_VWC_Avg),
+                         "VWC_2"=mean(dat.kiebitz.soil$WC02_VWC_Avg),
+                         "VWC_3"=mean(dat.kiebitz.soil$WC03_VWC_Avg))
+
+meteo_whole_stats<-cbind(meteo_whole_stats, soil_stats_whole)
