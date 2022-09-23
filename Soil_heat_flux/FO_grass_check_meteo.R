@@ -1,4 +1,3 @@
-
 library(tidyr)
 library(ggplot2)
 #check meteorological conditions for grass subset
@@ -15,16 +14,17 @@ endtime_2 <- as.POSIXct("2021-08-11 13:05:36 CEST")
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R") 
 
 #subset to 1
-meteo_1<-dat.kiebitz.meteo[dat.kiebitz.meteo$TIMESTAMP>=starttime_1&dat.kiebitz.meteo$TIMESTAMP<=endtime_1,]
-rain_1<-dat.kiebitz.rain[dat.kiebitz.rain$TIMESTAMP>=starttime_1&dat.kiebitz.rain$TIMESTAMP<=endtime_1,]
-soil_1<-dat.kiebitz.soil[dat.kiebitz.soil$TIMESTAMP>=starttime_1&dat.kiebitz.soil$TIMESTAMP<=endtime_1,]
+meteo_1<-dat.meteo.merge[dat.meteo.merge$TIMESTAMP>=starttime_1&dat.meteo.merge$TIMESTAMP<=endtime_1,]
+rain_1<-dat.rain.merge[dat.rain.merge$TIMESTAMP>=starttime_1&dat.rain.merge$TIMESTAMP<=endtime_1,]
+soil_1<-dat.soil.merge[dat.soil.merge$TIMESTAMP>=starttime_1&dat.soil.merge$TIMESTAMP<=endtime_1,]
 
 #subset to 2
-meteo_2<-dat.kiebitz.meteo[dat.kiebitz.meteo$TIMESTAMP>=starttime_2&dat.kiebitz.meteo$TIMESTAMP<=endtime_2,]
-rain_2<-dat.kiebitz.rain[dat.kiebitz.rain$TIMESTAMP>=starttime_2&dat.kiebitz.rain$TIMESTAMP<=endtime_2,]
-soil_2<-dat.kiebitz.soil[dat.kiebitz.soil$TIMESTAMP>=starttime_2&dat.kiebitz.soil$TIMESTAMP<=endtime_2,]
+meteo_2<-dat.meteo.merge[dat.meteo.merge$TIMESTAMP>=starttime_2&dat.meteo.merge$TIMESTAMP<=endtime_2,]
+rain_2<-dat.rain.merge[dat.rain.merge$TIMESTAMP>=starttime_2&dat.rain.merge$TIMESTAMP<=endtime_2,]
+soil_2<-dat.soil.merge[dat.soil.merge$TIMESTAMP>=starttime_2&dat.soil.merge$TIMESTAMP<=endtime_2,]
 
 ####meteo###
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Meteo")
 #convert timestamp
 meteo_1$TIMESTAMP<-as.POSIXct(meteo_1$TIMESTAMP)
 #meteo_1$Record<-seq(1, nrow(meteo_1), by=1)
@@ -37,7 +37,8 @@ ggplot(meteo_1_long, aes(TIMESTAMP, value)) +
   geom_line()+
 facet_wrap(variable ~ ., ncol=3, scales="free")+
   theme_bw()
-
+ggsave(filename="meteo_1_all_vars.pdf", 
+       device="pdf", width = 297, height = 210 , units = "mm")
 #get stats
 meteo_stats<-data.frame("meteo_1"=colMeans(meteo_1[,3:length(meteo_1)], na.rm=T))
 #meteo
@@ -52,7 +53,8 @@ ggplot(meteo_2_long, aes(TIMESTAMP, value)) +
   geom_line()+
   facet_wrap(variable ~ ., ncol=3, scales="free")+
   theme_bw()
-
+ggsave(filename="meteo_2_all_vars.pdf", 
+       device="pdf", width = 297, height = 210 , units = "mm")
 #get stats
 meteo_stats$meteo_2<-colMeans(meteo_2[,3:length(meteo_2)], na.rm=T)
 #transpose
@@ -69,6 +71,8 @@ ggplot(rain_1_long, aes(TIMESTAMP, value)) +
   geom_line()+
   facet_wrap(variable ~ ., ncol=2, scales="free")+
   theme_bw()
+ggsave(filename="rain_1_all_vars.pdf", 
+       device="pdf", width = 297, height = 210 , units = "mm")
 #add col for rain
 meteo_stats$rain<-NA
 #stats
@@ -87,6 +91,8 @@ ggplot(soil_1_long, aes(TIMESTAMP, value)) +
   geom_line()+
   facet_wrap(variable ~ ., nrow=3, scales="free")+
   theme_bw()
+ggsave(filename="soil_1_all_vars.pdf", 
+       device="pdf", width = 297, height = 210 , units = "mm")
 
 soil_stats_1<-data.frame("VWC_1"=mean(soil_1$WC01_VWC_Avg),
                          "VWC_2"=mean(soil_1$WC02_VWC_Avg),
@@ -94,16 +100,19 @@ soil_stats_1<-data.frame("VWC_1"=mean(soil_1$WC01_VWC_Avg),
 
 #rain
 #convert timestamp
-rain_1$TIMESTAMP<-as.POSIXct(rain_1$TIMESTAMP)
+rain_2$TIMESTAMP<-as.POSIXct(rain_1$TIMESTAMP)
 #reshape
-rain_1_long <- rain_1 %>%                             
+rain_2_long <- rain_2 %>%                             
   gather(variable, value, -c(TIMESTAMP))
 
 #plot
-ggplot(rain_1_long, aes(TIMESTAMP, value)) + 
+ggplot(rain_2_long, aes(TIMESTAMP, value)) + 
   geom_line()+
   facet_wrap(variable ~ ., ncol=2, scales="free")+
   theme_bw()
+
+ggsave(filename="rain_2_all_vars.pdf", 
+       device="pdf", width = 297, height = 210 , units = "mm")
 #stats
 meteo_stats$rain[2]<-mean(rain_2$Rain_mm_Tot, na.rm=T)
 #soil
@@ -120,6 +129,9 @@ ggplot(soil_2_long, aes(TIMESTAMP, value)) +
   geom_line()+
   facet_wrap(variable ~ ., nrow=3, scales="free")+
   theme_bw()
+
+ggsave(filename="soil_2_all_vars.pdf", 
+       device="pdf", width = 297, height = 210 , units = "mm")
 #stats
 soil_stats_2<-data.frame("VWC_1"=mean(soil_2$WC01_VWC_Avg),
                          "VWC_2"=mean(soil_2$WC02_VWC_Avg),
@@ -131,10 +143,10 @@ meteo_stats<-cbind(meteo_stats, soil_stats)
 #####calculate overall stats to compare####
 ####meteo###
 #convert timestamp
-dat.kiebitz.meteo$TIMESTAMP<-as.POSIXct(dat.kiebitz.meteo$TIMESTAMP)
+dat.meteo.merge$TIMESTAMP<-as.POSIXct(dat.meteo.merge$TIMESTAMP)
 #meteo_1$Record<-seq(1, nrow(meteo_1), by=1)
 #reshape
-dat_kiebitz_meteo_long <- dat.kiebitz.meteo %>%                             
+dat_kiebitz_meteo_long <- dat.meteo.merge %>%                             
   gather(variable, value, -c(TIMESTAMP))
 
 #plot
@@ -142,15 +154,20 @@ ggplot(dat_kiebitz_meteo_long, aes(TIMESTAMP, value)) +
   geom_line()+
   facet_wrap(variable ~ ., ncol=3, scales="free")+
   theme_bw()
+
+ggsave(filename="meteo_whole_all_vars.pdf", 
+       device="pdf", width = 297, height = 210 , units = "mm")
 ##add green background for sample days!
 
 #get stats
-meteo_whole_stats<-data.frame("meteo_1"=colMeans(dat.kiebitz.meteo[,3:length(dat.kiebitz.meteo)], na.rm=T))
+meteo_whole_stats<-data.frame("meteo_1"=colMeans(dat.meteo.merge[,3:length(dat.meteo.merge)], na.rm=T))
 
+#transpose
+meteo_whole_stats<-as.data.frame(t(meteo_whole_stats))
 #convert timestamp
-dat.kiebitz.rain$TIMESTAMP<-as.POSIXct(dat.kiebitz.rain$TIMESTAMP)
+dat.rain.merge$TIMESTAMP<-as.POSIXct(dat.rain.merge$TIMESTAMP)
 #reshape
-dat_kiebitz_rain_long <- dat.kiebitz.rain %>%                             
+dat_kiebitz_rain_long <- dat.rain.merge %>%                             
   gather(variable, value, -c(TIMESTAMP))
 
 #plot
@@ -158,17 +175,19 @@ ggplot(dat_kiebitz_rain_long, aes(TIMESTAMP, value)) +
   geom_line()+
   facet_wrap(variable ~ ., ncol=2, scales="free")+
   theme_bw()
+ggsave(filename="rain_whole_all_vars.pdf", 
+       device="pdf", width = 297, height = 210 , units = "mm")
 #add col for rain
 meteo_whole_stats$rain<-NA
 #stats
-meteo_whole_stats$rain[1]<-mean(dat.kiebitz.rain$Rain_mm_Tot)
+meteo_whole_stats$rain[1]<-mean(dat.rain.merge$Rain_mm_Tot)
 #soil
 #convert timestamp
-dat.kiebitz.soil$TIMESTAMP<-as.POSIXct(dat.kiebitz.soil$TIMESTAMP)
+dat.soil.merge$TIMESTAMP<-as.POSIXct(dat.soil.merge$TIMESTAMP)
 #remove unneccessary columns
-dat.kiebitz.soil<-dat.kiebitz.soil[,c(1, 3, 9, 15)]
+dat.soil.merge<-dat.soil.merge[,c(1, 3, 9, 15)]
 #reshape
-dat_kiebitz_soil_long <- dat.kiebitz.soil %>%                             
+dat_kiebitz_soil_long <- dat.soil.merge %>%                             
   gather(variable, value, -c(TIMESTAMP))
 
 #plot
@@ -176,9 +195,17 @@ ggplot(dat_kiebitz_soil_long, aes(TIMESTAMP, value)) +
   geom_line()+
   facet_wrap(variable ~ ., nrow=3, scales="free")+
   theme_bw()
-#stats
-soil_stats_whole<-data.frame("VWC_1"=mean(dat.kiebitz.soil$WC01_VWC_Avg),
-                         "VWC_2"=mean(dat.kiebitz.soil$WC02_VWC_Avg),
-                         "VWC_3"=mean(dat.kiebitz.soil$WC03_VWC_Avg))
 
-meteo_whole_stats<-cbind(meteo_whole_stats, soil_stats_whole)
+ggsave(filename="soil_whole_all_vars.pdf", 
+       device="pdf", width = 297, height = 210 , units = "mm")
+
+#stats
+soil_stats_whole<-data.frame("VWC_1"=mean(dat.soil.merge$WC01_VWC_Avg, na.rm=T),
+                         "VWC_2"=mean(dat.soil.merge$WC02_VWC_Avg, na.rm=T),
+                         "VWC_3"=mean(dat.soil.merge$WC03_VWC_Avg, na.rm=T))
+
+meteo_whole<-cbind(meteo_whole_stats, soil_stats_whole)
+meteo_stats[3,]<-meteo_whole
+rownames(meteo_stats)[3]<-"whole"
+
+write.csv2(meteo_stats, "meteo_stats.csv")
