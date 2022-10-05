@@ -36,19 +36,10 @@ df_kiebitz<-data.frame("Tair"=dat.kiebitz.flux.meteo$AirTC_Avg_kiebitz,
                "ustar"=dat.kiebitz.flux.meteo$u.,
                "H"=dat.kiebitz.flux.meteo$H,
                "wind"=dat.kiebitz.flux.meteo$wind_speed+0.3)#dat.kiebitz.flux.meteo$wind_speed)
-plot(dat.kiebitz.flux.meteo$wind_speed+0.5, type="l")
-abline(h=0, col="red")
 
-
-plot(df_kiebitz$wind*0.1, type="l")
-plot(df_kiebitz$wind[1:20], type="l")
-plot(dat.beton.flux.meteo$wind_speed, type="l")
-lines(dat.kiebitz.flux.meteo$wind_speed, type="l", col="red")
-
-mean(dat.beton.flux.meteo$wind_speed, na.rm=T)
-
+#calculate wind profile at different height
 windprofile_kiebitz<-wind.profile(data=df_kiebitz, 
-             z=c(0.15), #Vector with heights for which wind speed is to be calculated. 
+             z=c(0.16), #Vector with heights for which wind speed is to be calculated. 
              Tair = "Tair", #Air Temp
              pressure = "pressure", #Air Pressure
              ustar = "ustar", #friction velocity
@@ -59,17 +50,19 @@ windprofile_kiebitz<-wind.profile(data=df_kiebitz,
              d = 0.67*0.15, #zero plane displacement height
              z0m = 0.15*0.15, #Roughness length (m),
              #estimate_z0m = TRUE,#Should z0m be estimated from the logarithmic wind profile? I
-             stab_correction = TRUE)#, #Should stability correction be applied?
-             #stab_formulation = c("Dyer_1970","Businger_1971"))#,  #Stability correction function used
+             stab_correction = TRUE,#, #Should stability correction be applied?
+             stab_formulation = "Businger_1971")#,  #Stability correction function used
              #constants = bigleaf.constants()) #k - von-Karman constant (-) Kelvin - conversion degree Celsius to Kelvin cp - specific heat of air for constant pressure (J K-1 kg-1) g - gravitational acceleration (m s-2)
+#warning: function is only valid for heights above d + z0m! 
+#Wind speed for heights below d + z0m will return 0!
+#test:
 d_plus_zm_k<-(0.67*0.15)+(0.15*0.15)
 d_plus_zm_k-0.15
+#russian solution: just use 0.16 m as vegetation height
+plot(df_kiebitz$wind, type="l", ylim=c(0, 5))
+lines(windprofile_kiebitz, col="red")
 
-plot(windprofile_kiebitz_plus05, type="l")
-lines(windprofile_kiebitz_plus06, col="red")
-
-mean(windprofile_kiebitz, na.rm=T) #0
-sd(windprofile_kiebitz, na.rm=T) #0
+summary(windprofile_kiebitz)
 
 ####Wind Beton####
 df_beton<-data.frame("Tair"=dat.beton.flux.meteo$AirTC_Avg_beton,
@@ -90,16 +83,16 @@ windprofile_beton<-wind.profile(data=df_beton,
                                   d = 0.67*0.1, #zero plane displacement height
                                   z0m = 0.15*0.1, #Roughness length (m),
                                   #estimate_z0m = TRUE,#Should z0m be estimated from the logarithmic wind profile? I
-                                  stab_correction = TRUE)#, #Should stability correction be applied?
-#stab_formulation = c("Dyer_1970","Businger_1971"))#,  #Stability correction function used
+                                  stab_correction = TRUE, #Should stability correction be applied?
+                                  stab_formulation = "Businger_1971")#,  #Stability correction function used
 #constants = bigleaf.constants()) #k - von-Karman constant (-) Kelvin - conversion degree Celsius to Kelvin cp - specific heat of air for constant pressure (J K-1 kg-1) g - gravitational acceleration (m s-2)
 
 d_plus_zm_b<-(0.67*0.1)+(0.15*0.1) #0.082
 d_plus_zm_b-0.1
-plot(windprofile_beton, type="l")
-mean(windprofile_beton, na.rm=T) #0
-sd(windprofile_beton, na.rm=T) #0
-range(windprofile_beton, na.rm=T)
+
+
+plot(df_beton$wind, type="l", ylim=c(0, 6))
+lines(windprofile_beton, col="red")
 
 ####LAI####
 #install.packages("sen2r")
@@ -179,3 +172,14 @@ LAI_beton<-mask(LAI, beton_polys[8])
 mapview(LAI_beton)
 round(mean(values(LAI_beton), na.rm=T),2) #0.2
 round(sd(values(LAI_beton), na.rm=T),2) #0.25
+
+#calculate we.crit
+y<-0.22 #constant, depending on the horizontal wind and downward penetrating air parcel speed
+cd<-0.15 #mean drag coefficient below h
+LAI_b<-0.2
+LAI_k<-1.9
+Uh_b<-windprofile_beton
+Uh_k<-windprofile_kiebitz
+g<-9.8 #gravity
+theta_b<-df_beton$Tair
+theta_k<-df_kiebitz$Tair
