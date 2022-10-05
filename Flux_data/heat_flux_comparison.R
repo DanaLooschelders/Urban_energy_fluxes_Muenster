@@ -6,7 +6,7 @@ library(Hmisc)
 library(ggpubr)
 
 #source script to load flux data from EC02 and EC04 and slow data
-source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Flux_data/heat_fluxes_with_meteorology.r")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
 
 #flux differences
 #####sensible heat - time series####
