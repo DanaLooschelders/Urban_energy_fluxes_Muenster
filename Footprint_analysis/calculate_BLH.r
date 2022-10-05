@@ -5,6 +5,7 @@
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
 
 #-------------------calculate boundary layer height from paper-------------------------------------#
+#Kljun, N.; Calanca, P.; Rotach, M. W.; Schmid, H. P. (2015): A simple two-dimensional parameterisation for Flux Footprint Prediction (FFP)
 
 ####calculate blh for stable conditions####
 #L=monin obukvov length
@@ -35,6 +36,7 @@ blh_n<-cn*(ustar/abs(f))
 plot(blh_n, type="l")
 #####for convective conditions blh is 1500####
 blh_c<-1500
+#source for convective: https://geography.swansea.ac.uk/nkljun/ffp/www/downloads/FFPonline_Readme.pdf
 
 ####assign values to neutral, stable and convective conditions####
 #create dataframe
