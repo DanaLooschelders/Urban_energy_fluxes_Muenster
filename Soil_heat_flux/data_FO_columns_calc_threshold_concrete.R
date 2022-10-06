@@ -95,7 +95,7 @@ ggplot(df_concrete_long, aes(time, key)) +
   geom_tile(aes(fill=value)) +
   scale_fill_viridis_c("Temperature [°C]")+
   ylab(label="Height [m]")+
-  theme_bw()
+  theme_bw()+
   ggtitle(label="FO Column Concrete")
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
