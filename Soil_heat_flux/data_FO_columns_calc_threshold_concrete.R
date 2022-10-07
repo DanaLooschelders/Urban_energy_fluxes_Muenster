@@ -158,4 +158,3 @@ ggsave(filename="FO_Column_concrete_with_Threshold.png")
 
 #subset dataframe to only soil values
 df_concrete_soil<-df_concrete_t[df_concrete_t$height<=threshold_concrete,]
-
