@@ -81,7 +81,7 @@ for(i in seq(1, length(FO_grass_merged)-2, by=2)){
   }else{} #do nothing
 }
 
-threshold_grass<-0.5986373 #0.5986373 (median value)
+threshold_grass<-0.4722124 #0.4722124 
 #get index of columns over threshold
 cols<-which(as.numeric(colnames(FO_grass_merged))>=threshold_grass)
 #remove those columns
@@ -98,12 +98,12 @@ FO_grass_df<-FO_grass_merged_short_cut
 #get spatial difference of measurements
 heights_grass<-diff(as.numeric(colnames(FO_grass_df)))
 mean(heights_grass) # 0.0051
-sd(heights_grass) #0.00028
+sd(heights_grass) #0.00032
 
 #clear up environment
 rm(FO_grass_temp_time, FO_grass_list, FO_grass_merged, 
    FO_grass_merged_short, FO_grass_merged_short_cut, FO_grass_temp_time_df, 
-   FO_grass_temp_time_df_short, FO_grass_temp_time_df_order_merged)
+   FO_grass_temp_time_df_short)
 
 
 #transpose dataframe
@@ -167,13 +167,29 @@ for(x in 1:length(alpha.range)){
   
 }
 
+#plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggplot(alpha_rmse_1, aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Grass_test_subset_1_rmse_coarse_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
 
-plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for a day 1.747528e-07
-min(alpha_rmse_1$RMSE) #for a day  0.1372653
+ggplot(alpha_rmse_1[35:75,], aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Grass_test_subset_1_rmse_coarse_spectrum_subset_plot.png",
+       width=297, height=210, units = "mm")
+
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for a day  1.747528e-07
+min(alpha_rmse_1$RMSE) #for a day  0.0926742
 
 #optimal alpha was 1.747528e-07
-alpha.range<-seq(1*10^-7, 2*10^-7, by=0.01*10^-7)
+alpha.range<-seq(1*10^-7, 3*10^-7, by=0.01*10^-7)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -202,9 +218,9 @@ for(x in 1:length(alpha.range)){
 ggplot(data=alpha_rmse_1)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
-
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for one day 1.56e-07
-min(alpha_rmse_1$RMSE) #for one day 0.1372462
+ggsave(filename="Grass_test_subset_1_rmse_fine_spectrum_full_plot.png")
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for one day 1.95e-07
+min(alpha_rmse_1$RMSE) #for one day 0.09265126
 
 
 #####try for second subset####
@@ -247,12 +263,29 @@ for(x in 1:length(alpha.range)){
   
 }
 
-plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day 1e-07
-min(alpha_rmse_2$RMSE) #for a day 0.1387557
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggplot(alpha_rmse_2, aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Grass_test_subset_2_rmse_coarse_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
 
-#optimal alpha was for a day 1e-07
-alpha.range<-seq(8*10^-8, 2*10^-7, by=0.01*10^-7)
+ggplot(alpha_rmse_2[35:75,], aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Grass_test_subset_2_rmse_coarse_spectrum_subset_plot.png",
+       width=297, height=210, units = "mm")
+
+#plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day 1.747528e-07
+min(alpha_rmse_2$RMSE) #for a day 0.08316591
+
+#optimal alpha was for a day 1.7e-07
+alpha.range<-seq(1*10^-7, 3*10^-7, by=0.01*10^-7)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -281,11 +314,13 @@ for(x in 1:length(alpha.range)){
 ggplot(data=alpha_rmse_2)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
+ggsave(filename="Grass_test_subset_2_rmse_fine_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
 
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day  1.14e-07
-min(alpha_rmse_2$RMSE) #for a day 0.1387406
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day  1.83e-07
+min(alpha_rmse_2$RMSE) #for a day 0.08316106
 
-mean_alpha<-mean(c(1.56*10^-7, 1.14*10^-7))
+mean_alpha<-mean(c(1.95*10^-7, 1.83*10^-7)) #1.89e-07
 
 #####validate for day in last third of dataframe####
 #subset hour 1
@@ -314,4 +349,5 @@ FO_grass_df_pred_3<-FO_grass_df_pred_3[-1,] #remove first row (invalid)
 FO_grass_df_pred_3<-FO_grass_df_pred_3[,-1] #remove first column (cannot be predicted)
 FO_grass_df_pred_3<-FO_grass_df_pred_3[,-dim(FO_grass_df_pred_3)[2]] #remove last column -> no measured values
 data_predicted<-as.vector(t(FO_grass_df_pred_3))
-RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.1258283
+RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2))
+#0.09261889

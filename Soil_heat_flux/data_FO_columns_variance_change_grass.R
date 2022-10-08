@@ -73,7 +73,7 @@ vars_grass$var<-as.numeric(c(colwise(var, na.rm=T)(rollmean_10min)))
 
 #plot
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
-ggplot(data=vars_grass, aes(x=height, y=var))+
+ggplot(data=vars_grass[80:100,], aes(x=height, y=var))+
   geom_line()+
   theme_bw()+
   ylab(label="variance [°C]")+
@@ -82,6 +82,7 @@ ggplot(data=vars_grass, aes(x=height, y=var))+
 ggsave(filename="Threshold_var_grass.png")
 
 plot(vars_grass$height, vars_grass$var, type="l")
-vars_grass$height[which.max(vars_grass$var)]
+#get first peak
+vars_grass$height[1:100][which.max(vars_grass$var[1:100])]
 
-#0.53
+#0.47
