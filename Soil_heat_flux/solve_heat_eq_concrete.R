@@ -25,7 +25,7 @@ for(i in 1:length(FO_concrete_only_temp)){
 FO_concrete_temp_time_df<-rbind.fill(FO_concrete_temp_time)
 #order columns
 FO_concrete_temp_time_df_order<-FO_concrete_temp_time_df[ ,order(colnames(FO_concrete_temp_time_df))]
-threshold_concrete<-0.6846209  #0.6846209 (median value)
+threshold_concrete<-0.53  #0.53 (from variance change)
 #get index of columns over threshold
 cols<-which(as.numeric(colnames(FO_concrete_temp_time_df_order[, -length(FO_concrete_temp_time_df_order)]))>=threshold_concrete)
 #remove those columns
@@ -104,12 +104,28 @@ FO_concrete_df_pred_1[,i+1]<-pred_temp[2,]
 }
 
 
-plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for an hour 2.4e-07 and for a day 8.111308e-08
-min(alpha_rmse_1$RMSE) #for an hour 0.07550493 and for a day  0.1258294
+#plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggplot(alpha_rmse_1, aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Concrete_test_subset_1_rmse_coarse_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
 
-#optimal alpha was 8.111308e-08
-alpha.range<-seq(7*10^-8, 9*10^-8, by=0.01*10^-8)
+ggplot(alpha_rmse_1[40:85,], aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Concrete_test_subset_1_rmse_coarse_spectrum_subset_plot.png",
+       width=297, height=210, units = "mm")
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] # 9.7701e-08
+min(alpha_rmse_1$RMSE) #0.07632424
+
+#optimal alpha was 9.7701e-08
+alpha.range<-seq(8.8*10^-8, 1.2*10^-7, by=0.01*10^-8)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -138,9 +154,17 @@ for(x in 1:length(alpha.range)){
 ggplot(data=alpha_rmse_1)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
+ggsave(filename="Concrete_test_subset_1_rmse_fine_spectrum_full_plot.png", 
+       width=297, height=210, units = "mm")
 
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for one hour 2.38e-07 for one day 8.5e-08
-min(alpha_rmse_1$RMSE) #for one hour 0.07550471 for one day 0.125828
+ggplot(data=alpha_rmse_1[30:100,])+
+  geom_point(aes(x=alpha, y=RMSE))+
+  theme_bw()
+ggsave(filename="Concrete_test_subset_1_rmse_fine_spectrum_subset_plot.png", 
+       width=297, height=210, units = "mm")
+
+alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #9.46e-08
+min(alpha_rmse_1$RMSE) # 0.07632312
 
 
 #####try for second subset####
@@ -183,12 +207,29 @@ for(x in 1:length(alpha.range)){
   
 }
 
-plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for an hour 2.4e-07 for a day 8.902151e-08
-min(alpha_rmse_2$RMSE) #for an hour 0.07550493 for a day 0.1242301
+#plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggplot(alpha_rmse_2, aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Concrete_test_subset_2_rmse_coarse_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
 
-#optimal alpha was 2.4e-7  for a day 8.902151e-08
-alpha.range<-seq(7.9*10^-8, 9.5*10^-8, by=0.01*10^-8)
+ggplot(alpha_rmse_2[50:90,], aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Concrete_test_subset_2_rmse_coarse_spectrum_subset_plot.png",
+       width=297, height=210, units = "mm")
+
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #1.29155e-07
+min(alpha_rmse_2$RMSE) #0.07255682
+
+#optimal alpha was 1.29155e-07
+alpha.range<-seq(9.9*10^-8, 1.6*10^-7, by=0.01*10^-8)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -217,11 +258,19 @@ for(x in 1:length(alpha.range)){
 ggplot(data=alpha_rmse_2)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
+ggsave(filename="Concrete_test_subset_2_rmse_fine_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
 
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #2.38e-07  for a day 9.18e-08
-min(alpha_rmse_2$RMSE) #for an hour 0.07550471 for a day 0.1242295
+ggplot(data=alpha_rmse_2[220:280,])+
+  geom_point(aes(x=alpha, y=RMSE))+
+  theme_bw()
+ggsave(filename="Concrete_test_subset_2_rmse_fine_spectrum_subset_plot.png",
+       width=297, height=210, units = "mm")
 
-mean_alpha<-mean(c(8.5*10^-8, 9.18*10^-8))
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #1.241e-07
+min(alpha_rmse_2$RMSE) #0.0725546
+
+mean_alpha<-mean(c(9.46*10^-8,1.241*10^-7))
 
 #####validate for day in last third of dataframe####
 #subset hour 1
@@ -250,4 +299,4 @@ difftime_concrete_3<-as.vector(diff.POSIXt(as.POSIXct(colnames(FO_concrete_df_va
   FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-1] #remove first column (cannot be predicted)
   FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-dim(FO_concrete_df_pred_3)[2]] #remove last column -> no measured values
   data_predicted<-as.vector(t(FO_concrete_df_pred_3))
-  RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.125829
+  RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.07634901

@@ -218,7 +218,8 @@ for(x in 1:length(alpha.range)){
 ggplot(data=alpha_rmse_1)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
-ggsave(filename="Grass_test_subset_1_rmse_fine_spectrum_full_plot.png")
+ggsave(filename="Grass_test_subset_1_rmse_fine_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
 alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for one day 1.95e-07
 min(alpha_rmse_1$RMSE) #for one day 0.09265126
 
@@ -315,6 +316,12 @@ ggplot(data=alpha_rmse_2)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 ggsave(filename="Grass_test_subset_2_rmse_fine_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
+
+ggplot(data=alpha_rmse_2[60:110,])+
+  geom_point(aes(x=alpha, y=RMSE))+
+  theme_bw()
+ggsave(filename="Grass_test_subset_2_rmse_fine_spectrum_subset_plot.png",
        width=297, height=210, units = "mm")
 
 alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day  1.83e-07
