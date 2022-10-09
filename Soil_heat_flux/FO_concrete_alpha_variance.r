@@ -49,14 +49,18 @@ for(i in 1:ncol(FO_concrete_df_t[1:ncol(FO_concrete_df_t)-1])){
                          tdelta=tdelta_concrete[i], n=2)
 }
 
-alphas_concrete<-data.frame("time"=FO_concrete_temp_time_df$time, 
+alphas_concrete_24s<-data.frame("time"=FO_concrete_temp_time_df$time, 
                             "alpha"=alpha_values_concrete)
 #plot alpha values
-ggplot(alphas_concrete, aes(x=time, y=alpha))+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggplot(alphas_concrete_24s, aes(x=time, y=alpha))+
   geom_line()+
-  theme_bw()
+  theme_bw()+
+  xlab("time")
+ggsave(filename="alpha_concrete_24s.png",
+       width=297, height=210, units = "mm")
 #calculate mean
-mean(alpha_values_concrete, na.rm=T)
+mean(alpha_values_concrete, na.rm=T) #4.185227e-07
 
 #average by hour
 alpha_hour_avg<-aggregate(list(alpha = alphas_concrete$alpha), 
@@ -67,7 +71,24 @@ alpha_hour_avg$hourofday<-as.POSIXct(alpha_hour_avg$hourofday)
 #plot
 ggplot(alpha_hour_avg, aes(x=hourofday, y=alpha))+
   geom_line()+
-  theme_bw()
+  theme_bw()+
+  xlab("time")
+ggsave(filename="alpha_concrete_avg_to_hour.png",
+       width=297, height=210, units = "mm")
+
+#average by day
+alpha_day_avg<-aggregate(list(alpha = alphas_concrete$alpha), 
+                          list(day = cut(alphas_concrete$time, "1 day")), 
+                          mean)
+alpha_day_avg$day<-as.POSIXct(alpha_day_avg$day)
+
+#plot
+ggplot(alpha_day_avg, aes(x=day, y=alpha))+
+  geom_line()+
+  theme_bw()+
+  xlab("time")
+ggsave(filename="alpha_concrete_avg_to_day.png",
+       width=297, height=210, units = "mm")
 
 #check time difference of values that are not 24
 #tdelta_concrete[(tdelta_concrete!=24)]
@@ -98,13 +119,15 @@ for(i in 1:ncol(df_concrete_short_t[1:ncol(df_concrete_short_t)-1])){
                                   tdelta=tdelta_concrete[i], n=2)
 }
 
-alphas_concrete<-data.frame("time"=df_concrete$time, 
+alphas_concrete_hour<-data.frame("time"=df_concrete$time, 
                             "alpha"=alpha_values_concrete)
 
 #plot alpha values
-ggplot(alphas_concrete, aes(x=time, y=alpha))+
+ggplot(alphas_concrete_hour, aes(x=time, y=alpha))+
   geom_line()+
-  theme_bw()
+  theme_bw()+
+ggsave(filename="alpha_concrete_hour.png",
+         width=297, height=210, units = "mm")
 
 alphas_concrete[which.max(alphas_concrete$alpha),]
 alphas_concrete[which.min(alphas_concrete$alpha),]

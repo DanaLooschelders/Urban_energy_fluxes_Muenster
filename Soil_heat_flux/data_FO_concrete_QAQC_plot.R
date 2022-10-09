@@ -175,7 +175,7 @@ range(diff_concrete_time)
 #-2.053447  1.791176
 hist(diff_concrete_time, breaks = 100)
 #check if there are spikes in space
-diff_concrete_space<-diff(as.matrix(t(df_concrete_4QA)))
+diff_concrete_space<-diff(as.matrix(t(FO_concrete_4QA))) #CHECK!!!
 range(diff_concrete_space)
 #-1.478578  2.624966
 hist(diff_concrete_space, breaks=100)
