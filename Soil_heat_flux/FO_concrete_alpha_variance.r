@@ -28,13 +28,16 @@ alpha <- function(u, nextu, xdelta, tdelta, n) {
 }
 
 ####test####
-tdelta_concrete<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time))
 #use first two columns of FO_concrete_df_t
 alpha(u=FO_concrete_df_t$`2021-07-29 14:29:12`, 
       nextu=FO_concrete_df_t$`2021-07-29 14:29:36`,
       xdelta=0.005089005, tdelta=24, n=2)
 
+
 ####for 24 secs####
+tdelta_concrete<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time))
+#transpose data frame
+FO_concrete_df_t<-as.data.frame(t(FO_concrete_df))
 #create output data frame
 alpha_values_concrete<-rep(NA, times=ncol(FO_concrete_df_t))
 #run function for all concrete data
@@ -54,6 +57,17 @@ ggplot(alphas_concrete, aes(x=time, y=alpha))+
   theme_bw()
 #calculate mean
 mean(alpha_values_concrete, na.rm=T)
+
+#average by hour
+alpha_hour_avg<-aggregate(list(alpha = alphas_concrete$alpha), 
+          list(hourofday = cut(alphas_concrete$time, "1 hour")), 
+          mean)
+alpha_hour_avg$hourofday<-as.POSIXct(alpha_hour_avg$hourofday)
+
+#plot
+ggplot(alpha_hour_avg, aes(x=hourofday, y=alpha))+
+  geom_line()+
+  theme_bw()
 
 #check time difference of values that are not 24
 #tdelta_concrete[(tdelta_concrete!=24)]
@@ -91,3 +105,9 @@ alphas_concrete<-data.frame("time"=df_concrete$time,
 ggplot(alphas_concrete, aes(x=time, y=alpha))+
   geom_line()+
   theme_bw()
+
+alphas_concrete[which.max(alphas_concrete$alpha),]
+alphas_concrete[which.min(alphas_concrete$alpha),]
+
+mean(alphas_concrete$alpha[alphas_concrete$alpha>=0], na.rm=T) #1.543402e-07
+mean(alphas_concrete$alpha, na.rm=T) #9.243853e-09
