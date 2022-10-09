@@ -5,41 +5,6 @@ library(cmna)
 library(plyr)
 library(bigsnpr)
 
-#use not aggregated data
-FO_concrete_temp_time<-vector(mode='list', length=length(files))
-for(i in 1:length(FO_concrete_only_temp)){
-  print(i)
-  #get starting datetime
-  start_date<-as.POSIXct(names(FO_concrete_only_temp)[i])
-  #get time seq from starting time
-  time<-seq.POSIXt(from=start_date, by= "24 sec", 
-                   length.out=dim(FO_concrete_only_temp[[i]])[1])
-  #convert matrix to dataframe
-  FO_concrete_temp_time[[i]]<-as.data.frame(FO_concrete_only_temp[[i]])
-  #set colnames to correspond to height
-  colnames(FO_concrete_temp_time[[i]])<-FO_concrete_list[[i]]$z
-  #add time as variable
-  FO_concrete_temp_time[[i]]$time<-time
-}
-#rind list to one dataframe and fill missing cols with NA
-FO_concrete_temp_time_df<-rbind.fill(FO_concrete_temp_time)
-#order columns
-FO_concrete_temp_time_df_order<-FO_concrete_temp_time_df[ ,order(colnames(FO_concrete_temp_time_df))]
-threshold_concrete<-0.53  #0.53 (from variance change)
-#get index of columns over threshold
-cols<-which(as.numeric(colnames(FO_concrete_temp_time_df_order[, -length(FO_concrete_temp_time_df_order)]))>=threshold_concrete)
-#remove those columns
-FO_concrete_temp_time_df_short<-FO_concrete_temp_time_df_order[,-cols]
-#rename for convenience
-FO_concrete_df<-FO_concrete_temp_time_df_short
-#get spatial difference of measurements
-heights_concrete<-diff(as.numeric(colnames(FO_concrete_df[-length(FO_concrete_df)])))
-
-#remove column with time
-FO_concrete_df<-FO_concrete_df[,-length(FO_concrete_df)]
-
-#clear up environment
-#rm(FO_concrete_temp_time, FO_concrete_list, FO_concrete_only_temp, FO_concrete_temp_time_df_order)
 
 
 #####heat function####

@@ -66,11 +66,8 @@ unrealistic_alphas<-alphas_concrete[alphas_concrete<0|alphas_concrete>1*10^-7]
 ####for an hour####
 #get time diff and convert to seconds
 tdelta_concrete<-as.vector(diff.POSIXt(df_concrete$time))*60*60 
-#use values aggregated to one hour to calculate alpha (use df_concrete)
-#cut df_concrete to threshold of 0.53
-cols<-which(as.numeric(colnames(df_concrete[, -c(196, 197)]))>=threshold_concrete)
-#remove those columns
-df_concrete_short<-df_concrete[,-cols]
+#use values aggregated to one hour to calculate alpha (use df_concrete_short)
+
 #remove last two cloumns
 df_concrete_short<-subset(df_concrete_short, select = -c(file, time))
 #transpose

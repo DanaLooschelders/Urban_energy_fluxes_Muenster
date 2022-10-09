@@ -9,7 +9,8 @@ library(tidyr)
 library(SiZer)
 library(beepr)
 library(lubridate)
-####concrete column####
+library(Hmisc)
+library(plyr)
 setwd("Z:/klima/Projekte/2021_CalmCity/2_Daten/11_FODS_Columns/FO-column-concrete/FO-column-concrete/final")
 
 files<-list.files(pattern="nc")
@@ -51,8 +52,7 @@ for (i in 1:length(files)){
   }else{}
 }
 beep()
-####aggregate and subset data####
-#####concrete
+####data aggregated to one hour####
 #output data frame
 df_concrete <- data.frame(matrix(ncol = dim(FO_concrete_list[[300]]$cal_temp)[1] , #column for every space var
                                  nrow = length(FO_concrete_list)))  #row for aggregated time vars
@@ -90,7 +90,97 @@ df_concrete_long$key<-as.numeric(df_concrete_long$key)
 df_concrete_long$value<-as.numeric(df_concrete_long$value)
 #get mean difference in height
 mean(diff(unique(df_concrete_long$key)), na.rm=T)#0.005128866
-#plot as heatmap
+#cut df_concrete to threshold of 0.53
+cols<-which(as.numeric(colnames(df_concrete[, -c(196, 197)]))>=0.53)
+#remove those columns
+df_concrete_short<-df_concrete[,-cols]
+####QAQC aggregated data####
+df_concrete_4QA<-subset(df_concrete_short, select = -c(file, time))
+#check if there physically unrealistic temperatures
+range(df_concrete_4QA)
+#13.29028 35.22602
+df_hist<-data.matrix(df_concrete_4QA)
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+png(filename = "Histogramm_FO_concrete_Soil_Temp.png",
+    height = 4960, width=7016)
+hist(df_hist, 
+     main = "Histogramm of FO Concrete - Soil Temp",
+     xlab = "Temperature [°C]")
+dev.off()
+
+#check if there are spikes in time
+diff_concrete_time<-diff(as.matrix(df_concrete_4QA))
+range(diff_concrete_time)
+#-5.754533  6.424854
+hist(diff_concrete_time, breaks = 100)
+
+#check if there are spikes in space
+diff_concrete_space<-diff(as.matrix(t(df_concrete_4QA)))
+range(diff_concrete_space)
+#-1.478578  2.624966
+hist(diff_concrete_space, breaks=100)
+
+####for non-aggregated data####
+#use not aggregated data
+FO_concrete_temp_time<-vector(mode='list', length=length(files))
+for(i in 1:length(FO_concrete_only_temp)){
+  print(i)
+  #get starting datetime
+  start_date<-as.POSIXct(names(FO_concrete_only_temp)[i])
+  #get time seq from starting time
+  time<-seq.POSIXt(from=start_date, by= "24 sec", 
+                   length.out=dim(FO_concrete_only_temp[[i]])[1])
+  #convert matrix to dataframe
+  FO_concrete_temp_time[[i]]<-as.data.frame(FO_concrete_only_temp[[i]])
+  #set colnames to correspond to height
+  colnames(FO_concrete_temp_time[[i]])<-FO_concrete_list[[i]]$z
+  #add time as variable
+  FO_concrete_temp_time[[i]]$time<-time
+}
+#rind list to one dataframe and fill missing cols with NA
+FO_concrete_temp_time_df<-rbind.fill(FO_concrete_temp_time)
+#order columns
+FO_concrete_temp_time_df_order<-FO_concrete_temp_time_df[ ,order(colnames(FO_concrete_temp_time_df))]
+threshold_concrete<-0.53  #0.53 (from variance change)
+#get index of columns over threshold
+cols<-which(as.numeric(colnames(FO_concrete_temp_time_df_order[, -length(FO_concrete_temp_time_df_order)]))>=threshold_concrete)
+#remove those columns
+FO_concrete_temp_time_df_short<-FO_concrete_temp_time_df_order[,-cols]
+#rename for convenience
+FO_concrete_df<-FO_concrete_temp_time_df_short
+#remove the others
+#get spatial difference of measurements
+heights_concrete<-diff(as.numeric(colnames(FO_concrete_df[-length(FO_concrete_df)])))
+
+#remove column with time
+FO_concrete_df<-FO_concrete_df[,-length(FO_concrete_df)]
+
+#clear up environment
+rm(FO_concrete_temp_time, FO_concrete_list, FO_concrete_only_temp, FO_concrete_temp_time_df_order)
+
+####QAQC non-aggregated data####
+FO_concrete_df_4QC<-FO_concrete_df
+df_hist<-data.matrix(FO_concrete_df_4QC)
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+png(filename = "Histogramm_FO_concrete_Soil_Temp_notaggregated.png",
+    height = 4960, width=7016)
+hist(df_hist, 
+     main = "Histogramm of FO Concrete - Soil Temp",
+     xlab = "Temperature [°C]")
+dev.off()
+
+#check if there are spikes in time
+diff_concrete_time<-diff(as.matrix(FO_concrete_df_4QC))
+range(diff_concrete_time)
+#-2.053447  1.791176
+hist(diff_concrete_time, breaks = 100)
+#check if there are spikes in space
+diff_concrete_space<-diff(as.matrix(t(df_concrete_4QA)))
+range(diff_concrete_space)
+#-1.478578  2.624966
+hist(diff_concrete_space, breaks=100)
+
+####plot as heatmap####
 ggplot(df_concrete_long, aes(time, key)) +
   geom_tile(aes(fill=value)) +
   scale_fill_viridis_c("Temperature [°C]")+
