@@ -258,6 +258,110 @@ alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day  1.83e-07
 min(alpha_rmse_2$RMSE) #for a day 0.08316106
 
 mean_alpha<-mean(c(1.95*10^-7, 1.83*10^-7)) #1.89e-07
+#####try for third subset####
+#subset hour 3
+FO_grass_df_test_subset_2<-FO_grass_df_test[,40000:43600]
+range(FO_grass_temp_time_df_order$time[40000:43600]) #timespan subset 2
+
+#get time differences for subset 1
+difftime_grass_2<-as.vector(diff.POSIXt(FO_grass_temp_time_df_order$time[40000:43600]))
+#run heat function for every time step
+#Effects-of-aggregate-types-on-thermal-properties-of-grass (2012)
+#alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
+alpha.range<-seq_log(1*10^-15, 1*10^-3, length.out = 100)
+#create output dataframe for alpha and RMSEs
+alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+#create vector of measured data for RMSE calculation
+FO_grass_df_test_subset_2_measured<-FO_grass_df_test_subset_2
+FO_grass_df_test_subset_2_measured<-FO_grass_df_test_subset_2_measured[-1,] #remove first row (invalid)
+FO_grass_df_test_subset_2_measured<-FO_grass_df_test_subset_2_measured[,-1]  #remove first column (cant be predicted)
+data_measured<-as.vector(t(FO_grass_df_test_subset_2_measured))
+#run loop for broad range of alphas
+for(x in 1:length(alpha.range)){
+  print(x)
+  #create output dataframe for subset 1
+  FO_grass_df_pred_2<-setNames(data.frame(matrix(ncol = ncol(FO_grass_df_test_subset_2), 
+                                                 nrow = nrow(FO_grass_df_test_subset_2))), 
+                               colnames(FO_grass_df_test_subset_2))
+  rownames(FO_grass_df_pred_2)<-rownames(FO_grass_df_test_subset_2)
+  for(i in 1:ncol(FO_grass_df_test_subset_2)){
+    #print(i)
+    pred_temp<-heat_heights(u=FO_grass_df_test_subset_2[,i], alpha=alpha.range[x], 
+                            xdelta=heights_grass, tdelta=difftime_grass_2[i], n=2)
+    FO_grass_df_pred_2[,i+1]<-pred_temp[2,]
+  }
+  FO_grass_df_pred_2<-FO_grass_df_pred_2[-1,] #remove first row (invalid)
+  FO_grass_df_pred_2<-FO_grass_df_pred_2[,-1] #remove first column (cannot be predicted)
+  FO_grass_df_pred_2<-FO_grass_df_pred_2[,-dim(FO_grass_df_pred_2)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_grass_df_pred_2))
+  alpha_rmse_2$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+  
+}
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggplot(alpha_rmse_2, aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Grass_test_subset_2_rmse_coarse_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
+
+ggplot(alpha_rmse_2[35:75,], aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Grass_test_subset_2_rmse_coarse_spectrum_subset_plot.png",
+       width=297, height=210, units = "mm")
+
+#plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day 1.747528e-07
+min(alpha_rmse_2$RMSE) #for a day 0.08316591
+
+#optimal alpha was for a day 1.7e-07
+alpha.range<-seq(1*10^-7, 3*10^-7, by=0.01*10^-7)
+#create output dataframe for alpha and RMSEs
+alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+#run loop with narrow range of alpha
+for(x in 1:length(alpha.range)){
+  print(x)
+  #create output dataframe for subset 1
+  FO_grass_df_pred_2<-setNames(data.frame(matrix(ncol = ncol(FO_grass_df_test_subset_2), 
+                                                 nrow = nrow(FO_grass_df_test_subset_2))), 
+                               colnames(FO_grass_df_test_subset_2))
+  rownames(FO_grass_df_pred_2)<-rownames(FO_grass_df_test_subset_2)
+  for(i in 1:ncol(FO_grass_df_test_subset_2)){
+    #print(i)
+    pred_temp<-heat_heights(u=FO_grass_df_test_subset_2[,i], alpha=alpha.range[x], 
+                            xdelta=heights_grass, tdelta=difftime_grass_2[i], n=2)
+    FO_grass_df_pred_2[,i+1]<-pred_temp[2,]
+  }
+  FO_grass_df_pred_2<-FO_grass_df_pred_2[-1,] #remove first row (invalid)
+  FO_grass_df_pred_2<-FO_grass_df_pred_2[,-1] #remove first column (cannot be predicted)
+  FO_grass_df_pred_2<-FO_grass_df_pred_2[,-dim(FO_grass_df_pred_2)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_grass_df_pred_2))
+  alpha_rmse_2$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+  
+}
+
+#plot results
+ggplot(data=alpha_rmse_2)+
+  geom_point(aes(x=alpha, y=RMSE))+
+  theme_bw()
+ggsave(filename="Grass_test_subset_2_rmse_fine_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
+
+ggplot(data=alpha_rmse_2[60:110,])+
+  geom_point(aes(x=alpha, y=RMSE))+
+  theme_bw()
+ggsave(filename="Grass_test_subset_2_rmse_fine_spectrum_subset_plot.png",
+       width=297, height=210, units = "mm")
+
+alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day  1.83e-07
+min(alpha_rmse_2$RMSE) #for a day 0.08316106
+
+mean_alpha<-mean(c(1.95*10^-7, 1.83*10^-7)) #1.89e-07
 
 #####validate for day in last third of dataframe####
 #subset hour 1

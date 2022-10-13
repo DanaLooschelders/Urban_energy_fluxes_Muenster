@@ -109,7 +109,7 @@ hist(df_hist,
 dev.off()
 
 #check if there are spikes in time
-diff_concrete_time<-diff(as.matrix(df_concrete_4QA))
+diff_concrete_time<-diff(as.matrix(df_concrete_4QA), na.rm=T)
 range(diff_concrete_time)
 #-5.754533  6.424854
 hist(diff_concrete_time, breaks = 100)
@@ -175,9 +175,9 @@ range(diff_concrete_time)
 #-2.053447  1.791176
 hist(diff_concrete_time, breaks = 100)
 #check if there are spikes in space
-diff_concrete_space<-diff(as.matrix(t(FO_concrete_4QA))) #CHECK!!!
+diff_concrete_space<-diff(as.matrix(t(FO_concrete_df_4QC))) 
 range(diff_concrete_space)
-#-1.478578  2.624966
+#-2.166154  3.865688
 hist(diff_concrete_space, breaks=100)
 
 ####plot as heatmap####
@@ -189,6 +189,7 @@ ggplot(df_concrete_long, aes(time, key)) +
   ggtitle(label="FO Column Concrete")
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
-ggsave(filename="FO_Column_concrete.png")
+ggsave(filename="FO_Column_concrete.png",
+       width=297, height=210, units = "mm")
 
 

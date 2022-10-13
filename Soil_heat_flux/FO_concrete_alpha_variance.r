@@ -63,8 +63,8 @@ ggsave(filename="alpha_concrete_24s.png",
 mean(alpha_values_concrete, na.rm=T) #4.185227e-07
 
 #average by hour
-alpha_hour_avg<-aggregate(list(alpha = alphas_concrete$alpha), 
-          list(hourofday = cut(alphas_concrete$time, "1 hour")), 
+alpha_hour_avg<-aggregate(list(alpha = alphas_concrete_24s$alpha), 
+          list(hourofday = cut(alphas_concrete_24s$time, "1 hour")), 
           mean)
 alpha_hour_avg$hourofday<-as.POSIXct(alpha_hour_avg$hourofday)
 
@@ -77,9 +77,9 @@ ggsave(filename="alpha_concrete_avg_to_hour.png",
        width=297, height=210, units = "mm")
 
 #average by day
-alpha_day_avg<-aggregate(list(alpha = alphas_concrete$alpha), 
-                          list(day = cut(alphas_concrete$time, "1 day")), 
-                          mean)
+alpha_day_avg<-aggregate(list(alpha = alphas_concrete_24s$alpha), 
+                          list(day = cut(alphas_concrete_24s$time, "1 day")), 
+                          mean, na.rm=T)
 alpha_day_avg$day<-as.POSIXct(alpha_day_avg$day)
 
 #plot
@@ -129,8 +129,9 @@ ggplot(alphas_concrete_hour, aes(x=time, y=alpha))+
 ggsave(filename="alpha_concrete_hour.png",
          width=297, height=210, units = "mm")
 
-alphas_concrete[which.max(alphas_concrete$alpha),]
-alphas_concrete[which.min(alphas_concrete$alpha),]
+alphas_concrete[which.max(alphas_concrete_hour$alpha),]
+alphas_concrete[which.min(alphas_concrete_hour$alpha),]
 
-mean(alphas_concrete$alpha[alphas_concrete$alpha>=0], na.rm=T) #1.543402e-07
-mean(alphas_concrete$alpha, na.rm=T) #9.243853e-09
+mean(alphas_concrete$alpha[alphas_concrete_hour$alpha>=0], na.rm=T) #1.543402e-07
+mean(alphas_concrete_hour$alpha, na.rm=T) #9.243853e-09
+median(alphas_concrete_hour$alpha, na.rm=T)
