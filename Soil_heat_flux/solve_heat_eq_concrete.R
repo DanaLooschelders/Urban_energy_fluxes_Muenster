@@ -1,12 +1,9 @@
 #source script to loead netcdf files
-source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/data_FO_columns_calc_threshold_concrete.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/data_FO_concrete_QAQC_plot.R")
 #calculate diffusivity
 library(cmna)
 library(plyr)
 library(bigsnpr)
-
-
-
 #####heat function####
     #u = initial values of u
     #alpha = thermal diffusivity
@@ -21,7 +18,7 @@ colnames(FO_concrete_df_t)<-FO_concrete_temp_time_df$time #set time as colnames
 #2/3 test and 1/3 Validation
 #subset test
 FO_concrete_df_test<-FO_concrete_df_t[,1:round(length(FO_concrete_df_t)/3*2, 0)]
-#choose only 2 1 day periods from test data.frame to reduce computational cost
+#choose only 3 1 day periods from test data.frame to reduce computational cost
 60*60*24/24 #3600 Files sind 1 tag
 #subset day 1
 FO_concrete_df_test_subset_1<-FO_concrete_df_test[,10000:13600]
@@ -122,7 +119,7 @@ ggplot(data=alpha_rmse_1)+
 ggsave(filename="Concrete_test_subset_1_rmse_fine_spectrum_full_plot.png", 
        width=297, height=210, units = "mm")
 
-ggplot(data=alpha_rmse_1[30:100,])+
+ggplot(data=alpha_rmse_1[35:100,])+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 ggsave(filename="Concrete_test_subset_1_rmse_fine_spectrum_subset_plot.png", 
@@ -235,8 +232,108 @@ ggsave(filename="Concrete_test_subset_2_rmse_fine_spectrum_subset_plot.png",
 alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #1.241e-07
 min(alpha_rmse_2$RMSE) #0.0725546
 
-mean_alpha<-mean(c(9.46*10^-8,1.241*10^-7))
+####run  loop for subset 3 ####
+#subset day 3
+FO_concrete_df_test_subset_3<-FO_concrete_df_test[,44000:47600]
+range(FO_concrete_temp_time_df$time[44000:47600]) #timespan subset 1
+#get time differences for subset 1
+difftime_concrete_3<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time[44000:47600]))
 
+alpha.range<-seq_log(1*10^-10, 1*10^-6, length.out = 100)
+#create output dataframe for alpha and RMSEs
+alpha_rmse_3<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+#create vector of measured data for RMSE calculation
+FO_concrete_df_test_subset_3_measured<-FO_concrete_df_test_subset_3
+FO_concrete_df_test_subset_3_measured<-FO_concrete_df_test_subset_3_measured[-1,] #remove first row (invalid)
+FO_concrete_df_test_subset_3_measured<-FO_concrete_df_test_subset_3_measured[,-1]  #remove first column (cant be predicted)
+data_measured<-as.vector(t(FO_concrete_df_test_subset_3_measured))
+#run loop for broad range of alphas
+
+for(x in 1:length(alpha.range)){
+  print(x)
+  #create output dataframe for subset 1
+  FO_concrete_df_pred_3<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_test_subset_3), 
+                                                    nrow = nrow(FO_concrete_df_test_subset_3))), 
+                                  colnames(FO_concrete_df_test_subset_3))
+  rownames(FO_concrete_df_pred_3)<-rownames(FO_concrete_df_test_subset_3)
+  for(i in 1:ncol(FO_concrete_df_test_subset_3)){
+    #print(i)
+    pred_temp<-heat(u=FO_concrete_df_test_subset_3[,i], alpha=alpha.range[x], 
+                    xdelta=0.005089005, tdelta=difftime_concrete_3[i], n=2)
+    FO_concrete_df_pred_3[,i+1]<-pred_temp[2,]
+  }
+  FO_concrete_df_pred_3<-FO_concrete_df_pred_3[-1,] #remove first row (invalid)
+  FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-1] #remove first column (cannot be predicted)
+  FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-dim(FO_concrete_df_pred_3)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_concrete_df_pred_3))
+  alpha_rmse_3$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+  
+}
+
+#plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggplot(alpha_rmse_3, aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Concrete_test_subset_3_rmse_coarse_spectrum_full_plot.png",
+       width=297, height=210, units = "mm")
+
+ggplot(alpha_rmse_3[40:80,], aes(x=alpha, y=RMSE))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(trans='log10')+
+  scale_y_continuous(trans='log10')
+ggsave(filename = "Concrete_test_subset_3_rmse_coarse_spectrum_subset_plot.png",
+       width=297, height=210, units = "mm")
+alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #5.59081e-08
+min(alpha_rmse_3$RMSE) #0.07192516
+
+#optimal alpha was 5.59081e-08
+alpha.range<-seq(4.3*10^-8, 6.8*10^-8, by=0.01*10^-8)
+#create output dataframe for alpha and RMSEs
+alpha_rmse_3<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
+#run loop with narrow range of alpha
+for(x in 1:length(alpha.range)){
+  print(x)
+  #create output dataframe for subset 1
+  FO_concrete_df_pred_3<-setNames(data.frame(matrix(ncol = ncol(FO_concrete_df_test_subset_3), 
+                                                    nrow = nrow(FO_concrete_df_test_subset_3))), 
+                                  colnames(FO_concrete_df_test_subset_3))
+  rownames(FO_concrete_df_pred_3)<-rownames(FO_concrete_df_test_subset_3)
+  for(i in 1:ncol(FO_concrete_df_test_subset_3)){
+    #print(i)
+    pred_temp<-heat(u=FO_concrete_df_test_subset_3[,i], alpha=alpha.range[x], 
+                    xdelta=0.005089005, tdelta=difftime_concrete_3[i], n=2)
+    FO_concrete_df_pred_3[,i+1]<-pred_temp[2,]
+  }
+  FO_concrete_df_pred_3<-FO_concrete_df_pred_3[-1,] #remove first row (invalid)
+  FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-1] #remove first column (cannot be predicted)
+  FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-dim(FO_concrete_df_pred_3)[2]] #remove last column -> no measured values
+  data_predicted<-as.vector(t(FO_concrete_df_pred_3))
+  alpha_rmse_3$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
+  
+}
+
+#plot results
+ggplot(data=alpha_rmse_3)+
+  geom_point(aes(x=alpha, y=RMSE))+
+  theme_bw()
+ggsave(filename="Concrete_test_subset_3_rmse_fine_spectrum_full_plot.png", 
+       width=297, height=210, units = "mm")
+
+ggplot(data=alpha_rmse_3[85:130,])+
+  geom_point(aes(x=alpha, y=RMSE))+
+  theme_bw()
+ggsave(filename="Concrete_test_subset_3_rmse_fine_spectrum_subset_plot.png", 
+       width=297, height=210, units = "mm")
+
+alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #5.37e-08
+min(alpha_rmse_3$RMSE) #0.07192419
+
+#calculate mean optimal alpha
+mean_alpha<-mean(c(9.46*10^-8,1.241*10^-7, 5.37*10^-8)) #9.08e-08
 #####validate for day in last third of dataframe####
 #subset hour 1
 FO_concrete_df_validation_subset<-FO_concrete_df_validation[,10000:13600]
@@ -264,4 +361,4 @@ difftime_concrete_3<-as.vector(diff.POSIXt(as.POSIXct(colnames(FO_concrete_df_va
   FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-1] #remove first column (cannot be predicted)
   FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-dim(FO_concrete_df_pred_3)[2]] #remove last column -> no measured values
   data_predicted<-as.vector(t(FO_concrete_df_pred_3))
-  RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.07634901
+  RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.07632487
