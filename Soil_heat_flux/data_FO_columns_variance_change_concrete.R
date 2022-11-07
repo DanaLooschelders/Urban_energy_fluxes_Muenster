@@ -1,5 +1,5 @@
 #source script to load netcdf files
-source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/data_FO_columns_calc_threshold_concrete.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/data_FO_concrete_QAQC_plot.R")
 #calculate diffusivity
 library(cmna)
 library(plyr)
