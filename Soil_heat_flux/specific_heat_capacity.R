@@ -4,4 +4,7 @@
 #take specific heat capacity value for dry sandy loam soil and water (with mean VWC)
 #water: ~4.18 MJ Mg–1 K–1
 #dry sandy loam soil: 0.738 MJ Mg–1 K–1
-#Soil Science Society of America Journal Specific Heat Capacity of Soil Solids: Influences of Clay Content, Organic Matter, and 
+#Soil Science Society of America Journal Specific Heat Capacity of Soil Solids: Influences of Clay Content, Organic Matter, and Tightly Bound Water
+water<-dat.soil.merge$mean_VWC*4.18 
+soil<-1-dat.soil.merge$mean_VWC*0.738
+whole<-water+soil
