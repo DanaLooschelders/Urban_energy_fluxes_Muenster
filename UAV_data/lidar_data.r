@@ -1,0 +1,8 @@
+setwd("Z:/klima/Projekte/2021_CalmCity/2_Daten/6_Fernerkundung_Drohne/Lidardaten")
+library(sp)
+library(raster)
+library(sf)
+library(mapview)
+chm<-readRDS(file="chm_ptr.RDS")
+mapview(chm)
+plot(chm)
