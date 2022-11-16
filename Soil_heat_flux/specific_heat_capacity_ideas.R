@@ -8,12 +8,12 @@
 #volumetric heat capacity
 
 #Soil Science Society of America Journal Specific Heat Capacity of Soil Solids: Influences of Clay Content, Organic Matter, and Tightly Bound Water
-water<-dat.soil.merge$mean_VWC*4.18 
-soil<-1-dat.soil.merge$mean_VWC*0.738
-whole<-water+soil
+#water<-dat.soil.merge$mean_VWC*4.18 
+#soil<-1-dat.soil.merge$mean_VWC*0.738
+#whole<-water+soil
 #calculate mean and median
-mean(whole, na.rm=T) #1.414588
-median(whole, na.rm=T) #1.377473
+#mean(whole, na.rm=T) #1.414588
+#median(whole, na.rm=T) #1.377473
 
 # alpha = k/(p*Cp)= thermal diffusivity
 alpha_kiebitz=1.8*10^-7 #m s-1
