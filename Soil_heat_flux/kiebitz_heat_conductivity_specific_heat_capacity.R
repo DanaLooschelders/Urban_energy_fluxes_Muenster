@@ -2,7 +2,7 @@
 # alpha = k/(p*Cp)= thermal diffusivity (from Oldroyd, 2013)
 #Cv=p*Cp 
 #k=alpha*Cv = thermal conductivity
-alpha_kiebitz=1.8*10^-7 #m s-1 
+alpha_kiebitz=1.8*10^-7 #m-2 s-1 
 # k = thermal conductivity
 
 #calculate specific heat capacity and density of soil particles and soil water content
@@ -12,7 +12,9 @@ alpha_kiebitz=1.8*10^-7 #m s-1
 #take 2.58 Mg m^-3 as literature value for particle density of sandy loam soil 
   #with 66% Sand, 23% Silt, 11% Clay and 2.3% organic matter
   #from Ochsner, 2001
-rho_solids=2.58/1000 #convert Mg m^-3 to kg m^-3
+#bulk density is needed 
+#take mean VWC and calculate bulk density from that? 
+rho_solids=1.87*1000 #convert Mg m^-3 to kg m^-3
 
 #the density of water is 998 kg/m3
 rho_water<- 998 #kg/m3
@@ -36,13 +38,15 @@ theta<-dat.soil.merge$mean_VWC #m3/m3
 #from Ochsner 2001 (deVries method from 1963)
 #C=rho_s*vs*cp_soilds+rho_w*cp_water*theta
 Cv<-cp_soilds*rho_solids*v_solids+cp_water*rho_water*theta
-mean(Cv, na.rm=T) #502714.8J m-3 K-3 
-median(Cv, na.rm=T) #457710.6 J m-3 K-3
+mean(Cv, na.rm=T) #2334465 J m-3 K-3 
+mean(Cv, na.rm=T)/1000000 #2.334465 MJ m-3 K-3
+median(Cv, na.rm=T) #2311917 J m-3 K-3
+median(Cv, na.rm=T)/1000000 #2.311917 MJ m-3 K-3
 plot(Cv, type="l")
 #calculate thermal conductivity W m-1 K-1
 #k=alpha*Cv
 k_kiebitz<-alpha_kiebitz*Cv
-mean(k_kiebitz, na.rm=T) #0.09048866
-median(k_kiebitz, na.rm=T) #0.08238791
+mean(k_kiebitz, na.rm=T) #0.4202036 W m-1 K-1 
+median(k_kiebitz, na.rm=T) #0.4161451 W m-1 K-1
 #plot
 plot(k_kiebitz, type="l")
