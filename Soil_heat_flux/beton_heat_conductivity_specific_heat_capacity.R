@@ -4,7 +4,6 @@ alpha_beton<-7.13*10^-8 #m-2 s-1
 #Cv=p*Cp 
 #k=alpha*Cv = thermal conductivity
 
-
 ##### p = density 
 p_beton<-2.409*1000 # g/cm^3 to kg/m^3
 
