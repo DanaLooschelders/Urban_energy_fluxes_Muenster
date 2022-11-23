@@ -1,11 +1,10 @@
-#calculate soil heat flux
 #Flux=-k*(delta T/delta z)
 FO_concrete_surface<-FO_concrete_df[,1:3]
 FO_concrete_surface$time<-FO_concrete_temp_time_df_order$time
 #average to 30 mins 
 FO_concrete_surface_30min = as.data.frame(lapply(FO_concrete_surface[,1:3], 
-                                                 function(x) aggregate(list(temp=x), 
-                                                                       list(time=cut(FO_concrete_surface$time, "30 min")), mean)))
+                                      function(x) aggregate(list(temp=x), 
+                                                            list(time=cut(FO_concrete_surface$time, "30 min")), mean)))
 time<-FO_concrete_surface_30min$X0.time
 FO_concrete_surface_30min <- select(FO_concrete_surface_30min, -contains("time"))
 FO_concrete_surface_30min$time<-time

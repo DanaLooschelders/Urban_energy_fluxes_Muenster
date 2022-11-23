@@ -156,7 +156,7 @@ heights_concrete<-diff(as.numeric(colnames(FO_concrete_df[-length(FO_concrete_df
 FO_concrete_df<-FO_concrete_df[,-length(FO_concrete_df)]
 
 #clear up environment
-rm(FO_concrete_temp_time, FO_concrete_list, FO_concrete_only_temp, FO_concrete_temp_time_df_order)
+#rm(FO_concrete_temp_time, FO_concrete_list, FO_concrete_only_temp, FO_concrete_temp_time_df_order)
 
 ####QAQC non-aggregated data####
 FO_concrete_df_4QC<-FO_concrete_df

@@ -16,10 +16,18 @@ cond<-function(dat=dat, indices){
   c(dt[,1]*dt[,2])
 }
 #bootstrap
-test<-boot::boot(data = dat, statistic=cond, R=1000)
-
+test<-boot::boot(data = dat, statistic=cond, R=100)
+?boot
 plot(test)
 
 #calculate confidence intervals
 boot.ci(test,type = "basic", conf = 0.95)
 
+#get value for k
+mean(c(0.1712,0.4479)) #0.30955
+
+hist(test$t[1,], breaks = 100)
+hist(test$t, breaks=100)
+tail(test$t)
+
+t<-data.frame(test$t)

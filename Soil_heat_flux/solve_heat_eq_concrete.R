@@ -343,6 +343,7 @@ min(alpha_rmse_3$RMSE) #0.07172425
 
 #calculate mean optimal alpha
 mean_alpha<-mean(c(1.027*10^-7,5.87e-08, 5.25*10^-8)) #7.13e-08
+sd(c(1.027*10^-7,5.87e-08, 5.25*10^-8))
 #####validate for day in last third of dataframe####
 range_validation<-range(which(colnames(FO_concrete_df_validation)>"2021-08-14 16:00:00 CEST"&colnames(FO_concrete_df_validation)<"2021-08-15 16:00:00 CEST"))
 

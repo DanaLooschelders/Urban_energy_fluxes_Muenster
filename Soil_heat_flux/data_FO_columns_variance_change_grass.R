@@ -1,5 +1,6 @@
 #source script to load netcdf files
-source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/data_FO_columns_calc_threshold_grass.R")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/data_FO_grass_QAQC_plot.R")
+beep()
 #calculate diffusivity
 library(cmna)
 library(plyr)
@@ -79,10 +80,47 @@ ggplot(data=vars_grass[80:100,], aes(x=height, y=var))+
   ylab(label="variance [°C]")+
   xlab(label="height [m]")+
   ggtitle(label="Soil-Atmosphere Threshold for Gras")
-ggsave(filename="Threshold_var_grass.png")
+ggsave(filename="Threshold_var_subset_grass.png")
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggplot(data=vars_grass, aes(x=height, y=var))+
+  geom_line()+
+  theme_bw()+
+  ylab(label="variance [°C]")+
+  xlab(label="height [m]")+
+  ggtitle(label="Soil-Atmosphere Threshold for Gras")
+ggsave(filename="Threshold_var_all_grass.png")
 
 plot(vars_grass$height, vars_grass$var, type="l")
+
 #get first peak
 vars_grass$height[1:100][which.max(vars_grass$var[1:100])]
 
 #0.47
+#plot Variance over the whole timeseries
+#calculate variance for every 10 mins 
+var_hour_grass = as.data.frame(lapply(FO_grass_temp_time_df_order[,1:636], 
+                                function(x) aggregate(list(temp_var=x), 
+                                                      list(time=cut(FO_grass_temp_time_df_order$time, "hour")), var)))
+time_grass<-var_hour_grass$X0.time
+var_hour_grass_clean <- select(var_hour_grass, -contains("time"))
+var_hour_grass_clean$time<-time_grass
+#colnames to height (numeric)
+colnames(var_hour_grass_clean)[1:636]<-as.numeric(colnames(FO_grass_temp_time_df_order)[1:636])
+#get into long fromat
+var_hour_grass_long<-gather(data = var_hour_grass_clean, key, value, -time)
+str(var_hour_grass_long)
+#transform class of vars to numeric
+var_hour_grass_long$key<-as.numeric(var_hour_grass_long$key)
+#time as posixct
+var_hour_grass_long$time<-as.POSIXct(var_hour_grass_long$time)
+#plot as heatmap
+ggplot(var_hour_grass_long, aes(time, key)) +
+  geom_tile(aes(fill=value), height=1.5, color = NA) +
+  scale_fill_viridis_c("Variance of Temp. [°C]")+
+  ylab(label="Height [m]")+
+  theme_bw()+
+  ggtitle(label="FO Column grass")
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggsave(filename="FO_Column_hourly_variance_grass.png", width=297, height=210, units = "mm")

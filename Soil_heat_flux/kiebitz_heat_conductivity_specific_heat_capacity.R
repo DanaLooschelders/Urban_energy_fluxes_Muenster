@@ -13,6 +13,8 @@ alpha_kiebitz=1.8*10^-7 #m-2 s-1
   #with 66% Sand, 23% Silt, 11% Clay and 2.3% organic matter
   #from Ochsner, 2001
 #bulk density is needed 
+#bulk density of sand (Scheffer/Schachtschabel): 1.16-1.7
+#bulk density of loam  (Scheffer/Schachtschabel): 1.2-2
 #take mean VWC and calculate bulk density from that? 
 rho_solids=1.87*1000 #convert Mg m^-3 to kg m^-3
 
@@ -33,7 +35,7 @@ v_solids<-1-dat.soil.merge$mean_VWC #m3/m3
 
 #volume fraction of water
 theta<-dat.soil.merge$mean_VWC #m3/m3
-
+plot(dat.soil.merge$mean_VWC, type="l")
 #calculate volumetric heat capacity from specific heat capacity and density and volume fractions of solids and water 
 #from Ochsner 2001 (deVries method from 1963)
 #C=rho_s*vs*cp_soilds+rho_w*cp_water*theta

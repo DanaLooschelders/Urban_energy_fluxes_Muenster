@@ -368,6 +368,7 @@ alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #for a day  1.195e-07
 min(alpha_rmse_3$RMSE) #for a day 0.08455864
 
 mean_alpha<-mean(c(2.92*10^-7, 1.29*10^-7, 1.2*10^-7)) #1.803333e-07
+sd(c(2.92*10^-7, 1.29*10^-7, 1.2*10^-7))
 #####validate for day in last third of dataframe####
 #subset hour 1
 range_validation<-range(which(colnames(FO_grass_df_validation)>"2021-08-14 16:00:00 CEST"&colnames(FO_grass_df_validation)<"2021-08-15 16:00:00 CEST"))
