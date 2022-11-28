@@ -1,4 +1,6 @@
 library(boot)
+#source script to load slow data and QAQC
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R") 
 #select alpha values between 
 alpha_range<-rnorm(n=2000, mean=1.803*10^-7, sd=9.681081*10^-08)
 hist(alpha_range)
@@ -14,6 +16,9 @@ cp_solids<- rnorm(n=2000, mean=801, sd=10) #J/(kg K)
 #specific heat of water: 4182 J/kg/K
 cp_water<- 4182 # J/kg/K
 #soil water content for test days
+dat.soil.merge$TIMESTAMP<-as.POSIXct(dat.soil.merge$TIMESTAMP)
+dat.soil.merge$mean_VWC<-rowMeans(dat.soil.merge[,c("WC01_VWC_Avg","WC02_VWC_Avg", "WC03_VWC_Avg")], na.rm=T )
+
 starttime_1 <- as.POSIXct("2021-07-30 08:00:00 CEST")
 endtime_1 <- as.POSIXct("2021-07-31 08:00:00 CEST")
 VWC_1<-mean(dat.soil.merge$mean_VWC[dat.soil.merge$TIMESTAMP>=starttime_1&dat.soil.merge$TIMESTAMP<=endtime_1], na.rm=T)
@@ -45,6 +50,14 @@ dat_3<-data.frame("alpha"=alpha_range, "rho_water"=998,
                   "cp_soilds"=cp_solids, 
                   "v_solids"= 1-VWC_3)
 str(dat_1)
+
+#for whole time series???
+dat_whole<-data.frame("alpha"=alpha_range, "rho_water"=998, 
+                  "cp_water"= 4182,  "theta"=VWC_3,
+                  "rho_soilds"=rho_solids,
+                  "cp_soilds"=cp_solids, 
+                  "v_solids"= 1-VWC_3)
+
 #define function 
 cond<-function(dat=dat, indices){
   dt<-dat[indices,]
@@ -57,6 +70,8 @@ k_1<-boot::boot(data = dat_1, statistic=cond, R=1000)
 plot(k_1)
 #calculate confidence intervals
 boot.ci(boot.out = k_1,  type = "basic", conf = 0.95)
+#calculate heat flux for this day
+
 
 k_2<-boot::boot(data = dat_2, statistic=cond, R=1000)
 plot(k_2)

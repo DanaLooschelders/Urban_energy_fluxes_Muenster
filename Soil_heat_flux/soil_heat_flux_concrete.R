@@ -19,3 +19,4 @@ Flux_beton<--k*(delta_T/delta_z)
 
 plot(Flux_beton, type="l")
 abline(h=0, col="red")
+mean(abs(Flux_beton))
