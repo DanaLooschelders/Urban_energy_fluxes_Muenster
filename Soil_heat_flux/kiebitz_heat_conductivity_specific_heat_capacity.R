@@ -16,6 +16,7 @@ alpha_kiebitz=1.8*10^-7 #m-2 s-1
 #bulk density of sand (Scheffer/Schachtschabel): 1.16-1.7
 #bulk density of loam  (Scheffer/Schachtschabel): 1.2-2
 #take mean VWC and calculate bulk density from that? 
+
 rho_solids=1.87*1000 #convert Mg m^-3 to kg m^-3
 
 #the density of water is 998 kg/m3

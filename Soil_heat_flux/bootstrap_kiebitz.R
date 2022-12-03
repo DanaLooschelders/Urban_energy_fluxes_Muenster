@@ -70,17 +70,17 @@ k_1<-boot::boot(data = dat_1, statistic=cond, R=1000)
 plot(k_1)
 #calculate confidence intervals
 boot.ci(boot.out = k_1,  type = "basic", conf = 0.95)
-#calculate heat flux for this day
-
+k_1<-mean( c(0.2198,  0.8520))
 
 k_2<-boot::boot(data = dat_2, statistic=cond, R=1000)
 plot(k_2)
 #calculate confidence intervals
 boot.ci(boot.out = k_2,  type = "basic", conf = 0.95)
+k_2<-mean(c(0.2281,  0.7892))
 
 k_3<-boot::boot(data = dat_3, statistic=cond, R=1000)
 plot(k_3)
 #calculate confidence intervals
 boot.ci(boot.out = k_3,  type = "basic", conf = 0.95)
-
+k_3<-mean(c(0.1989,  0.7719 ))
 

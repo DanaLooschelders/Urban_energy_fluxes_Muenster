@@ -1,13 +1,19 @@
 ################################################################
-############ Skript zum Auslesen des Bedeckungsgrads ###########
+############ Skript zum Auslesen der Ceilometerdaten ###########
 ################################################################
-#Modifikation, um alle Parameter auszulesen von Dana Looschelders, 10.01.2021
+# Modifikation, um alle Parameter auszulesen von Dana Looschelders, 10.01.2021
 # modifiziert von Dana Looschelders, 06.12.2020
 # Jonathan Biehl, 30.10.2019
 # nach Vorlage von j_boel04
 
-#Working directory auswÃ¤hlen
-setwd("Z:/klima/Projekte/2021_CalmCity/2_Daten/9_GeoDach/Ceilometer")
+#######This must be adjusted for every use ######
+#Working directory 
+input_dir<-"Z:/klima/Projekte/2021_CalmCity/2_Daten/9_GeoDach/Ceilometer" #folder with raw data
+output_dir<-"Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/03_Rohdaten_konvertiert" #folder for results
+#times to calculate (in months) 
+month=seq(from=202107, to=202108, by=1) #Juli und August
+
+setwd(input_dir)
 
 #netCDF-Package installieren
 #install.packages("ncdf4")
@@ -182,7 +188,7 @@ process_info_nc = function(files) {
 
 #Vektor für alle Monate eines Jahres erstellen
 #bsp für 2020 
-month=seq(from=202107, to=202108, by=1) #Juli und August
+
 #month=month[-11] #skip November for 2016 --> no data
 filename=paste(month, ".*.nc", sep = "")
 
@@ -442,13 +448,15 @@ CloudCoverAll_2=merge(x=timestamp, y=CloudCoverAll, by="timestamp", all.x = T)
 length(which(is.na(CloudCoverAll_2$tcc)))
 
 #Working directory neu setzen
-setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/03_Rohdaten_konvertiert")
+setwd(output_dir)
 #in csv Datei schreiben
 write.csv(CloudCoverAll_2, file = "Ceilometer_BHL.csv", row.names = F)
 
 #str(CloudCoverAll_2$timestamp)
 
-
+############################################################################
+####QAQC and test plots #########
+#########################################################################
 #testplot for cloud base height layer
 plot(CloudCoverAll_2$timestamp,CloudCoverAll_2$cbh_layer1, type="l", col="green")
 lines(CloudCoverAll_2$timestamp,CloudCoverAll_2$cbh_layer2, type="l", col="red")

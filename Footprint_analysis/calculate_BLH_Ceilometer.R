@@ -1,6 +1,9 @@
-
+library(dplyr)
+#working directories
+graph_dir<-"Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken"
+output_dir<-"Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/03_Rohdaten_konvertiert"
 #-----------------calculate boundary layer height from Ceilometer data--------------------#
-setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/03_Rohdaten_konvertiert")
+setwd(output_dir)
 Ceilometer<-read.csv(file="Ceilometer_BHL.csv")
 #convert timestamp
 Ceilometer$timestamp<-as.POSIXct(Ceilometer$timestamp)
@@ -10,7 +13,7 @@ Ceilometer$timestamp<-as.POSIXct(Ceilometer$timestamp)
 
 #get to same length as beton.dat...
 Ceilometer$timestamp<-as.POSIXct(Ceilometer$timestamp)
-library(dplyr)
+
 #QAQC for Quality score >6 (pbs has quality score from 1 (good) to 9 (bad))
 Ceilometer$pbl_layer1[Ceilometer$pbs_layer1>6]<-NA #layer 1
 Ceilometer$pbl_layer1[Ceilometer$pbs_layer1>6]<-NA #layer 2
@@ -53,7 +56,7 @@ Ceilometer_agg<-Ceilometer %>%
 Ceilometer_agg$timestamp<-as.POSIXct(Ceilometer_agg$timestamp)
 
 #set wd
-setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+setwd(graph_dir)
 
 #plot the three layer
 ggplot(dat=Ceilometer_agg)+
@@ -95,6 +98,7 @@ ggplot(dat=BLH_merge)+
   scale_color_manual("Boundary \nLayer Height", values=c("lightblue", "darkblue"))
 ggsave(filename = "BLH_calc_layer3.pdf", height=21, width=30, units="cm")
 
+#check
 #Difference between the two
 mean(BLH_merge$diff, na.rm=T) #mean difference
 plot(BLH_merge$diff, type="l") #plot
