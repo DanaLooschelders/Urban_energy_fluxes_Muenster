@@ -31,6 +31,10 @@ delta_z_0_5 <- 0.00583333333333333 - 0.00166666666666667 #difference in depth [m
 delta_z_5_10 <- 0.0125 - 0.00166666666666667 #difference in depth [m]
 delta_z_5_10 <- 0.0125 - 0.00583333333333333 #difference in depth [m]
 
+Flux_grass_0_5<--k_whole*(delta_T_0_5/delta_z_0_5)
+Flux_grass_5_10<--k_whole*(delta_T_5_10/delta_z_5_10)
+Flux_grass_0_10<--k_whole*(delta_T_0_10/delta_z_0_10)
+
 #k_1 #bootstrapped for test day 1 -> 0.5359
 #k_2 #bootstrapped for test day 2 -> 0.50865
 #k_3 #bootstrapped for test day 3 -> 0.4854
@@ -57,18 +61,18 @@ delta_z_5_10 <- 0.0125 - 0.00583333333333333 #difference in depth [m]
 
 #mean(abs(Flux_kiebitz_1))
 #####clauculate heat flux for confidence intervall####
-#boot confidence interval: 0.1585  to  0.1856 
-k_lower<-0.1585
-k_upper<-0.1856
-Flux_beton_lower<--k_lower*(delta_T/delta_z)
-Flux_beton_upper<--k_upper*(delta_T/delta_z)
-Flux_CI<-data.frame("time"=as.POSIXct(FO_concrete_surface_30min$time),
-                    "lower_CI"=Flux_beton_lower,
-                    "upper_CI"=Flux_beton_upper, 
-                    "mean_0_5"=Flux_beton_0_5,
-                    "mean_5_10"=Flux_beton_5_10,
-                    "mean_0_10"=Flux_beton_0_10,
-                    "hour"=hour(as.POSIXct(FO_concrete_surface_30min$time)))
+#boot confidence interval: 0.0237,  0.5788
+k_lower<-0.0237
+k_upper<-0.5788
+Flux_grass_lower<--k_lower*(delta_T_0_10/delta_z_0_10)
+Flux_grass_upper<--k_upper*(delta_T_0_10/delta_z_0_10)
+Flux_CI<-data.frame("time"=as.POSIXct(FO_grass_surface_30min$time),
+                    "lower_CI"=Flux_grass_lower,
+                    "upper_CI"=Flux_grass_upper, 
+                    "mean_0_5"=Flux_grass_0_5,
+                    "mean_5_10"=Flux_grass_5_10,
+                    "mean_0_10"=Flux_grass_0_10,
+                    "hour"=hour(as.POSIXct(FO_grass_surface_30min$time)))
 
 #set wd to dir of plots
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
@@ -82,7 +86,7 @@ ggplot(data = Flux_CI)+
   ylab(label=bquote('Soil Heat Flux [W' ~m^-2* ']'))+
   scale_fill_manual("",values = c("grey"))+
   scale_color_manual("",values=c("black", "black"))
-ggsave(filename="Soil_heat_flux_concrete_bootstrapped_CI.png",
+ggsave(filename="Soil_heat_flux_grass_bootstrapped_CI.png",
        width=297, height=210, units = "mm")
 
 #duirnal for the first 5cm

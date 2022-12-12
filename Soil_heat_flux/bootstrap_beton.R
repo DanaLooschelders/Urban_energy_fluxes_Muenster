@@ -36,3 +36,8 @@ median(test$t) #0.173
 print(test)
 
 t<-data.frame(test$t)
+library(CAST)
+library(randomForest)
+?randomForest::predict
+?caret::predict
+??predict
