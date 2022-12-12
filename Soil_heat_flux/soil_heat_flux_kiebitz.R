@@ -16,17 +16,6 @@ delta_T_0_5 <- FO_grass_surface_30min$X0.00583333333333333.temp - FO_grass_surfa
 delta_T_5_10 <- FO_grass_surface_30min$X0.00583333333333333.temp - FO_grass_surface_30min$X0.00583333333333333.temp
 delta_T_0_10 <- FO_grass_surface_30min$X0.0125.temp - FO_grass_surface_30min$X0.00166666666666667.temp 
 
-#plot(delta_T, type="l")
-#for test days:
-#delta_T_1<-FO_grass_surface_30min[FO_grass_surface_30min$time>=starttime_1&FO_grass_surface_30min$time<=endtime_1, 1] - FO_grass_surface_30min[FO_grass_surface_30min$time>=starttime_1&FO_grass_surface_30min$time<=endtime_1,3] #Temperatur gradient 
-#plot(delta_T_1, type="l")
-#day 2
-#delta_T_2<-FO_grass_surface_30min[FO_grass_surface_30min$time>=starttime_2&FO_grass_surface_30min$time<=endtime_2, 1] - FO_grass_surface_30min[FO_grass_surface_30min$time>=starttime_2&FO_grass_surface_30min$time<=endtime_2,3] #Temperatur gradient 
-#plot(delta_T_2, type="l")
-#day 3
-#delta_T_3<-FO_grass_surface_30min[FO_grass_surface_30min$time>=starttime_3&FO_grass_surface_30min$time<=endtime_3, 1] - FO_grass_surface_30min[FO_grass_surface_30min$time>=starttime_3&FO_grass_surface_30min$time<=endtime_3,3] #Temperatur gradient 
-#plot(delta_T_3, type="l")
-
 delta_z_0_5 <- 0.00583333333333333 - 0.00166666666666667 #difference in depth [m]
 delta_z_5_10 <- 0.0125 - 0.00166666666666667 #difference in depth [m]
 delta_z_5_10 <- 0.0125 - 0.00583333333333333 #difference in depth [m]
@@ -34,30 +23,6 @@ delta_z_5_10 <- 0.0125 - 0.00583333333333333 #difference in depth [m]
 Flux_grass_0_5<--k_whole*(delta_T_0_5/delta_z_0_5)
 Flux_grass_5_10<--k_whole*(delta_T_5_10/delta_z_5_10)
 Flux_grass_0_10<--k_whole*(delta_T_0_10/delta_z_0_10)
-
-#k_1 #bootstrapped for test day 1 -> 0.5359
-#k_2 #bootstrapped for test day 2 -> 0.50865
-#k_3 #bootstrapped for test day 3 -> 0.4854
-
-#k calculated -> time series
-#kc_1
-#kc_2
-#kc_3
-
-#plot day 1
-#Flux_kiebitz_1<-k_1*(delta_T_1/delta_z)
-#plot(Flux_kiebitz_1, type="l")
-#abline(h=0, col="red")
-
-#plot day 2
-#Flux_kiebitz_2<-k_2*(delta_T_2/delta_z)
-#plot(Flux_kiebitz_2, type="l")
-#abline(h=0, col="red")
-
-#plot day 3
-#Flux_kiebitz_3<-k_3*(delta_T_3/delta_z)
-#plot(Flux_kiebitz_3, type="l")
-#abline(h=0, col="red")
 
 #mean(abs(Flux_kiebitz_1))
 #####clauculate heat flux for confidence intervall####
