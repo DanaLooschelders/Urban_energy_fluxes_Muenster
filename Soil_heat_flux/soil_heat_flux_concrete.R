@@ -24,15 +24,15 @@ delta_T_0_10<-FO_concrete_surface_30min$X0.523989528795812.temp - FO_concrete_su
 delta_z_0_10<-0.523989528795812-0.513811518324607
 delta_z_0_10
 
-plot(delta_T, type="l")
+
 #delta_z<-0.005 #difference in depth [m]
 k=0.173 #bootstrapped mean
 #k=0.1757122 #calculated
 #k=0.08 #Oke aerated concrete
 #k=1.5 #Oke dense concrete
-#boot confidence interval: 0.1874 to  0.2040
-k_lower<-0.1874
-k_upper<-0.2040
+#boot confidence interval: 0.0356 to  0.1000
+k_lower <- 0.0356
+k_upper <- 0.1000
 Flux_beton_0_5_lower<--k_lower*(delta_T_0_5/delta_z_0_5)
 Flux_beton_0_5_upper<--k_upper*(delta_T_0_5/delta_z_0_5)
 Flux_beton_5_10_lower<--k_lower*(delta_T_5_10/delta_z_5_10)

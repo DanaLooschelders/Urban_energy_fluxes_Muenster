@@ -1,6 +1,6 @@
 library(boot)
 #select alpha values with mean and sd of previously determined values
-alpha_range<-rnorm(n=2000, mean=7.13*10^-8, sd=2.73693*10^-08)
+alpha_range<-rnorm(n=2000, mean=2.45*10^-08, sd=6.087*10^-09)
 hist(alpha_range)
 #select values for specific heat capacity
 specific_heat_range<-runif(n=2000, min=1000, max=1200) #mean=1140, sd=25)
@@ -24,18 +24,3 @@ plot(test)
 #calculate confidence intervals
 boot.ci(test,type = "perc", conf = 0.95)
 #get value for k
-
-
-#hist(test$t[1,], breaks = 100)
-hist(test$t, breaks=8)
-mean(test$t) #0.173
-median(test$t) #0.173
-#tail(test$t)
-print(test)
-
-t<-data.frame(test$t)
-library(CAST)
-library(randomForest)
-?randomForest::predict
-?caret::predict
-??predict

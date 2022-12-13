@@ -11,9 +11,24 @@ library(bigsnpr)
     #xdelta = change in x (space) at each step in u
     #tdelta = time step
     #n = number of steps to take
+calculate_alpha_concrete <- function(depth){
+####prep data####
+if(depth=="5_15"){
+  #choose soil layer
+  #5 - 15 cm
+  FO_concrete_layer<-FO_concrete_df[,102:104]
+  layer_name<-"5_15"
+}ifelse(depth=="0_10"){
+  #0 - 10 cm
+  FO_concrete_layer<-FO_concrete_df[,103:105]
+  layer_name<-"0_10"
+}else{
+  print("wrong depth")
+}
+#choose soil layer
 
 #transpose dataframe
-FO_concrete_df_t<-as.data.frame(t(FO_concrete_df))
+FO_concrete_df_t<-as.data.frame(t(FO_concrete_layer))
 colnames(FO_concrete_df_t)<-FO_concrete_temp_time_df$time #set time as colnames
 #split data in test and validation data
 #2/3 test and 1/3 Validation
@@ -76,7 +91,7 @@ ggplot(alpha_rmse_1, aes(x=alpha, y=RMSE))+
   theme_bw()+
   scale_x_continuous(trans='log10')+
   scale_y_continuous(trans='log10')
-ggsave(filename = "Concrete_test_subset_1_rmse_coarse_spectrum_full_plot.png",
+ggsave(filename = paste("Concrete_test_subset_1", layer_name, "rmse_coarse_spectrum_full_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
 ggplot(alpha_rmse_1[40:85,], aes(x=alpha, y=RMSE))+
@@ -84,13 +99,18 @@ ggplot(alpha_rmse_1[40:85,], aes(x=alpha, y=RMSE))+
   theme_bw()+
   scale_x_continuous(trans='log10')+
   scale_y_continuous(trans='log10')
-ggsave(filename = "Concrete_test_subset_1_rmse_coarse_spectrum_subset_plot.png",
+ggsave(filename = paste("Concrete_test_subset_1", layer_name, "rmse_coarse_spectrum_subset_plot.png", sep="_"),
        width=297, height=210, units = "mm")
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] # 1.072267e-07
-min(alpha_rmse_1$RMSE) #0.07571422
+alpha_1_1 <- alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] # 
+rmse_1_1 <- min(alpha_rmse_1$RMSE) #
 
-#optimal alpha was 1.072267e-07
-alpha.range<-seq(8.8*10^-8, 1.2*10^-7, by=0.01*10^-8)
+#define new threshold
+lower<-alpha_1_1-(alpha_1_1*30/100)
+upper<-alpha_1_1+(alpha_1_1*30/100)
+by_unit<-substr(lower, nchar(lower)-3, stop=nchar(lower))
+#optimal alpha was 7.564633e-08
+alpha.range<-seq(lower, upper, by=as.numeric(paste(0.01, by_unit, sep="")))
+
 #create output dataframe for alpha and RMSEs
 alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -119,17 +139,17 @@ for(x in 1:length(alpha.range)){
 ggplot(data=alpha_rmse_1)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
-ggsave(filename="Concrete_test_subset_1_rmse_fine_spectrum_full_plot.png", 
+ggsave(filename=paste("Concrete_test_subset_1", layer_name, "rmse_fine_spectrum_full_plot.png", sep="_"), 
        width=297, height=210, units = "mm")
 
-ggplot(data=alpha_rmse_1[125:170,])+
+ggplot(data=alpha_rmse_1[135:190,])+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
-ggsave(filename="Concrete_test_subset_1_rmse_fine_spectrum_subset_plot.png", 
+ggsave(filename=paste("Concrete_test_subset_1", layer_name, "rmse_fine_spectrum_subset_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #1.027e-07
-min(alpha_rmse_1$RMSE) # 0.07571204
+alpha_1_2 <- alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #3.14e-08
+rmse_1_2 <- min(alpha_rmse_1$RMSE) # 0.1676387
 
 
 #####try for second subset####
@@ -183,22 +203,28 @@ ggplot(alpha_rmse_2, aes(x=alpha, y=RMSE))+
   theme_bw()+
   scale_x_continuous(trans='log10')+
   scale_y_continuous(trans='log10')
-ggsave(filename = "Concrete_test_subset_2_rmse_coarse_spectrum_full_plot.png",
+ggsave(filename = paste("Concrete_test_subset_2", layer_name,"rmse_coarse_spectrum_full_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-ggplot(alpha_rmse_2[60:75,], aes(x=alpha, y=RMSE))+
+ggplot(alpha_rmse_2[40:65,], aes(x=alpha, y=RMSE))+
   geom_point()+
   theme_bw()+
   scale_x_continuous(trans='log10')+
   scale_y_continuous(trans='log10')
-ggsave(filename = "Concrete_test_subset_2_rmse_coarse_spectrum_subset_plot.png",
+ggsave(filename = paste("Concrete_test_subset_2", layer_name, "rmse_coarse_spectrum_subset_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #6.135907e-08
-min(alpha_rmse_2$RMSE) #0.07695836
+alpha_2_1 <- alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #2.205131e-08
+rmse_2_1 <- min(alpha_rmse_2$RMSE) #0.19263
 
-#optimal alpha was 6.135907e-08
-alpha.range<-seq(4.8*10^-8, 7.5*10^-8, by=0.01*10^-8)
+#define new threshold
+lower<-alpha_2_1-(alpha_2_1*30/100)
+upper<-alpha_2_1+(alpha_2_1*30/100)
+by_unit<-substr(lower, nchar(lower)-3, stop=nchar(lower))
+#optimal alpha was 
+
+alpha.range<-seq(lower, upper, by=as.numeric(paste(0.01, by_unit, sep="")))
+
 #create output dataframe for alpha and RMSEs
 alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -222,22 +248,22 @@ for(x in 1:length(alpha.range)){
   alpha_rmse_2$RMSE[x]<-sqrt(mean((data_measured - data_predicted)^2))
   
 }
-beep()
+
 #plot results
 ggplot(data=alpha_rmse_2)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
-ggsave(filename="Concrete_test_subset_2_rmse_fine_spectrum_full_plot.png",
+ggsave(filename=paste("Concrete_test_subset_2", layer_name, "rmse_fine_spectrum_full_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-ggplot(data=alpha_rmse_2[85:130,])+
+ggplot(data=alpha_rmse_2[105:140,])+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
-ggsave(filename="Concrete_test_subset_2_rmse_fine_spectrum_subset_plot.png",
+ggsave(filename=paste("Concrete_test_subset_2", layer_name, "rmse_fine_spectrum_subset_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #5.87e-08
-min(alpha_rmse_2$RMSE) # 0.07695701
+alpha_2_2 <- alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #2.24e-08
+alpha_2_2 <- min(alpha_rmse_2$RMSE) # 0.19263
 
 ####run  loop for subset 3 ####
 #subset day 3
@@ -286,21 +312,26 @@ ggplot(alpha_rmse_3, aes(x=alpha, y=RMSE))+
   theme_bw()+
   scale_x_continuous(trans='log10')+
   scale_y_continuous(trans='log10')
-ggsave(filename = "Concrete_test_subset_3_rmse_coarse_spectrum_full_plot.png",
+ggsave(filename = paste("Concrete_test_subset_3", layer_name, "rmse_coarse_spectrum_full_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-ggplot(alpha_rmse_3[40:80,], aes(x=alpha, y=RMSE))+
+ggplot(alpha_rmse_3[40:70,], aes(x=alpha, y=RMSE))+
   geom_point()+
   theme_bw()+
   scale_x_continuous(trans='log10')+
   scale_y_continuous(trans='log10')
-ggsave(filename = "Concrete_test_subset_3_rmse_coarse_spectrum_subset_plot.png",
+ggsave(filename = paste("Concrete_test_subset_3", layer_name,"rmse_coarse_spectrum_subset_plot.png", sep="_"),
        width=297, height=210, units = "mm")
-alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #5.094138*10^-08
-min(alpha_rmse_3$RMSE) #0.07172477
+alpha_3_1 <- alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #2.009233e-08
+alpha_3_1 <- min(alpha_rmse_3$RMSE) # 0.1522922
 
-#optimal alpha was 5.094138*10^-08
-alpha.range<-seq(4.3*10^-8, 6.8*10^-8, by=0.01*10^-8)
+#define new threshold
+lower<-alpha_3_1-(alpha_3_1*30/100)
+upper<-alpha_3_1+(alpha_3_1*30/100)
+by_unit<-substr(lower, nchar(lower)-3, stop=nchar(lower))
+#optimal alpha was 7.564633e-08
+alpha.range<-seq(lower, upper, by=as.numeric(paste(0.01, by_unit, sep="")))
+
 #create output dataframe for alpha and RMSEs
 alpha_rmse_3<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -329,21 +360,21 @@ for(x in 1:length(alpha.range)){
 ggplot(data=alpha_rmse_3)+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
-ggsave(filename="Concrete_test_subset_3_rmse_fine_spectrum_full_plot.png", 
+ggsave(filename=paste("Concrete_test_subset_3", layer_name, "rmse_fine_spectrum_full_plot.png", sep="_"), 
        width=297, height=210, units = "mm")
 
 ggplot(data=alpha_rmse_3[85:110,])+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
-ggsave(filename="Concrete_test_subset_3_rmse_fine_spectrum_subset_plot.png", 
+ggsave(filename=paste("Concrete_test_subset_3", layer_name, "rmse_fine_spectrum_subset_plot.png", sep="_"), 
        width=297, height=210, units = "mm")
 
-alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #5.25e-08
-min(alpha_rmse_3$RMSE) #0.07172425
+alpha_3_3 <- alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #1.98e-08
+rmse_3_3 <- min(alpha_rmse_3$RMSE) #0.1522921
 
 #calculate mean optimal alpha
-mean_alpha<-mean(c(1.027*10^-7,5.87e-08, 5.25*10^-8)) #7.13e-08
-sd(c(1.027*10^-7,5.87e-08, 5.25*10^-8))
+mean_alpha <- mean(c(3.14*10^-8,2.24e-08, 1.98*10^-8)) #2.453333e-08
+sd_alpha <- sd(c(3.14*10^-8,2.24e-08, 1.98*10^-8)) #6.087145e-09
 #####validate for day in last third of dataframe####
 range_validation<-range(which(colnames(FO_concrete_df_validation)>"2021-08-14 16:00:00 CEST"&colnames(FO_concrete_df_validation)<"2021-08-15 16:00:00 CEST"))
 
@@ -374,4 +405,24 @@ difftime_concrete_3<-as.vector(diff.POSIXt(as.POSIXct(colnames(FO_concrete_df_va
   FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-1] #remove first column (cannot be predicted)
   FO_concrete_df_pred_3<-FO_concrete_df_pred_3[,-dim(FO_concrete_df_pred_3)[2]] #remove last column -> no measured values
   data_predicted<-as.vector(t(FO_concrete_df_pred_3))
-  RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.07915697
+  rmse_validation<-sqrt(mean((data_measured - data_predicted)^2)) #0.2008705
+  
+  result<-data.frame("alpha"=c(alpha_1_1,
+                               alpha_1_2,
+                               alpha_2_1,
+                               alpha_2_2,
+                               alpha_3_1,
+                               alpha_3_2,
+                               mean_alpha,
+                               sd_alpha),
+                     "rmse"=c(rmse_1_1,
+                              rmse_1_2,
+                              rmse_2_1,
+                              rmse_2_2,
+                              rmse_3_1,
+                              rmse_3_2,
+                              rmse_validation,
+                              NA))
+return(result)
+}
+beep()

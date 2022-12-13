@@ -14,7 +14,8 @@ library(ggplot2)
 #xdelta = change in x (space) at each step in u
 #tdelta = time step
 #n = number of steps to take
-
+calculate_alpha_grass <- function(depth="0_10")
+  {
 #change original heat function to use a vector of heights and times
 heat_heights <- function (u, alpha , xdelta , tdelta , n) {
   m <- length (u)
@@ -35,10 +36,20 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
 
 
 ####prep data####
-
-
+if(depth=="5_15"){
+#choose soil layer
+#5 - 15 cm
+FO_grass_layer<-FO_grass_df[,90:92]
+layer_name<-"5_15"
+}ifelse(depth=="0_10"){
+#0 - 10 cm
+FO_grass_layer<-FO_grass_df[,91:93]
+layer_name<-"0_10"
+}else{
+  print("wrong depth")
+}
 #transpose dataframe
-FO_grass_df_t<-as.data.frame(t(FO_grass_df))
+FO_grass_df_t<-as.data.frame(t(FO_grass_layer))
 colnames(FO_grass_df_t)<-FO_grass_temp_time_df_order$time #set time as colnames
 #split data in test and validation data
 #2/3 test and 1/3 Validation
@@ -106,22 +117,25 @@ ggplot(alpha_rmse_1, aes(x=alpha, y=RMSE))+
   theme_bw()+
   scale_x_continuous(trans='log10')+
   scale_y_continuous(trans='log10')
-ggsave(filename = "Grass_test_subset_1_rmse_coarse_spectrum_full_plot.png",
+ggsave(filename = paste("Grass_test_subset_1", layer_name, "rmse_coarse_spectrum_full_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-ggplot(alpha_rmse_1[55:75,], aes(x=alpha, y=RMSE))+
+ggplot(alpha_rmse_1[55:65,], aes(x=alpha, y=RMSE))+
   geom_point()+
   theme_bw()+
   scale_x_continuous(trans='log10')+
   scale_y_continuous(trans='log10')
-ggsave(filename = "Grass_test_subset_1_rmse_coarse_spectrum_subset_plot.png",
+ggsave(filename = paste("Grass_test_subset_1", layer_name, "rmse_coarse_spectrum_subset_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for a day  3.053856e-07
-min(alpha_rmse_1$RMSE) #for a day  0.08614827
-
-#optimal alpha was 3.053856e-07
-alpha.range<-seq(2.0*10^-7, 4.5*10^-7, by=0.01*10^-7)
+alpha_1_1<-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for a day  7.564633e-08
+rmse_1_1<-min(alpha_rmse_1$RMSE) #for a day  0.1108015
+#define new threshold
+lower<-alpha_1_1-(alpha_1_1*30/100)
+upper<-alpha_1_1+(alpha_1_1*30/100)
+by_unit<-substr(lower, nchar(lower)-3, stop=nchar(lower))
+#optimal alpha was 7.564633e-08
+alpha.range<-seq(lower, upper, by=as.numeric(paste(0.01, by_unit, sep="")))
 #create output dataframe for alpha and RMSEs
 alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -152,9 +166,8 @@ ggplot(data=alpha_rmse_1)+
   theme_bw()
 ggsave(filename="Grass_test_subset_1_rmse_fine_spectrum_full_plot.png",
        width=297, height=210, units = "mm")
-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for one day 2.92e-07
-min(alpha_rmse_1$RMSE) #for one day 0.08614053
-
+alpha_1_2<-alpha_rmse_1$alpha[which.min(alpha_rmse_1$RMSE)] #for one day 2.92e-07
+rmse_1_2<-min(alpha_rmse_1$RMSE) #for one day 0.08614053
 
 #####try for second subset####
 #subset hour 2
@@ -214,12 +227,17 @@ ggplot(alpha_rmse_2[55:75,], aes(x=alpha, y=RMSE))+
 ggsave(filename = "Grass_test_subset_2_rmse_coarse_spectrum_subset_plot.png",
        width=297, height=210, units = "mm")
 
-#plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day 1.321941e-07
-min(alpha_rmse_2$RMSE) #for a day 0.09555659
 
-#optimal alpha was for a day 1.321941e-07
-alpha.range<-seq(9*10^-8, 2.5*10^-7, by=0.01*10^-7)
+
+alpha_2_1<-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day 1.321941e-07
+rmse_2_1<-min(alpha_rmse_2$RMSE) #for a day 0.09555659
+#define new alpha range
+lower<-alpha_2_1-(alpha_2_1*30/100)
+upper<-alpha_2_1+(alpha_2_1*30/100)
+by_unit<-substr(lower, nchar(lower)-3, stop=nchar(lower))
+
+alpha.range<-seq(lower, upper, by=as.numeric(paste(0.01, by_unit, sep="")))
+
 #create output dataframe for alpha and RMSEs
 alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -257,8 +275,8 @@ ggplot(data=alpha_rmse_2[30:60,])+
 ggsave(filename="Grass_test_subset_2_rmse_fine_spectrum_subset_plot.png",
        width=297, height=210, units = "mm")
 
-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day 1.29e-07
-min(alpha_rmse_2$RMSE) #for a day  0.09555573
+alpha_2_2<-alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #for a day 1.29e-07
+rmse_2_2<-min(alpha_rmse_2$RMSE) #for a day  0.09555573
 
 #mean_alpha<-mean(c(1.95*10^-7, 1.83*10^-7)) #1.89e-07
 
@@ -322,11 +340,15 @@ ggsave(filename = "Grass_test_subset_3_rmse_coarse_spectrum_subset_plot.png",
        width=297, height=210, units = "mm")
 
 #plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
-alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #for a day 1.321941e-07
-min(alpha_rmse_3$RMSE) #for a day 0.08416563
+alpha_3_1<-alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #for a day 1.321941e-07
+rmse_3_1<-min(alpha_rmse_3$RMSE) #for a day 0.08416563
 
-#optimal alpha was for a day 1.321941e-07
-alpha.range<-seq(9.5*10^-8, 2.0*10^-7, by=0.01*10^-8)
+lower<-alpha_3_1-(alpha_3_1*30/100)
+upper<-alpha_3_1+(alpha_3_1*30/100)
+by_unit<-substr(lower, nchar(lower)-3, stop=nchar(lower))
+
+alpha.range<-seq(lower, upper, by=as.numeric(paste(0.01, by_unit, sep="")))
+
 #create output dataframe for alpha and RMSEs
 alpha_rmse_3<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -364,11 +386,11 @@ ggplot(data=alpha_rmse_3[225:270,])+
 ggsave(filename="Grass_test_subset_3_rmse_fine_spectrum_subset_plot.png",
        width=297, height=210, units = "mm")
 
-alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #for a day  1.195e-07
-min(alpha_rmse_3$RMSE) #for a day 0.08455864
+alpha_3_2<-alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #for a day  1.195e-07
+rmse_3_2<-min(alpha_rmse_3$RMSE) #for a day 0.08455864
 
-mean_alpha<-mean(c(2.92*10^-7, 1.29*10^-7, 1.2*10^-7)) #1.803333e-07
-sd(c(2.92*10^-7, 1.29*10^-7, 1.2*10^-7))
+mean_alpha <- mean(c(alpha_1_2, alpha_2_2, alpha_3_2)) #1.803333e-07
+sd_alpha <- sd(c(alpha_1_2, alpha_2_2, alpha_3_2))
 #####validate for day in last third of dataframe####
 #subset hour 1
 range_validation<-range(which(colnames(FO_grass_df_validation)>"2021-08-14 16:00:00 CEST"&colnames(FO_grass_df_validation)<"2021-08-15 16:00:00 CEST"))
@@ -400,3 +422,21 @@ FO_grass_df_pred_3<-FO_grass_df_pred_3[,-dim(FO_grass_df_pred_3)[2]] #remove las
 data_predicted<-as.vector(t(FO_grass_df_pred_3))
 RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2))
 #0.08997937
+result<-data.frame("alpha"=c(alpha_1_1,
+                          alpha_1_2,
+                          alpha_2_1,
+                          alpha_2_2,
+                          alpha_3_1,
+                          alpha_3_2,
+                          mean_alpha,
+                          sd_alpha),
+                "rmse"=c(rmse_1_1,
+                         rmse_1_2,
+                         rmse_2_1,
+                         rmse_2_2,
+                         rmse_3_1,
+                         rmse_3_2,
+                         rmse_validation,
+                         NA))
+return(result)
+}
