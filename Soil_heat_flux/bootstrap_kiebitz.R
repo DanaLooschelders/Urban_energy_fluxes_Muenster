@@ -4,8 +4,9 @@ library(dplyr)
 #source script to load slow data and QAQC
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R") 
 #select alpha values between 
-alpha_range<-rnorm(n=1000, mean=1.803*10^-7, sd=9.681081*10^-08)
+alpha_range<-rnorm(n=1000, mean=5.653678*10^-8, sd=1.760194e-08)
 hist(alpha_range)
+range(alpha_range)
 #select values for specific heat capacity
 #cp_soilds*rho_solids*v_solids+cp_water*rho_water*theta
 #the density of water is 998 kg/m3

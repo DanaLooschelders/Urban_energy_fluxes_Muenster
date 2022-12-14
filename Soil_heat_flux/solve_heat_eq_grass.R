@@ -8,14 +8,6 @@ library(bigsnpr)
 library(dplyr)
 library(ggplot2)
 
-#####heat function####
-#u = initial values of u
-#alpha = thermal diffusivity
-#xdelta = change in x (space) at each step in u
-#tdelta = time step
-#n = number of steps to take
-calculate_alpha_grass <- function(depth="0_10")
-  {
 #change original heat function to use a vector of heights and times
 heat_heights <- function (u, alpha , xdelta , tdelta , n) {
   m <- length (u)
@@ -34,6 +26,15 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
   return ( uarray )
 }
 
+
+#####heat function####
+#u = initial values of u
+#alpha = thermal diffusivity
+#xdelta = change in x (space) at each step in u
+#tdelta = time step
+#n = number of steps to take
+calculate_alpha_grass <- function(depth)
+  {
 
 ####prep data####
 if(depth=="5_15"){
@@ -120,7 +121,7 @@ ggplot(alpha_rmse_1, aes(x=alpha, y=RMSE))+
 ggsave(filename = paste("Grass_test_subset_1", layer_name, "rmse_coarse_spectrum_full_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-ggplot(alpha_rmse_1[55:65,], aes(x=alpha, y=RMSE))+
+ggplot(alpha_rmse_1[60:70,], aes(x=alpha, y=RMSE))+
   geom_point()+
   theme_bw()+
   scale_x_continuous(trans='log10')+
@@ -269,7 +270,7 @@ ggplot(data=alpha_rmse_2)+
 ggsave(filename="Grass_test_subset_2_rmse_fine_spectrum_full_plot.png",
        width=297, height=210, units = "mm")
 
-ggplot(data=alpha_rmse_2[30:60,])+
+ggplot(data=alpha_rmse_2[60:120,])+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 ggsave(filename="Grass_test_subset_2_rmse_fine_spectrum_subset_plot.png",
@@ -380,7 +381,7 @@ ggplot(data=alpha_rmse_3)+
 ggsave(filename="Grass_test_subset_3_rmse_fine_spectrum_full_plot.png",
        width=297, height=210, units = "mm")
 
-ggplot(data=alpha_rmse_3[225:270,])+
+ggplot(data=alpha_rmse_3[105:150,])+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 ggsave(filename="Grass_test_subset_3_rmse_fine_spectrum_subset_plot.png",
@@ -420,7 +421,7 @@ FO_grass_df_pred_3<-FO_grass_df_pred_3[-1,] #remove first row (invalid)
 FO_grass_df_pred_3<-FO_grass_df_pred_3[,-1] #remove first column (cannot be predicted)
 FO_grass_df_pred_3<-FO_grass_df_pred_3[,-dim(FO_grass_df_pred_3)[2]] #remove last column -> no measured values
 data_predicted<-as.vector(t(FO_grass_df_pred_3))
-RMSE_validation<-sqrt(mean((data_measured - data_predicted)^2))
+rmse_validation<-sqrt(mean((data_measured - data_predicted)^2))
 #0.08997937
 result<-data.frame("alpha"=c(alpha_1_1,
                           alpha_1_2,
