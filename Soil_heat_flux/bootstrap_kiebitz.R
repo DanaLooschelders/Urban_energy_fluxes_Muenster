@@ -4,7 +4,8 @@ library(dplyr)
 #source script to load slow data and QAQC
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R") 
 #select alpha values between 
-alpha_range<-rnorm(n=1000, mean=5.653678*10^-8, sd=1.760194e-08)
+alpha_range<-rnorm(n=1000, mean=5.653678*10^-8, sd=1.760194e-08) #0 to 10 cm
+alpha_range<-rnorm(n=1000, mean=2.411123*10^-8, sd=8.965815e-09) #5 to 15 cm
 hist(alpha_range)
 range(alpha_range)
 #select values for specific heat capacity

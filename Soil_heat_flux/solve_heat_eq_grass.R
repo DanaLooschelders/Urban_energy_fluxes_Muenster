@@ -7,7 +7,8 @@ library(plyr)
 library(bigsnpr)
 library(dplyr)
 library(ggplot2)
-
+library(tidyverse)
+library(reshape2)
 #change original heat function to use a vector of heights and times
 heat_heights <- function (u, alpha , xdelta , tdelta , n) {
   m <- length (u)
@@ -33,25 +34,22 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
 #xdelta = change in x (space) at each step in u
 #tdelta = time step
 #n = number of steps to take
-calculate_alpha_grass <- function(depth)
-  {
 
 ####prep data####
-if(depth=="5_15"){
+
 #choose soil layer
 #5 - 15 cm
 FO_grass_layer<-FO_grass_df[,90:92]
 layer_name<-"5_15"
-}ifelse(depth=="0_10"){
+
 #0 - 10 cm
 FO_grass_layer<-FO_grass_df[,91:93]
 layer_name<-"0_10"
-}else{
-  print("wrong depth")
-}
+
 #transpose dataframe
 FO_grass_df_t<-as.data.frame(t(FO_grass_layer))
 colnames(FO_grass_df_t)<-FO_grass_temp_time_df_order$time #set time as colnames
+
 #split data in test and validation data
 #2/3 test and 1/3 Validation
 #subset test
@@ -439,5 +437,32 @@ result<-data.frame("alpha"=c(alpha_1_1,
                          rmse_3_2,
                          rmse_validation,
                          NA))
-return(result)
+####plot####
+plotTestSubset<- function(subsetName){
+  #prepare data
+  FO_grass_to_melt<-subsetName
+  FO_grass_to_melt$ID<-as.factor(round(as.numeric(rownames(subsetName)), 3))
+  FO_grass_melted = melt(FO_grass_to_melt, id.vars = "ID")
+#plot
+ggplot(data=FO_grass_melted)+
+  geom_line(aes(x=as.POSIXct(variable), y=value, col=ID))+
+  theme_bw()+
+  xlab(label="time")+
+  ylab(label="Temperature [°C]")+
+  scale_color_manual("Height \nfrom bottom", values=c("#bae4bc", "#7bccc4", "#2b8cbe"))
 }
+#test 1
+plotTestSubset(FO_grass_df_test_subset_1)
+ggsave(filename=paste("Temp_grass_testsubset_1", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
+#test 2
+plotTestSubset(FO_grass_df_test_subset_2)
+ggsave(filename=paste("Temp_grass_testsubset_2", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
+#test 3
+plotTestSubset(FO_grass_df_test_subset_3)
+ggsave(filename=paste("Temp_grass_testsubset_3", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
+#validation
+plotTestSubset(FO_grass_df_validation_subset)
+ggsave(filename=paste("Temp_grass_validationsubset", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
+#whole data
+plotTestSubset(FO_grass_df_t)
+ggsave(filename=paste("Temp_grass", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")

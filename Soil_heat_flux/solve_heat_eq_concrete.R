@@ -11,20 +11,18 @@ library(bigsnpr)
     #xdelta = change in x (space) at each step in u
     #tdelta = time step
     #n = number of steps to take
-calculate_alpha_concrete <- function(depth){
+
 ####prep data####
-if(depth=="5_15"){
+
   #choose soil layer
   #5 - 15 cm
   FO_concrete_layer<-FO_concrete_df[,102:104]
   layer_name<-"5_15"
-}ifelse(depth=="0_10"){
+
   #0 - 10 cm
   FO_concrete_layer<-FO_concrete_df[,103:105]
   layer_name<-"0_10"
-}else{
-  print("wrong depth")
-}
+
 #choose soil layer
 
 #transpose dataframe
@@ -423,6 +421,34 @@ difftime_concrete_3<-as.vector(diff.POSIXt(as.POSIXct(colnames(FO_concrete_df_va
                               rmse_3_2,
                               rmse_validation,
                               NA))
-return(result)
-}
-beep()
+
+  ####plot####
+  plotTestSubset<- function(subsetName){
+    #prepare data
+    FO_concrete_to_melt<-subsetName
+    FO_concrete_to_melt$ID<-as.factor(round(as.numeric(rownames(subsetName)), 3))
+    FO_concrete_melted = melt(FO_concrete_to_melt, id.vars = "ID")
+    #plot
+    ggplot(data=FO_concrete_melted)+
+      geom_line(aes(x=as.POSIXct(variable), y=value, col=ID))+
+      theme_bw()+
+      xlab(label="time")+
+      ylab(label="Temperature [°C]")+
+      scale_color_manual("Height \nfrom bottom", values=c("#bae4bc", "#7bccc4", "#2b8cbe"))
+  }
+  #test 1
+  plotTestSubset(FO_concrete_df_test_subset_1)
+  ggsave(filename=paste("Temp_concrete_testsubset_1", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
+  #test 2
+  plotTestSubset(FO_concrete_df_test_subset_2)
+  ggsave(filename=paste("Temp_concrete_testsubset_2", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
+  #test 3
+  plotTestSubset(FO_concrete_df_test_subset_3)
+  ggsave(filename=paste("Temp_concrete_testsubset_3", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
+  #validation
+  plotTestSubset(FO_concrete_df_validation_subset)
+  ggsave(filename=paste("Temp_concrete_validationsubset", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
+  #whole data
+  plotTestSubset(FO_concrete_df_t)
+  ggsave(filename=paste("Temp_concrete", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
+  
