@@ -10,6 +10,7 @@ library(ggplot2)
 library(tidyverse)
 library(reshape2)
 #change original heat function to use a vector of heights and times
+#no need when using the upmost 10-20 cm (same heights of 0.005080137 there)
 heat_heights <- function (u, alpha , xdelta , tdelta , n) {
   m <- length (u)
   uarray <- matrix (u, nrow = 1)
@@ -38,12 +39,12 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
 ####prep data####
 
 #choose soil layer
-#5 - 15 cm
-FO_grass_layer<-FO_grass_df[,90:92]
+#0 - 5 cm
+FO_grass_layer<-FO_grass_df[,83:93]
 layer_name<-"5_15"
 
 #0 - 10 cm
-FO_grass_layer<-FO_grass_df[,91:93]
+FO_grass_layer<-FO_grass_df[,74:93]
 layer_name<-"0_10"
 
 #transpose dataframe
@@ -98,8 +99,8 @@ for(x in 1:length(alpha.range)){
   for(i in 1:ncol(FO_grass_df_test_subset_1)){
     #print(i)
     pred_temp<-heat_heights(u=FO_grass_df_test_subset_1[,i], alpha=alpha.range[x], 
-                    xdelta=heights_grass, tdelta=difftime_grass_1[i], n=2)
-    FO_grass_df_pred_1[,i+1]<-pred_temp[2,]
+                    xdelta=diff(as.numeric(rownames(FO_grass_df_test_subset_1))), tdelta=difftime_grass_1[i], n=2)
+    FO_grass_df_pred_1[,i+1]<-pred_temp[2,] #
   }
   FO_grass_df_pred_1<-FO_grass_df_pred_1[-1,] #remove first row (invalid)
   FO_grass_df_pred_1<-FO_grass_df_pred_1[,-1] #remove first column (cannot be predicted)
@@ -148,7 +149,7 @@ for(x in 1:length(alpha.range)){
   for(i in 1:ncol(FO_grass_df_test_subset_1)){
     #print(i)
     pred_temp<-heat_heights(u=FO_grass_df_test_subset_1[,i], alpha=alpha.range[x], 
-                    xdelta=heights_grass, tdelta=difftime_grass_1[i], n=2)
+                    xdelta=diff(as.numeric(rownames(FO_grass_df_test_subset_1))), tdelta=difftime_grass_1[i], n=2)
     FO_grass_df_pred_1[,i+1]<-pred_temp[2,]
   }
   FO_grass_df_pred_1<-FO_grass_df_pred_1[-1,] #remove first row (invalid)
@@ -198,7 +199,7 @@ for(x in 1:length(alpha.range)){
   for(i in 1:ncol(FO_grass_df_test_subset_2)){
     #print(i)
     pred_temp<-heat_heights(u=FO_grass_df_test_subset_2[,i], alpha=alpha.range[x], 
-                    xdelta=heights_grass, tdelta=difftime_grass_2[i], n=2)
+                    xdelta=diff(as.numeric(rownames(FO_grass_df_test_subset_2))), tdelta=difftime_grass_2[i], n=2)
     FO_grass_df_pred_2[,i+1]<-pred_temp[2,]
   }
   FO_grass_df_pred_2<-FO_grass_df_pred_2[-1,] #remove first row (invalid)
@@ -250,7 +251,7 @@ for(x in 1:length(alpha.range)){
   for(i in 1:ncol(FO_grass_df_test_subset_2)){
     #print(i)
     pred_temp<-heat_heights(u=FO_grass_df_test_subset_2[,i], alpha=alpha.range[x], 
-                    xdelta=heights_grass, tdelta=difftime_grass_2[i], n=2)
+                    xdelta=diff(as.numeric(rownames(FO_grass_df_test_subset_2))), tdelta=difftime_grass_2[i], n=2)
     FO_grass_df_pred_2[,i+1]<-pred_temp[2,]
   }
   FO_grass_df_pred_2<-FO_grass_df_pred_2[-1,] #remove first row (invalid)
@@ -310,7 +311,7 @@ for(x in 1:length(alpha.range)){
   for(i in 1:ncol(FO_grass_df_test_subset_3)){
     #print(i)
     pred_temp<-heat_heights(u=FO_grass_df_test_subset_3[,i], alpha=alpha.range[x], 
-                            xdelta=heights_grass, tdelta=difftime_grass_3[i], n=2)
+                            xdelta=diff(as.numeric(rownames(FO_grass_df_test_subset_3))), tdelta=difftime_grass_3[i], n=2)
     FO_grass_df_pred_3[,i+1]<-pred_temp[2,]
   }
   FO_grass_df_pred_3<-FO_grass_df_pred_3[-1,] #remove first row (invalid)
@@ -360,8 +361,8 @@ for(x in 1:length(alpha.range)){
   rownames(FO_grass_df_pred_3)<-rownames(FO_grass_df_test_subset_3)
   for(i in 1:ncol(FO_grass_df_test_subset_3)){
     #print(i)
-    pred_temp<-heat_heights(u=FO_grass_df_test_subset_3[,i], alpha=alpha.range[x], 
-                            xdelta=heights_grass, tdelta=difftime_grass_3[i], n=2)
+    pred_temp<-heat(u=FO_grass_df_test_subset_3[,i], alpha=alpha.range[x], 
+                            xdelta=0.005080137, tdelta=difftime_grass_3[i], n=2)
     FO_grass_df_pred_3[,i+1]<-pred_temp[2,]
   }
   FO_grass_df_pred_3<-FO_grass_df_pred_3[-1,] #remove first row (invalid)
@@ -411,8 +412,8 @@ FO_grass_df_pred_3<-setNames(data.frame(matrix(ncol = ncol(FO_grass_df_validatio
 rownames(FO_grass_df_pred_3)<-rownames(FO_grass_df_validation_subset)
 for(i in 1:ncol(FO_grass_df_validation_subset)){
   #print(i)
-  pred_temp<-heat(u=FO_grass_df_validation_subset[,i], alpha=mean_alpha, 
-                  xdelta=0.005089005, tdelta=difftime_grass_3[i], n=2)
+  pred_temp<-heat_heights_heights(u=FO_grass_df_validation_subset[,i], alpha=mean_alpha, 
+                  xdelta=diff(as.numeric(rownames(FO_grass_df_validation_subset))), tdelta=difftime_grass_3[i], n=2)
   FO_grass_df_pred_3[,i+1]<-pred_temp[2,]
 }
 FO_grass_df_pred_3<-FO_grass_df_pred_3[-1,] #remove first row (invalid)
@@ -427,29 +428,27 @@ result<-data.frame("alpha"=c(alpha_1_1,
                           alpha_2_2,
                           alpha_3_1,
                           alpha_3_2,
-                          mean_alpha,
-                          sd_alpha),
+                          mean_alpha),
                 "rmse"=c(rmse_1_1,
                          rmse_1_2,
                          rmse_2_1,
                          rmse_2_2,
                          rmse_3_1,
                          rmse_3_2,
-                         rmse_validation,
-                         NA))
+                         rmse_validation))
 ####plot####
 plotTestSubset<- function(subsetName){
   #prepare data
   FO_grass_to_melt<-subsetName
   FO_grass_to_melt$ID<-as.factor(round(as.numeric(rownames(subsetName)), 3))
-  FO_grass_melted = melt(FO_grass_to_melt, id.vars = "ID")
+  FO_grass_melted = reshape2::melt(FO_grass_to_melt, id.vars = "ID")
 #plot
 ggplot(data=FO_grass_melted)+
   geom_line(aes(x=as.POSIXct(variable), y=value, col=ID))+
   theme_bw()+
   xlab(label="time")+
   ylab(label="Temperature [°C]")+
-  scale_color_manual("Height \nfrom bottom", values=c("#bae4bc", "#7bccc4", "#2b8cbe"))
+  scale_color_discrete_sequential(palette="Blues 3")
 }
 #test 1
 plotTestSubset(FO_grass_df_test_subset_1)

@@ -191,5 +191,3 @@ ggplot(df_concrete_long, aes(time, key)) +
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
 ggsave(filename="FO_Column_concrete.png",
        width=297, height=210, units = "mm")
-
-

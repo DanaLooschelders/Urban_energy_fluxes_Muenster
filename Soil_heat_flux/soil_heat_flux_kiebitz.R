@@ -4,10 +4,10 @@ library(lubridate)
 library(ggpubr)
 #calculate soil heat flux
 #Flux=-k*(delta T/delta z)  
-FO_grass_surface<-FO_grass_df[,89:93]
+FO_grass_surface<-FO_grass_df[,64:93]
 FO_grass_surface$time<-FO_grass_temp_time_df_order$time
 #average to 30 mins 
-FO_grass_surface_30min = as.data.frame(lapply(FO_grass_surface[,1:4], 
+FO_grass_surface_30min = as.data.frame(lapply(FO_grass_surface[,1:30], 
                                                  function(x) aggregate(list(temp=x), 
                                                                        list(time=cut(FO_grass_surface$time, "30 min")), mean)))
 time<-FO_grass_surface_30min$X0.456971943272261.time
@@ -16,17 +16,26 @@ FO_grass_surface_30min$time<-as.POSIXct(time)
 #add k values to dataframe
 FO_grass_surface_30min$day<-date(FO_grass_surface_30min$time)
 FO_grass_30_min_k<-left_join(x = FO_grass_surface_30min, y = daily_VWC)
+
 #calculate temperature difference 
-delta_T_0_5 <- FO_grass_surface_30min$X0.467132217830244.temp - FO_grass_surface_30min$X0.462052080551252.temp 
-delta_T_5_10 <- FO_grass_surface_30min$X0.462052080551252.temp - FO_grass_surface_30min$X0.456971943272261.temp
-delta_T_0_10 <- FO_grass_surface_30min$X0.467132217830244.temp - FO_grass_surface_30min$X0.456971943272261.temp
-delta_T_5_15 <- FO_grass_surface_30min$X0.462052080551252.temp - FO_grass_surface_30min$X0.45189180599327.temp
+delta_T_0_5  <- FO_grass_surface_30min$X0.467132217830244.temp - FO_grass_surface_30min$X0.416330845040329.temp
+plot(delta_T_0_5, type="l")
+delta_T_5_10 <- FO_grass_surface_30min$X0.411250707761337.temp - FO_grass_surface_30min$X0.360449334971423.temp
+plot(delta_T_5_10, type="l")
+delta_T_0_10 <- FO_grass_surface_30min$X0.467132217830244.temp - FO_grass_surface_30min$X0.360449334971423.temp
+plot(delta_T_0_10, type="l")
+delta_T_5_15 <- FO_grass_surface_30min$X0.426491119598312.temp - FO_grass_surface_30min$X0.324888374018481.temp
+plot(delta_T_5_15, type="l")
 
 #difference in depth [m]
-delta_z_0_5  <- 0.467132217830244 - 0.4620520805512527 #for 0 to 5 cm below ground
-delta_z_5_10 <- 0.462052080551252 - 0.456971943272261  #for 5 to 10 cm below ground
-delta_z_0_10 <- 0.467132217830244 - 0.456971943272261  ##for 0 to 10 cm below ground
-delta_z_5_15 <- 0.462052080551252 - 0.45189180599327   #for 5 to 15 cm below ground
+delta_z_0_5  <- 0.467132217830244 - 0.416330845040329 #for 0 to 5 cm below ground
+delta_z_0_5
+delta_z_5_10 <- 0.411250707761337 - 0.360449334971423  #for 5 to 10 cm below ground
+delta_z_5_10
+delta_z_0_10 <- 0.467132217830244 - 0.360449334971423  ##for 0 to 10 cm below ground
+delta_z_0_10
+delta_z_5_15 <- 0.426491119598312 - 0.324888374018481   #for 5 to 15 cm below ground
+delta_z_5_15
 #boot confidence interval: 0.0356 to  0.1000
 
 Flux_grass_0_5_lower<--FO_grass_30_min_k$lower_k*(delta_T_0_5/delta_z_0_5)
@@ -134,7 +143,7 @@ ggplot(dat=Flux_CI)+
 
 ggsave(filename="Soil_heat_flux_grass_diurnal_bootstrapped_CI_0_10.png",
        width=297, height=210, units = "mm")
-
+xdelta
 #duirnal for 5 to 15cm
 ggplot(dat=Flux_CI)+
   stat_summary_bin( aes(x=as.factor(hour), y=lower_5_15, col="lower"), stroke=2.5,

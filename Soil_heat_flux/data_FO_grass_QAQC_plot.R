@@ -203,7 +203,7 @@ FO_grass_df<-FO_grass_merged_short_cut
 heights_grass<-diff(as.numeric(colnames(FO_grass_df)))
 mean(heights_grass) # 0.0051
 sd(heights_grass) #0.00032
-
+plot(heights_grass[74:93])
 ####QAQC non-aggregated data####
 FO_grass_df_4QC<-FO_grass_df
 df_hist<-data.matrix(FO_grass_df_4QC)

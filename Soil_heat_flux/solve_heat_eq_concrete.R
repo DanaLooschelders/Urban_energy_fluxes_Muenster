@@ -5,6 +5,8 @@ beep()
 library(cmna)
 library(plyr)
 library(bigsnpr)
+library(colorspace)
+library(scico)
 #####heat function####
     #u = initial values of u
     #alpha = thermal diffusivity
@@ -16,11 +18,11 @@ library(bigsnpr)
 
   #choose soil layer
   #5 - 15 cm
-  FO_concrete_layer<-FO_concrete_df[,102:104]
+  FO_concrete_layer<-FO_concrete_df[,77:105]
   layer_name<-"5_15"
 
   #0 - 10 cm
-  FO_concrete_layer<-FO_concrete_df[,103:105]
+  FO_concrete_layer<-FO_concrete_df[,85:105]
   layer_name<-"0_10"
 
 #choose soil layer
@@ -108,7 +110,7 @@ upper<-alpha_1_1+(alpha_1_1*30/100)
 by_unit<-substr(lower, nchar(lower)-3, stop=nchar(lower))
 #optimal alpha was 7.564633e-08
 alpha.range<-seq(lower, upper, by=as.numeric(paste(0.01, by_unit, sep="")))
-
+range(alpha.range)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_1<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -140,7 +142,7 @@ ggplot(data=alpha_rmse_1)+
 ggsave(filename=paste("Concrete_test_subset_1", layer_name, "rmse_fine_spectrum_full_plot.png", sep="_"), 
        width=297, height=210, units = "mm")
 
-ggplot(data=alpha_rmse_1[135:190,])+
+ggplot(data=alpha_rmse_1[85:140,])+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 ggsave(filename=paste("Concrete_test_subset_1", layer_name, "rmse_fine_spectrum_subset_plot.png", sep="_"),
@@ -222,7 +224,7 @@ by_unit<-substr(lower, nchar(lower)-3, stop=nchar(lower))
 #optimal alpha was 
 
 alpha.range<-seq(lower, upper, by=as.numeric(paste(0.01, by_unit, sep="")))
-
+range(alpha.range)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_2<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -254,14 +256,14 @@ ggplot(data=alpha_rmse_2)+
 ggsave(filename=paste("Concrete_test_subset_2", layer_name, "rmse_fine_spectrum_full_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-ggplot(data=alpha_rmse_2[105:140,])+
+ggplot(data=alpha_rmse_2[40:70,])+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 ggsave(filename=paste("Concrete_test_subset_2", layer_name, "rmse_fine_spectrum_subset_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
 alpha_2_2 <- alpha_rmse_2$alpha[which.min(alpha_rmse_2$RMSE)] #2.24e-08
-alpha_2_2 <- min(alpha_rmse_2$RMSE) # 0.19263
+rmse_2_2 <- min(alpha_rmse_2$RMSE) # 0.19263
 
 ####run  loop for subset 3 ####
 #subset day 3
@@ -320,8 +322,9 @@ ggplot(alpha_rmse_3[40:70,], aes(x=alpha, y=RMSE))+
   scale_y_continuous(trans='log10')
 ggsave(filename = paste("Concrete_test_subset_3", layer_name,"rmse_coarse_spectrum_subset_plot.png", sep="_"),
        width=297, height=210, units = "mm")
+
 alpha_3_1 <- alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #2.009233e-08
-alpha_3_1 <- min(alpha_rmse_3$RMSE) # 0.1522922
+rmse_3_1 <- min(alpha_rmse_3$RMSE) # 0.1522922
 
 #define new threshold
 lower<-alpha_3_1-(alpha_3_1*30/100)
@@ -329,7 +332,7 @@ upper<-alpha_3_1+(alpha_3_1*30/100)
 by_unit<-substr(lower, nchar(lower)-3, stop=nchar(lower))
 #optimal alpha was 7.564633e-08
 alpha.range<-seq(lower, upper, by=as.numeric(paste(0.01, by_unit, sep="")))
-
+range(alpha.range)
 #create output dataframe for alpha and RMSEs
 alpha_rmse_3<-data.frame("alpha"=alpha.range, "RMSE"=rep(NA))
 #run loop with narrow range of alpha
@@ -361,18 +364,18 @@ ggplot(data=alpha_rmse_3)+
 ggsave(filename=paste("Concrete_test_subset_3", layer_name, "rmse_fine_spectrum_full_plot.png", sep="_"), 
        width=297, height=210, units = "mm")
 
-ggplot(data=alpha_rmse_3[85:110,])+
+ggplot(data=alpha_rmse_3[40:70,])+
   geom_point(aes(x=alpha, y=RMSE))+
   theme_bw()
 ggsave(filename=paste("Concrete_test_subset_3", layer_name, "rmse_fine_spectrum_subset_plot.png", sep="_"), 
        width=297, height=210, units = "mm")
 
-alpha_3_3 <- alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #1.98e-08
-rmse_3_3 <- min(alpha_rmse_3$RMSE) #0.1522921
+alpha_3_2 <- alpha_rmse_3$alpha[which.min(alpha_rmse_3$RMSE)] #1.98e-08
+rmse_3_2 <- min(alpha_rmse_3$RMSE) #0.1522921
 
 #calculate mean optimal alpha
-mean_alpha <- mean(c(3.14*10^-8,2.24e-08, 1.98*10^-8)) #2.453333e-08
-sd_alpha <- sd(c(3.14*10^-8,2.24e-08, 1.98*10^-8)) #6.087145e-09
+mean_alpha <- mean(c(alpha_1_2,alpha_2_2, alpha_3_2)) #2.453333e-08
+sd_alpha <- sd(c(alpha_1_2,alpha_2_2, alpha_3_2)) #6.087145e-09
 #####validate for day in last third of dataframe####
 range_validation<-range(which(colnames(FO_concrete_df_validation)>"2021-08-14 16:00:00 CEST"&colnames(FO_concrete_df_validation)<"2021-08-15 16:00:00 CEST"))
 
@@ -427,15 +430,16 @@ difftime_concrete_3<-as.vector(diff.POSIXt(as.POSIXct(colnames(FO_concrete_df_va
     #prepare data
     FO_concrete_to_melt<-subsetName
     FO_concrete_to_melt$ID<-as.factor(round(as.numeric(rownames(subsetName)), 3))
-    FO_concrete_melted = melt(FO_concrete_to_melt, id.vars = "ID")
+    FO_concrete_melted = reshape2::melt(FO_concrete_to_melt, id.vars = "ID")
     #plot
     ggplot(data=FO_concrete_melted)+
       geom_line(aes(x=as.POSIXct(variable), y=value, col=ID))+
       theme_bw()+
       xlab(label="time")+
       ylab(label="Temperature [°C]")+
-      scale_color_manual("Height \nfrom bottom", values=c("#bae4bc", "#7bccc4", "#2b8cbe"))
+      scale_color_discrete_sequential(palette= "Teal")
   }
+  
   #test 1
   plotTestSubset(FO_concrete_df_test_subset_1)
   ggsave(filename=paste("Temp_concrete_testsubset_1", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
