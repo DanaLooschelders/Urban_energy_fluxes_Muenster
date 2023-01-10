@@ -39,30 +39,36 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
 ####prep data####
 
 #choose soil layer
-#0 - 5 cm
-FO_grass_layer<-FO_grass_df[,83:93]
-layer_name<-"5_15"
+#0 - 15 cm
+FO_grass_layer<-FO_grass_10min[,64:93]
+layer_name<-"0_15"
 
-#0 - 10 cm
-FO_grass_layer<-FO_grass_df[,74:93]
-layer_name<-"0_10"
+#0 - 10 cm --> FO_grass_df[,74:93]
+#write aggregated data to csv
+FO_grass_csv<-cbind(FO_grass_layer, grass_time)
+getwd()
+write.csv(FO_grass_csv, file="FO_grass.csv", row.names=F)
 
 #transpose dataframe
 FO_grass_df_t<-as.data.frame(t(FO_grass_layer))
-colnames(FO_grass_df_t)<-FO_grass_temp_time_df_order$time #set time as colnames
+colnames(FO_grass_df_t)<-grass_time #set time as colnames
 
 #split data in test and validation data
 #2/3 test and 1/3 Validation
 #subset test
 FO_grass_df_test<-FO_grass_df_t[,1:round(length(FO_grass_df_t)/3*2, 0)]
 #choose only 2 1 day periods from test data.frame to reduce computational cost
-60*60*24/24 #3600 Files sind 1 tag
+#60*60*24/24 #3600 Files sind 1 tag
 #subset day 1
 range_test_1<-range(which(colnames(FO_grass_df_test)>"2021-07-30 08:00:00 CEST"&colnames(FO_grass_df_test)<"2021-07-31 08:00:00 CEST"))
 FO_grass_df_test_subset_1<-FO_grass_df_test[,range_test_1[1]:range_test_1[2]]
 #range(FO_grass_temp_time_df_order$time[10000:13600]) #timespan subset 1
 #get time differences for subset 1
-difftime_grass_1<-as.vector(diff.POSIXt(FO_grass_temp_time_df_order$time[range_test_1[1]:range_test_1[2]]))
+#get time differences for subset 1 and multipy times sixty to get seconds
+difftime_grass_1<-as.vector(diff.POSIXt(grass_time[range_test_1[1]:range_test_1[2]]))*60
+if(mean(difftime_grass_1)!=600){
+  print("Error!!! check times")
+}else{}
 
 #subset validation
 FO_grass_df_validation<-FO_grass_df_t[,round(length(FO_grass_df_t)/3*2, 0):length(FO_grass_df_t)]
@@ -120,7 +126,7 @@ ggplot(alpha_rmse_1, aes(x=alpha, y=RMSE))+
 ggsave(filename = paste("Grass_test_subset_1", layer_name, "rmse_coarse_spectrum_full_plot.png", sep="_"),
        width=297, height=210, units = "mm")
 
-ggplot(alpha_rmse_1[60:70,], aes(x=alpha, y=RMSE))+
+ggplot(alpha_rmse_1[40:60,], aes(x=alpha, y=RMSE))+
   geom_point()+
   theme_bw()+
   scale_x_continuous(trans='log10')+
@@ -176,7 +182,10 @@ FO_grass_df_test_subset_2<-FO_grass_df_test[,range_test_2[1]:range_test_2[2]]
 #range(FO_grass_temp_time_df_order$time[40000:43600]) #timespan subset 2
 
 #get time differences for subset 1
-difftime_grass_2<-as.vector(diff.POSIXt(FO_grass_temp_time_df_order$time[range_test_2[1]:range_test_2[2]]))
+difftime_grass_2<-as.vector(diff.POSIXt(grass_time[range_test_2[1]:range_test_2[2]]))*60
+if(mean(difftime_grass_2)!=600){
+  print("Error!!! check times")
+}else{}
 #run heat function for every time step
 #Effects-of-aggregate-types-on-thermal-properties-of-grass (2012)
 #alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
@@ -287,7 +296,10 @@ FO_grass_df_test_subset_3<-FO_grass_df_test[,range_test_3[1]:range_test_3[2]]
 #range(FO_grass_temp_time_df_order$time[44000:47600]) #timespan subset 2
 
 #get time differences for subset 1
-difftime_grass_3<-as.vector(diff.POSIXt(FO_grass_temp_time_df_order$time[range_test_3[1]:range_test_3[2]]))
+difftime_grass_3<-as.vector(diff.POSIXt(grass_time[range_test_3[1]:range_test_3[2]]))*60
+if(mean(difftime_grass_3)!=600){
+  print("Error!!! check times")
+}else{}
 #run heat function for every time step
 #Effects-of-aggregate-types-on-thermal-properties-of-grass (2012)
 #alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
@@ -403,7 +415,7 @@ FO_grass_df_validation_subset_measured<-FO_grass_df_validation_subset_measured[,
 data_measured<-as.vector(t(FO_grass_df_validation_subset_measured))
 
 #get time differences for subset 3
-difftime_grass_3<-as.vector(diff.POSIXt(as.POSIXct(colnames(FO_grass_df_validation_subset))))
+difftime_grass_3<-as.vector(diff.POSIXt(as.POSIXct(grass_time)))
 
 #create output dataframe for validation
 FO_grass_df_pred_3<-setNames(data.frame(matrix(ncol = ncol(FO_grass_df_validation_subset), 
@@ -412,7 +424,7 @@ FO_grass_df_pred_3<-setNames(data.frame(matrix(ncol = ncol(FO_grass_df_validatio
 rownames(FO_grass_df_pred_3)<-rownames(FO_grass_df_validation_subset)
 for(i in 1:ncol(FO_grass_df_validation_subset)){
   #print(i)
-  pred_temp<-heat_heights_heights(u=FO_grass_df_validation_subset[,i], alpha=mean_alpha, 
+  pred_temp<-heat_heights(u=FO_grass_df_validation_subset[,i], alpha=mean_alpha, 
                   xdelta=diff(as.numeric(rownames(FO_grass_df_validation_subset))), tdelta=difftime_grass_3[i], n=2)
   FO_grass_df_pred_3[,i+1]<-pred_temp[2,]
 }

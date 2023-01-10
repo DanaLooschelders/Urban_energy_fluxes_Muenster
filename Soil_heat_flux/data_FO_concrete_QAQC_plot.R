@@ -94,6 +94,7 @@ mean(diff(unique(df_concrete_long$key)), na.rm=T)#0.005128866
 cols<-which(as.numeric(colnames(df_concrete[, -c(196, 197)]))>=0.53)
 #remove those columns
 df_concrete_short<-df_concrete[,-cols]
+
 ####QAQC aggregated data####
 df_concrete_4QA<-subset(df_concrete_short, select = -c(file, time))
 #check if there physically unrealistic temperatures
@@ -151,12 +152,50 @@ FO_concrete_df<-FO_concrete_temp_time_df_short
 #remove the others
 #get spatial difference of measurements
 heights_concrete<-diff(as.numeric(colnames(FO_concrete_df[-length(FO_concrete_df)])))
-
+#aggregate to 10 min
+FO_concrete_10min<-aggregate(FO_concrete_df, 
+                              list(time_10min=cut(FO_concrete_df$time, "10 mins")),
+                              mean)
+#extract only time
+concrete_time<-as.POSIXct(FO_concrete_10min$time_10min)
 #remove column with time
-FO_concrete_df<-FO_concrete_df[,-length(FO_concrete_df)]
+FO_concrete_10min<-FO_concrete_10min[,-c(1,length(FO_concrete_10min))]
 
 #clear up environment
 #rm(FO_concrete_temp_time, FO_concrete_list, FO_concrete_only_temp, FO_concrete_temp_time_df_order)
+####QAQC aggregated data####
+FO_concrete_10min_4QC<-FO_concrete_10min
+df_hist<-data.matrix(FO_concrete_10min_4QC)
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+png(filename = "Histogramm_FO_concrete_Soil_Temp_aggregated.png",
+    height = 4960, width=7016)
+hist(df_hist, 
+     main = "Histogramm of FO Concrete - Soil Temp",
+     xlab = "Temperature [°C]")
+dev.off()
+
+#check if there are spikes in time
+diff_concrete_time<-diff(as.matrix(FO_concrete_10min_4QC))
+range(diff_concrete_time)
+#-2.053447  1.791176
+hist(diff_concrete_time, breaks = 100)
+#check if there are spikes in space
+diff_concrete_space<-diff(as.matrix(t(FO_concrete_10min_4QC))) 
+range(diff_concrete_space)
+#-2.166154  3.865688
+hist(diff_concrete_space, breaks=100)
+
+####plot as heatmap####
+ggplot(df_concrete_long, aes(time, key)) +
+  geom_tile(aes(fill=value)) +
+  scale_fill_viridis_c("Temperature [°C]")+
+  ylab(label="Height [m]")+
+  theme_bw()+
+  ggtitle(label="FO Column Concrete")
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggsave(filename="FO_Column_concrete_10min.png",
+       width=297, height=210, units = "mm")
 
 ####QAQC non-aggregated data####
 FO_concrete_df_4QC<-FO_concrete_df
@@ -191,3 +230,11 @@ ggplot(df_concrete_long, aes(time, key)) +
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
 ggsave(filename="FO_Column_concrete.png",
        width=297, height=210, units = "mm")
+
+#remove unneccessary objects
+rm(FO_concrete_df_4QC, FO_concrete_10min_4QC, FO_concrete_list, FO_concrete_only_temp, 
+   FO_concrete_temp_time,
+   FO_concrete_temp_time_df_short, FO_concrete_temp_time_df_order, FO_concrete_temp_time_df, 
+   FO_concrete_df, FO_concrete_df_t)
+rm(df_concrete, df_concrete_4QA, df_concrete_long, df_concrete_short)
+rm(temp_list, nc_tmp, info)

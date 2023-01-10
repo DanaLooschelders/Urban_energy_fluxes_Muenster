@@ -9,6 +9,11 @@ means <- aggregate(ktest,
                    list(fiveMin=cut(ktest$time, "10 mins")),
                    mean)
 
-test_Klemm<-means[1:10,-23]
+test_Klemm<-means[1:12,-23]
 
-test_Klemm
+test_Klemm<-as.data.frame(t(test_Klemm))
+colnames(test_Klemm)<-test_Klemm[1,]
+test_Klemm<-test_Klemm[-1,]
+
+setwd("C:/00_Dana/Uni/Masterarbeit/Klemm_Bodenwärmestronm")
+write.csv(test_Klemm, file="subset_concrete_10minmean_10cmdepth_for2h.csv")

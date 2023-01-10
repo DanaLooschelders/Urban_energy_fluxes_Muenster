@@ -204,6 +204,39 @@ heights_grass<-diff(as.numeric(colnames(FO_grass_df)))
 mean(heights_grass) # 0.0051
 sd(heights_grass) #0.00032
 plot(heights_grass[74:93])
+#add time as col
+FO_grass_df$time<-FO_grass_temp_time_df$time
+#aggregate to 10 min
+FO_grass_10min<-aggregate(FO_grass_df, 
+                             list(time_10min=cut(FO_grass_df$time, "10 mins")),
+                             mean)
+#extract only time
+grass_time<-as.POSIXct(FO_grass_10min$time_10min)
+#remove column with time
+FO_grass_10min<-FO_grass_10min[,-c(1,length(FO_grass_10min))]
+
+####QAQC aggregated data####
+FO_grass_10min_4QC<-FO_grass_10min
+df_hist<-data.matrix(FO_grass_10min_4QC)
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
+png(filename = "Histogramm_FO_grass_Soil_Temp_aggregated.png",
+    height = 4960, width=7016)
+hist(df_hist, 
+     main = "Histogramm of FO grass - Soil Temp",
+     xlab = "Temperature [°C]")
+dev.off()
+
+#check if there are spikes in time
+diff_grass_time<-diff(as.matrix(FO_grass_10min_4QC))
+range(diff_grass_time)
+#-2.266154  6.760256
+hist(diff_grass_time, breaks = 100)
+#check if there are spikes in space
+diff_grass_space<-diff(as.matrix(t(FO_grass_10min_4QC)))
+range(diff_grass_space)
+#-1.049230  1.832749
+hist(diff_grass_space, breaks=100)
+
 ####QAQC non-aggregated data####
 FO_grass_df_4QC<-FO_grass_df
 df_hist<-data.matrix(FO_grass_df_4QC)
@@ -226,5 +259,10 @@ range(diff_grass_space)
 #-1.049230  1.832749
 hist(diff_grass_space, breaks=100)
 
-
-
+#remove unneccessary objects
+rm(FO_grass_df_4QC, FO_grass_10min_4QC, FO_grass_list, FO_grass_only_temp, 
+   FO_grass_temp_time,
+   FO_grass_temp_time_df_short, FO_grass_temp_time_df_order, FO_grass_temp_time_df, 
+   FO_grass_df, FO_grass_df_t)
+rm(df_grass, df_grass_4QA, df_grass_long, df_grass_short)
+rm(temp_list, nc_tmp, info)

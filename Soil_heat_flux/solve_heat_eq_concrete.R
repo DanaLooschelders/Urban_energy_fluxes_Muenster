@@ -7,6 +7,7 @@ library(plyr)
 library(bigsnpr)
 library(colorspace)
 library(scico)
+
 #####heat function####
     #u = initial values of u
     #alpha = thermal diffusivity
@@ -15,34 +16,38 @@ library(scico)
     #n = number of steps to take
 
 ####prep data####
-
-  #choose soil layer
-  #5 - 15 cm
-  FO_concrete_layer<-FO_concrete_df[,77:105]
-  layer_name<-"5_15"
-
-  #0 - 10 cm
-  FO_concrete_layer<-FO_concrete_df[,85:105]
-  layer_name<-"0_10"
-
+#extract only first 15 cm
+#0 - 15 cm
+FO_concrete_layer<-FO_concrete_10min[,77:105]
+#0 - 10 cm --> FO_concrete_layer<-FO_concrete_df[,85:105]
+layer_name<-"0_15cm"
 #choose soil layer
-
+#aggregate Data to 10 min
+FO_concrete_layer  
+#save aggregated and cut data as csv
+FO_concretete_csv<-cbind(FO_concrete_layer, concrete_time)
+getwd()
+write.csv(FO_concretete_csv, file="FO_concrete.csv", row.names=F)
 #transpose dataframe
 FO_concrete_df_t<-as.data.frame(t(FO_concrete_layer))
-colnames(FO_concrete_df_t)<-FO_concrete_temp_time_df$time #set time as colnames
+colnames(FO_concrete_df_t)<-concrete_time #set time as colnames
 #split data in test and validation data
 #2/3 test and 1/3 Validation
 #subset test
+
 FO_concrete_df_test<-FO_concrete_df_t[,1:round(length(FO_concrete_df_t)/3*2, 0)]
 #choose only 3 1 day periods from test data.frame to reduce computational cost
-60*60*24/24 #3600 Files sind 1 tag
+#60*60*24/24 #3600 Files sind 1 tag
 #subset day 1 - find cols with chosen period
 range_test_1<-range(which(colnames(FO_concrete_df_test)>"2021-07-30 08:00:00 CEST"&colnames(FO_concrete_df_test)<"2021-07-31 08:00:00 CEST"))
 
 FO_concrete_df_test_subset_1<-FO_concrete_df_test[,range_test_1[1]:range_test_1[2]]
 #range(FO_concrete_temp_time_df$time[10000:13600]) #timespan subset 1
-#get time differences for subset 1
-difftime_concrete_1<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time[range_test_1[1]:range_test_1[2]]))
+#get time differences for subset 1 and multipy times sixty to get seconds
+difftime_concrete_1<-as.vector(diff.POSIXt(concrete_time[range_test_1[1]:range_test_1[2]]))*60
+if(mean(difftime_concrete_1)!=600){
+  print("Error!!! check times")
+}else{}
 
 #subset validation
 FO_concrete_df_validation<-FO_concrete_df_t[,round(length(FO_concrete_df_t)/3*2, 0):length(FO_concrete_df_t)]
@@ -85,7 +90,7 @@ FO_concrete_df_pred_1[,i+1]<-pred_temp[2,]
 
 
 #plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
-setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 ggplot(alpha_rmse_1, aes(x=alpha, y=RMSE))+
   geom_point()+
   theme_bw()+
@@ -162,7 +167,10 @@ FO_concrete_df_test_subset_2<-FO_concrete_df_test[,range_test_2[1]:range_test_2[
 #range(FO_concrete_temp_time_df$time[40000:43600]) #timespan subset 2
 
 #get time differences for subset 1
-difftime_concrete_2<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time[range_test_2[1]:range_test_2[2]]))
+difftime_concrete_2<-as.vector(diff.POSIXt(concrete_time[range_test_2[1]:range_test_2[2]]))*60
+if(mean(difftime_concrete_2)!=600){
+  print("Error!!! check times")
+}else{}
 #run heat function for every time step
 #Effects-of-aggregate-types-on-thermal-properties-of-concrete (2012)
 #alpha.range<-seq(1*10^-8, 11*10^-7, by=0.1*10^-7)
@@ -197,7 +205,7 @@ for(x in 1:length(alpha.range)){
 }
 
 #plot(alpha_rmse_2$alpha, alpha_rmse_2$RMSE)
-setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 ggplot(alpha_rmse_2, aes(x=alpha, y=RMSE))+
   geom_point()+
   theme_bw()+
@@ -272,7 +280,10 @@ range_test_3<-range(which(colnames(FO_concrete_df_test)>"2021-08-11 00:00:00 CES
 FO_concrete_df_test_subset_3<-FO_concrete_df_test[,range_test_3[1]:range_test_3[2]]
 #range(FO_concrete_temp_time_df$time[44000:47600]) #timespan subset 1
 #get time differences for subset 1
-difftime_concrete_3<-as.vector(diff.POSIXt(FO_concrete_temp_time_df$time[range_test_3[1]:range_test_3[2]]))
+difftime_concrete_3<-as.vector(diff.POSIXt(concrete_time[range_test_3[1]:range_test_3[2]]))*60
+if(mean(difftime_concrete_1)!=600){
+  print("Error!!! check times")
+}else{}
 
 alpha.range<-seq_log(1*10^-10, 1*10^-6, length.out = 100)
 #create output dataframe for alpha and RMSEs
@@ -306,7 +317,7 @@ for(x in 1:length(alpha.range)){
 }
 
 #plot(alpha_rmse_1$alpha, alpha_rmse_1$RMSE)
-setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 ggplot(alpha_rmse_3, aes(x=alpha, y=RMSE))+
   geom_point()+
   theme_bw()+
@@ -425,6 +436,7 @@ difftime_concrete_3<-as.vector(diff.POSIXt(as.POSIXct(colnames(FO_concrete_df_va
                               rmse_validation,
                               NA))
 
+  getwd()
   ####plot####
   plotTestSubset<- function(subsetName){
     #prepare data
