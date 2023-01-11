@@ -28,7 +28,6 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
   return ( uarray )
 }
 
-
 #####heat function####
 #u = initial values of u
 #alpha = thermal diffusivity
@@ -39,9 +38,9 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
 ####prep data####
 
 #choose soil layer
-#0 - 15 cm
-FO_grass_layer<-FO_grass_10min[,64:93]
-layer_name<-"0_15"
+#0 - 20 cm
+FO_grass_layer<-FO_grass_10min[,54:93]
+layer_name<-"0_20"
 
 #0 - 10 cm --> FO_grass_df[,74:93]
 #write aggregated data to csv

@@ -51,7 +51,7 @@ for (i in 1:length(files)){
     }else{}
   }else{}
 }
-beep()
+
 ####data aggregated to one hour####
 #output data frame
 df_concrete <- data.frame(matrix(ncol = dim(FO_concrete_list[[300]]$cal_temp)[1] , #column for every space var

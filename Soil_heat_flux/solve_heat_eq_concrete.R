@@ -17,17 +17,18 @@ library(scico)
 
 ####prep data####
 #extract only first 15 cm
-#0 - 15 cm
-FO_concrete_layer<-FO_concrete_10min[,77:105]
+#0 - 20 cm
+FO_concrete_layer<-FO_concrete_10min[,64:105]
 #0 - 10 cm --> FO_concrete_layer<-FO_concrete_df[,85:105]
-layer_name<-"0_15cm"
+layer_name<-"0_20cm"
 #choose soil layer
 #aggregate Data to 10 min
 FO_concrete_layer  
 #save aggregated and cut data as csv
 FO_concretete_csv<-cbind(FO_concrete_layer, concrete_time)
 getwd()
-write.csv(FO_concretete_csv, file="FO_concrete.csv", row.names=F)
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
+write.csv(FO_concretete_csv, file="FO_concrete_20cm.csv", row.names=F)
 #transpose dataframe
 FO_concrete_df_t<-as.data.frame(t(FO_concrete_layer))
 colnames(FO_concrete_df_t)<-concrete_time #set time as colnames
