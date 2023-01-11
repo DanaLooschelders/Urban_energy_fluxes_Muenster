@@ -48,6 +48,12 @@ layer_name<-"0_15"
 FO_grass_csv<-cbind(FO_grass_layer, grass_time)
 getwd()
 write.csv(FO_grass_csv, file="FO_grass.csv", row.names=F)
+#set wd
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
+#load csv
+FO_grass_layer<-read.csv("FO_grass.csv")
+grass_time<-as.POSIXct(FO_grass_layer$grass_time)
+FO_grass_layer<-FO_grass_layer[,-length(FO_grass_layer)]
 
 #transpose dataframe
 FO_grass_df_t<-as.data.frame(t(FO_grass_layer))
