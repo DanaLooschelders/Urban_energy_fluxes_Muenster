@@ -45,7 +45,8 @@ layer_name<-"0_20"
 #0 - 10 cm --> FO_grass_df[,74:93]
 #write aggregated data to csv
 FO_grass_csv<-cbind(FO_grass_layer, grass_time)
-getwd()
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
+
 write.csv(FO_grass_csv, file="FO_grass.csv", row.names=F)
 #set wd
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")

@@ -54,7 +54,7 @@ for (i in 1:length(files)){
     }else{}
   }else{}
 }
-
+beep()
 #grass
 #output data frame
 df_grass <- data.frame(matrix(ncol = dim(FO_grass_list[[300]]$cal_temp)[1] , #column for every space var
@@ -105,7 +105,7 @@ setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Graf
 ggsave(filename="FO_Column_grass.png")
 
 #cut to threshold
-threshold_grass<-0.47  #0.47 (from variance change)
+threshold_grass<-0.4722124 #0.47 (from variance change)
 #remove last two cloumns
 df_grass_short<-subset(df_grass, select = -c(file, time))
 #get index of columns over threshold
@@ -206,6 +206,8 @@ sd(heights_grass) #0.00032
 plot(heights_grass[74:93])
 #add time as col
 FO_grass_df$time<-FO_grass_temp_time_df$time
+#remove first three rows to get clean timestamp
+FO_grass_df<-FO_grass_df[-c(1:3),]
 #aggregate to 10 min
 FO_grass_10min<-aggregate(FO_grass_df, 
                              list(time_10min=cut(FO_grass_df$time, "10 mins")),

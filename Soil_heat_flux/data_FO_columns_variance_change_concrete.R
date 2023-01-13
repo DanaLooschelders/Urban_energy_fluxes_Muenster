@@ -46,7 +46,7 @@ ggsave(filename="Threshold_var_concrete.png")
 
 plot(vars_concrete$height, vars_concrete$var, type="l")
 vars_concrete$height[which.max(vars_concrete$var)]
-#0.53 
+#0.5341675
 
 #plot Variance over the whole timeseries
 #calculate variance for every 10 mins 

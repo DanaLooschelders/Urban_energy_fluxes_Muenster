@@ -70,7 +70,7 @@ meteo_stats<-data.frame("meteo_1"=colMeans(meteo_1[,3:length(meteo_1)], na.rm=T)
 
 #meteo
 #convert timestamp
-meteo_2$TIMESTAMP<-as.POSIXct(meteo_1$TIMESTAMP)
+meteo_2$TIMESTAMP<-as.POSIXct(meteo_2$TIMESTAMP)
 #reduce unesseccary variables
 meteo_2<-meteo_2[,!names(meteo_2) %in% c("RECORD_beton", "RECORD_kiebitz", 
                                          "CNR4TC_Avg_beton", "CNR4TC_Avg_kiebitz", 
