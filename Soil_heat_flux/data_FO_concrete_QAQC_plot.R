@@ -138,11 +138,12 @@ for(i in 1:length(FO_concrete_only_temp)){
   #add time as variable
   FO_concrete_temp_time[[i]]$time<-time
 }
+
 #rind list to one dataframe and fill missing cols with NA
 FO_concrete_temp_time_df<-rbind.fill(FO_concrete_temp_time)
 #order columns
 FO_concrete_temp_time_df_order<-FO_concrete_temp_time_df[ ,order(colnames(FO_concrete_temp_time_df))]
-threshold_concrete<-0.53  #0.53 (from variance change)
+threshold_concrete<-0.5341675  #0.53 (from variance change)
 #get index of columns over threshold
 cols<-which(as.numeric(colnames(FO_concrete_temp_time_df_order[, -length(FO_concrete_temp_time_df_order)]))>=threshold_concrete)
 #remove those columns
@@ -152,6 +153,7 @@ FO_concrete_df<-FO_concrete_temp_time_df_short
 #remove the others
 #get spatial difference of measurements
 heights_concrete<-diff(as.numeric(colnames(FO_concrete_df[-length(FO_concrete_df)])))
+FO_concrete_df<-FO_concrete_df[-c(1:2),]
 #aggregate to 10 min
 FO_concrete_10min<-aggregate(FO_concrete_df, 
                               list(time_10min=cut(FO_concrete_df$time, "10 mins")),
