@@ -4,7 +4,7 @@ setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Graf
 #source functions
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/functions_alpha.r")
 #calculate for individual soil profile
-FO_grass_depth<-read.csv("FO_grass.csv")
+FO_grass_depth<-read.csv("FO_grass_20cm_aG_10cm.csv")
 #transpose
 FO_grass_time<-data.frame(t(FO_grass_depth))
 #set time as column name
@@ -41,7 +41,7 @@ FO_grass_sub<-FO_grass_time[,c(which(colnames(FO_grass_time)=="2021-08-04 07:00:
 #plot all values
 for(i in 701:716 ){
   plot(FO_grass_plot$depth, FO_grass_plot[,i],  type="l", 
-       main=paste("all values - " ,colnames(FO_grass_plot[i])), ylim=c(16,25))
+       main=paste("all values - " ,colnames(FO_grass_plot[i])), ylim=c(17,24))
   points(FO_grass_plot$depth, FO_grass_plot[,i])
   Sys.sleep(3)
 }
@@ -55,16 +55,44 @@ for(i in 1:4){
   rm(FO_grass_temp)#remove object
 }
 
-alpha_1<-alpha(FO_data_x=FO_grass_1)
-plot_temp_alpha(FO_data_x = FO_grass_1, alpha_x = alpha_1)
-#"30.07.2021  08:08:00" to "30.07.2021 10:08:00"
-
-#plot profiles
-#first value
-#plot profiles with every xth point
-
-plot_5th_value(FO_grass_1, range=701:716)
-alpha_4<-alpha(FO_grass_4, range=701:716)
+#calculate for 1 value
+color_5th_value(point=1)
+plot_5th_value(FO_data_x = FO_grass_1, range=707:716)
+alpha_1<-alpha(FO_data_x=FO_grass_1, 707:716)
+median(unlist(alpha_1[[1]]))
 boxplot(alpha_1[[1]])
 
+#for second
+plot_5th_value(FO_data_x = FO_grass_2,  707:716)
+alpha_2<-alpha(FO_data_x=FO_grass_2,  707:716)
+median(unlist(alpha_2[[1]]))
+boxplot(alpha_2[[1]])
+
+#for third
+alpha_3<-alpha(FO_data_x=FO_grass_3,  707:716)
+median(unlist(alpha_3[[1]]))
+boxplot(alpha_3[[1]])
+
+#for fourth
+alpha_4<-alpha(FO_data_x=FO_grass_4,  707:716)
+median(unlist(alpha_4[[1]]))
+boxplot(alpha_4[[1]])
+plot_temp_alpha(FO_data_x = FO_grass_1, alpha_x = alpha_1)
+
+#specific heat capacity
 median(unlist(alpha_1[[1]]))
+median(unlist(alpha_2[[1]]))
+median(unlist(alpha_3[[1]]))
+median(unlist(alpha_4[[1]]))
+
+specific_heat_lower<-1000
+specific_heat_higher<-1200  #mean=1140, sd=25) 
+density<-2.409*1000
+
+#calculate k
+k_lower<-alpha*specific_heat_lower*density
+k_upper<-alpha*specific_heat_higher*density
+i=1
+#test
+flux_lower<-shf(FO_data_x = FO_concrete_4, k=k_lower)
+plot_shf(flux_dat=flux_lower)

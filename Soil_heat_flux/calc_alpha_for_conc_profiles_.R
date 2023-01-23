@@ -4,7 +4,9 @@ library(tidyverse)
 #source function
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/functions_alpha.r")
 #calculate for individual soil profile
+FO_concrete_aG<-read.csv("FO_concrete_20cm_aG_10cm.csv")
 FO_concrete_depth<-read.csv("FO_concrete_20cm.csv")
+FO_concrete_depth<-FO_concrete_aG[,c(1:53, 63)]
 #transpose
 FO_concrete_time<-data.frame(t(FO_concrete_depth))
 #set time as column name
@@ -18,7 +20,9 @@ FO_concrete_plot$depth<-as.numeric(substr(rownames(FO_concrete_plot),start = 2, 
 #all values
 for(i in 107:119 ){
   plot(FO_concrete_plot$depth, FO_concrete_plot[,i],  
-       type="l", main=paste("all values - " ,colnames(FO_concrete_plot[i])))
+       type="l", main=paste("all values - " ,colnames(FO_concrete_plot[i])), 
+       ylim=c(20,28))
+  abline(v=0.529, col="red")
   points(FO_concrete_plot$depth, FO_concrete_plot[,i])
   Sys.sleep(2)
 }
@@ -33,19 +37,33 @@ for(i in 1:4){
 }
 
 #"30.07.2021  08:08:00" to "30.07.2021 10:08:00"
-#plot all points but color only every fith
+#plot all points but color only every fifth
 color_5th_value()
 
 #calculate for 1 value
-alpha_x<-alpha()
-alpha_1<-alpha(FO_data_x=FO_concrete_4, range=106:117)
+color_5th_value(point=1)
+plot_5th_value(FO_data_x = FO_concrete_1)
+alpha_1<-calc_alpha(FO_data_x=FO_concrete_1)
 median(unlist(alpha_1[[1]]))
+boxplot(alpha_1[[1]])
+
 #for second
-alpha_2<-alpha(FO_data_x=FO_concrete_2)
+color_5th_value(point=2)
+plot_5th_value(FO_data_x = FO_concrete_2)
+alpha_2<-calc_alpha(FO_data_x=FO_concrete_2)
+median(unlist(alpha_2[[1]]))
+boxplot(alpha_2[[1]])
 #for third
-alpha_3<-alpha(FO_data_x=FO_concrete_3)
+color_5th_value(point=3)
+alpha_3<-calc_alpha(FO_data_x=FO_concrete_3)
+median(unlist(alpha_3[[1]]))
+boxplot(alpha_3[[1]])
 #for fourth
-alpha_4<-alpha(FO_data_x=FO_concrete_4)
+color_5th_value(point=4)
+alpha_4<-calc_alpha(FO_data_x=FO_concrete_4)
+median(unlist(alpha_4[[1]]))
+boxplot(alpha_4[[1]])
+
 #plot values
 plot_5th_value(FO_concrete_2)
 plot_5th_value(FO_concrete_3, x_value="3rd value")
@@ -53,11 +71,36 @@ plot_5th_value(FO_concrete_4, x_value="4th value")
 #plot as boxplot
 boxplot(alpha_1)
 
-median(unlist(alpha_2[[1]]))
-
 range_alpha<-as.data.frame(lapply(alpha_x, range))
 mean_alpha<-as.data.frame(lapply(alpha_x, mean))
 
 plot_temp_alpha(FO_data_x=FO_concrete_2, alpha_x=alpha_2)
+#specific heat capacity
 
-me
+alpha<-median(unlist(alpha_1[[1]])) # 1.679633e-06
+#with 2cm aboveground: 1.531781e-06
+
+alpha<-median(unlist(alpha_2[[1]])) # 1.429565e-06
+#with 2cm aboveground: 1.21812e-06
+
+alpha<-median(unlist(alpha_3[[1]])) # 1.232641e-06
+#with 2cm aboveground: aboveground: 
+
+alpha<-median(unlist(alpha_4[[1]])) # 1.220921e-06
+##with 2cm aboveground: 1.046379e-06
+
+#bootstrap for specific heat or find reliable value
+specific_heat_lower<-1000
+specific_heat_higher<-1200  #mean=1140, sd=25) 
+density<-2.409*1000 #measured
+
+#calculate k
+k_lower<-alpha*specific_heat_lower*density
+k_median<-alpha*1100*density
+k_upper<-alpha*specific_heat_higher*density
+
+#test
+flux_lower<-shf(FO_data_x = FO_concrete_1, k=k_median)
+plot_shf(flux_dat=flux_lower)
+
+flux_lower[[2]][[7]]

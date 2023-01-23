@@ -38,8 +38,8 @@ heat_heights <- function (u, alpha , xdelta , tdelta , n) {
 ####prep data####
 
 #choose soil layer
-#0 - 20 cm
-FO_grass_layer<-FO_grass_10min[,54:93]
+#0 - 20 cm #10 cm above ground
+FO_grass_layer<-FO_grass_10min[,54:112]
 layer_name<-"0_20"
 
 #0 - 10 cm --> FO_grass_df[,74:93]
@@ -47,7 +47,7 @@ layer_name<-"0_20"
 FO_grass_csv<-cbind(FO_grass_layer, grass_time)
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 
-write.csv(FO_grass_csv, file="FO_grass.csv", row.names=F)
+write.csv(FO_grass_csv, file="FO_grass_20cm_aG_10cm.csv", row.names=F)
 #set wd
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 #load csv

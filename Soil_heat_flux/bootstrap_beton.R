@@ -1,6 +1,7 @@
 library(boot)
 #select alpha values with mean and sd of previously determined values
 alpha_range<-rnorm(n=2000, mean=2.359007*10^-08, sd=9.987034*10^-09) #0 to 10 cm
+alpha<-1.220921e-06
 hist(alpha_range)
 #select values for specific heat capacity
 specific_heat_range<-runif(n=2000, min=1000, max=1200) #mean=1140, sd=25) 

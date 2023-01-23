@@ -17,8 +17,8 @@ library(scico)
 
 ####prep data####
 #extract only first 15 cm
-#0 - 20 cm
-FO_concrete_layer<-FO_concrete_10min[,64:105]
+#0 - 20 cm plus 10 cm above ground
+FO_concrete_layer<-FO_concrete_10min[,64:125]
 #0 - 10 cm --> FO_concrete_layer<-FO_concrete_df[,85:105]
 layer_name<-"0_20cm"
 #choose soil layer
@@ -28,7 +28,7 @@ FO_concrete_layer
 FO_concretete_csv<-cbind(FO_concrete_layer, concrete_time)
 getwd()
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
-write.csv(FO_concretete_csv, file="FO_concrete_20cm.csv", row.names=F)
+write.csv(FO_concretete_csv, file="FO_concrete_20cm_aG_10cm.csv", row.names=F)
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 read.csv(file="FO_concrete_20cm.csv")
 

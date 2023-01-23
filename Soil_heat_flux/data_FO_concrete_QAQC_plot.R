@@ -51,7 +51,7 @@ for (i in 1:length(files)){
     }else{}
   }else{}
 }
-
+beep()
 ####data aggregated to one hour####
 #output data frame
 df_concrete <- data.frame(matrix(ncol = dim(FO_concrete_list[[300]]$cal_temp)[1] , #column for every space var
@@ -90,8 +90,9 @@ df_concrete_long$key<-as.numeric(df_concrete_long$key)
 df_concrete_long$value<-as.numeric(df_concrete_long$value)
 #get mean difference in height
 mean(diff(unique(df_concrete_long$key)), na.rm=T)#0.005128866
+#cut df to a bit above theshold of .53
 #cut df_concrete to threshold of 0.53
-cols<-which(as.numeric(colnames(df_concrete[, -c(196, 197)]))>=0.53)
+cols<-which(as.numeric(colnames(df_concrete[, -c(196, 197)]))>=0.63)
 #remove those columns
 df_concrete_short<-df_concrete[,-cols]
 
@@ -143,7 +144,8 @@ for(i in 1:length(FO_concrete_only_temp)){
 FO_concrete_temp_time_df<-rbind.fill(FO_concrete_temp_time)
 #order columns
 FO_concrete_temp_time_df_order<-FO_concrete_temp_time_df[ ,order(colnames(FO_concrete_temp_time_df))]
-threshold_concrete<-0.5341675  #0.53 (from variance change)
+#cut to 10cm above threshold of 0.5341675
+threshold_concrete<-0.6341675  #0.53 (from variance change)
 #get index of columns over threshold
 cols<-which(as.numeric(colnames(FO_concrete_temp_time_df_order[, -length(FO_concrete_temp_time_df_order)]))>=threshold_concrete)
 #remove those columns

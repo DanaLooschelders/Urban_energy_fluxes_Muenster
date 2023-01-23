@@ -104,8 +104,8 @@ ggplot(df_grass_long, aes(time, key)) +
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
 ggsave(filename="FO_Column_grass.png")
 
-#cut to threshold
-threshold_grass<-0.4722124 #0.47 (from variance change)
+#cut to 10 cm above threshold of 0.4722124
+threshold_grass<-0.5722124 #0.47 (from variance change)
 #remove last two cloumns
 df_grass_short<-subset(df_grass, select = -c(file, time))
 #get index of columns over threshold
@@ -184,8 +184,8 @@ for(i in seq(1, length(FO_grass_merged)-2, by=2)){
     FO_grass_merged[,i+1]<-NA #set second column to NA
   }else{} #do nothing
 }
-
-threshold_grass<-0.4722124 #0.4722124 
+#use 10cm over threshold of 0.4722124
+threshold_grass<-0.5722124 #0.4722124 
 #get index of columns over threshold
 cols<-which(as.numeric(colnames(FO_grass_merged))>=threshold_grass)
 #remove those columns

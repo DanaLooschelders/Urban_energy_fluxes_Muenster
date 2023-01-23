@@ -1,10 +1,10 @@
 #functions
-color_5th_value<-function(range=701:716, point=1){
+color_5th_value<-function(range=821:835, point=1){
   #create dataframe
   FO_concrete_temp <- FO_concrete_time
   #add index for color
   FO_concrete_temp$index<-"NO"
-  FO_concrete_temp$index[seq(point, nrow(FO_concrete_temp), 5)]<-"YES" #select every 5th row
+  FO_concrete_temp$index[seq(point, nrow(FO_concrete_temp), 4)]<-"YES" #select every 5th row
   #add depth
   FO_concrete_temp$depth<-as.numeric(substr(rownames(FO_concrete_temp),start = 2, stop=100))
   for(i in range ){
@@ -20,10 +20,10 @@ color_5th_value<-function(range=701:716, point=1){
  
 #plot profiles with every xth point
 plot_5th_value<-function(FO_data_x=FO_concrete_1, 
-                         range=701:716){
+                         range=821:835){
   for(i in range ){
     plot(FO_data_x$depth, FO_data_x[,i],  type="l",
-         main=paste(colnames(FO_concrete_plot[i])))
+         main=paste(colnames(FO_data_x[i])))
     points(FO_data_x$depth, FO_data_x[,i])
     
     Sys.sleep(1) #wait two seconds
@@ -38,8 +38,8 @@ plot_meteo<-function(data=meteo_all_long, var){
 }
 
 #calculate alpha
-alpha<-function(FO_data_x=FO_concrete_2, 
-                range=106:117){ #701:716
+calc_alpha<-function(FO_data_x=FO_concrete_2, 
+                range=821:835){ #701:716
   #reorder data 
   FO_data_x<-as.data.frame(apply(FO_data_x, 2, rev))
   alpha_depth_list<-list()
@@ -50,7 +50,7 @@ alpha<-function(FO_data_x=FO_concrete_2,
     #d2T/d2z
     d2T_dz2<-diff(dT_dz)/diff(FO_data_x$depth)[1:length(diff(dT_dz))] 
     #dT/dt
-    dT_dt<-(FO_data_x[1:length(d2T_dz2),range[i]]-FO_data_x[1:length(d2T_dz2),range[i]+1])/600
+    dT_dt<-(FO_data_x[1:length(d2T_dz2),range[i]+1]-FO_data_x[1:length(d2T_dz2),range[i]])/600
     alpha=dT_dt/d2T_dz2
     #alpha(dT / dt) /  (d2T / dz2)
     alpha_dat<-data.frame("depth"=FO_data_x$depth[1:length(d2T_dz2)] , 
@@ -63,7 +63,7 @@ alpha<-function(FO_data_x=FO_concrete_2,
   return(list(alpha_list, alpha_depth_list))
 }
 
-plot_temp_alpha<-function(FO_data_x=FO_grass_1, alpha_x=alpha_1, range=701:716){
+plot_temp_alpha<-function(FO_data_x=FO_grass_1, alpha_x=alpha_1, range=821:835){
   for(i in 1:length(alpha_x[[2]])){
     #temperature profile
     t<-ggplot(data=FO_data_x)+
@@ -85,4 +85,43 @@ plot_temp_alpha<-function(FO_data_x=FO_grass_1, alpha_x=alpha_1, range=701:716){
   }
 }
 
+#calculate soil heat flux
+
+#calculate alpha
+shf<-function(FO_data_x=FO_concrete_1, 
+                range=821:835, k=2){ #701:716
+  #reorder data 
+  #FO_data_x<-as.data.frame(apply(FO_data_x, 2, rev))
+  shf_depth_list<-list()
+  shf_list<-list()
+  for(i in 1:length(range)){
+    #calculate dT/dz
+    dT_dz<-diff(FO_data_x[,range[i]])/diff(FO_data_x$depth)
+    #calculate shf
+    shf<--k*dT_dz
+    shf_dat<-data.frame("depth"=FO_data_x$depth[1:length(dT_dz)] , 
+                          "shf"=shf)
+    shf_depth_list[[i]]<-shf_dat
+    shf_list[[i]]<-shf
+    rm(dT_dz)
+  }
+  names(shf_list)<-colnames(FO_data_x[,range])
+  return(list(shf_list, shf_depth_list))
+}
+
+plot_shf<-function(flux_dat=flux_lower){
+  for(i in 1:length(flux_dat[[2]])){
+    dat<-flux_dat[[2]][[i]]
+    plot<-ggplot(data=dat, aes( depth, shf*-1))+
+      geom_point()+
+      xlab(label="height [m]")+
+      ylab(label="shf [W/m^2]")+
+      geom_line()+
+      geom_vline(xintercept = 0.529, col="red")+
+      theme_bw()+
+      ggtitle(label=paste("shf - ", names(flux_dat[[1]][i])))
+    print(plot)
+    Sys.sleep(3)
+  }
+}
 
