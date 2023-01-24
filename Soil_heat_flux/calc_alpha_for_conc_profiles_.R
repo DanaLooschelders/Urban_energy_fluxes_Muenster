@@ -38,31 +38,32 @@ for(i in 1:4){
 
 #"30.07.2021  08:08:00" to "30.07.2021 10:08:00"
 #plot all points but color only every fifth
-color_5th_value()
+#color_5th_value()
 
-#calculate for 1 value
-color_5th_value(point=1)
-plot_5th_value(FO_data_x = FO_concrete_1)
+#####calculate for 1 value
+#color_5th_value(point=1)
+#plot_5th_value(FO_data_x = FO_concrete_1)
 alpha_1<-calc_alpha(FO_data_x=FO_concrete_1)
 median(unlist(alpha_1[[1]]))
 boxplot(alpha_1[[1]])
 
-#for second
-color_5th_value(point=2)
-plot_5th_value(FO_data_x = FO_concrete_2)
+#####for second
+#color_5th_value(point=2)
+#plot_5th_value(FO_data_x = FO_concrete_2)
 alpha_2<-calc_alpha(FO_data_x=FO_concrete_2)
 median(unlist(alpha_2[[1]]))
-boxplot(alpha_2[[1]])
-#for third
-color_5th_value(point=3)
+#boxplot(alpha_2[[1]])
+#####for third
+#color_5th_value(point=3)
 alpha_3<-calc_alpha(FO_data_x=FO_concrete_3)
 median(unlist(alpha_3[[1]]))
-boxplot(alpha_3[[1]])
-#for fourth
-color_5th_value(point=4)
+#boxplot(alpha_3[[1]])
+
+#####for fourth
+#color_5th_value(point=4)
 alpha_4<-calc_alpha(FO_data_x=FO_concrete_4)
 median(unlist(alpha_4[[1]]))
-boxplot(alpha_4[[1]])
+#boxplot(alpha_4[[1]])
 
 #plot values
 plot_5th_value(FO_concrete_2)
@@ -93,14 +94,14 @@ alpha<-median(unlist(alpha_4[[1]])) # 1.220921e-06
 specific_heat_lower<-1000
 specific_heat_higher<-1200  #mean=1140, sd=25) 
 density<-2.409*1000 #measured
-
+10.06*10^-7
 #calculate k
 k_lower<-alpha*specific_heat_lower*density
 k_median<-alpha*1100*density
 k_upper<-alpha*specific_heat_higher*density
-
+k_est<-alpha*1020*density #from Howlander et al 2012
 #test
-flux_lower<-shf(FO_data_x = FO_concrete_1, k=k_median)
+flux_lower<-shf(FO_data_x = FO_concrete_2, k=k_est)
 plot_shf(flux_dat=flux_lower)
 
 flux_lower[[2]][[7]]

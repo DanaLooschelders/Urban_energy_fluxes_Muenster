@@ -53,7 +53,7 @@ for(i in seq(1, length(FO_grass_merged)-2, by=2)){
   }else{} #do nothing
 }
 
-threshold_grass<-0.5986373 #0.5986373 (median value)
+#threshold_grass<-0.5986373 #0.5986373 (median value)
 #get index of columns over threshold
 #cols<-which(as.numeric(colnames(FO_grass_merged))>=threshold_grass)
 #remove those columns

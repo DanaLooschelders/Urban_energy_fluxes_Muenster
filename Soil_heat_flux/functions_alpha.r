@@ -86,7 +86,7 @@ plot_temp_alpha<-function(FO_data_x=FO_grass_1, alpha_x=alpha_1, range=821:835){
 }
 
 #calculate soil heat flux
-
+rm(FO_data_x, range, k)
 #calculate alpha
 shf<-function(FO_data_x=FO_concrete_1, 
                 range=821:835, k=2){ #701:716
@@ -99,7 +99,7 @@ shf<-function(FO_data_x=FO_concrete_1,
     dT_dz<-diff(FO_data_x[,range[i]])/diff(FO_data_x$depth)
     #calculate shf
     shf<--k*dT_dz
-    shf_dat<-data.frame("depth"=FO_data_x$depth[1:length(dT_dz)] , 
+    shf_dat<-data.frame("depth"=FO_data_x$depth[1:length(dT_dz)+1] , 
                           "shf"=shf)
     shf_depth_list[[i]]<-shf_dat
     shf_list[[i]]<-shf

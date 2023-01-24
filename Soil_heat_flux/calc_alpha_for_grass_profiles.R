@@ -42,6 +42,7 @@ FO_grass_sub<-FO_grass_time[,c(which(colnames(FO_grass_time)=="2021-08-04 07:00:
 for(i in 701:716 ){
   plot(FO_grass_plot$depth, FO_grass_plot[,i],  type="l", 
        main=paste("all values - " ,colnames(FO_grass_plot[i])), ylim=c(17,24))
+  abline(v=0.4722124, col="red")
   points(FO_grass_plot$depth, FO_grass_plot[,i])
   Sys.sleep(3)
 }
