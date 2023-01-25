@@ -75,7 +75,7 @@ vars_grass$var<-as.numeric(c(colwise(var, na.rm=T)(rollmean_10min)))
 
 #plot
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
-ggplot(data=vars_grass[80:100,], aes(x=height, y=var))+
+ggplot(data=vars_grass[80:150,], aes(x=height, y=var))+
   geom_line()+
   theme_bw()+
   ylab(label="variance [°C]")+
@@ -94,10 +94,13 @@ ggsave(filename="Threshold_var_all_grass.png")
 
 plot(vars_grass$height, vars_grass$var, type="l")
 
-#get first peak
+#get first peak (probably soil/vegetation boundary)
 vars_grass$height[1:100][which.max(vars_grass$var[1:100])]
-
 #0.47
+#get second peak (probably vegetation/atmosphere boundary)
+vars_grass$height[100:150][which.max(vars_grass$var[100:150])]
+#0.533174
+
 #plot Variance over the whole timeseries
 #calculate variance for every 10 mins 
 var_hour_grass = as.data.frame(lapply(FO_grass_temp_time_df_order[,1:636], 

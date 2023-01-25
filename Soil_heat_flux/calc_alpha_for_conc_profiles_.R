@@ -66,40 +66,43 @@ median(unlist(alpha_4[[1]]))
 #boxplot(alpha_4[[1]])
 
 #plot values
-plot_5th_value(FO_concrete_2)
-plot_5th_value(FO_concrete_3, x_value="3rd value")
-plot_5th_value(FO_concrete_4, x_value="4th value")
+#plot_5th_value(FO_concrete_2)
+#plot_5th_value(FO_concrete_3, x_value="3rd value")
+#plot_5th_value(FO_concrete_4, x_value="4th value")
 #plot as boxplot
-boxplot(alpha_1)
 
-range_alpha<-as.data.frame(lapply(alpha_x, range))
-mean_alpha<-as.data.frame(lapply(alpha_x, mean))
 
-plot_temp_alpha(FO_data_x=FO_concrete_2, alpha_x=alpha_2)
+#range_alpha<-as.data.frame(lapply(alpha_x, range))
+#mean_alpha<-as.data.frame(lapply(alpha_x, mean))
+
+#plot_temp_alpha(FO_data_x=FO_concrete_2, alpha_x=alpha_2)
 #specific heat capacity
 
-alpha<-median(unlist(alpha_1[[1]])) # 1.679633e-06
+alpha1_c<-median(unlist(alpha_1[[1]])) # 1.679633e-06
 #with 2cm aboveground: 1.531781e-06
 
-alpha<-median(unlist(alpha_2[[1]])) # 1.429565e-06
+alpha2_c<-median(unlist(alpha_2[[1]])) # 1.429565e-06
 #with 2cm aboveground: 1.21812e-06
 
-alpha<-median(unlist(alpha_3[[1]])) # 1.232641e-06
+alpha3_c<-median(unlist(alpha_3[[1]])) # 1.232641e-06
 #with 2cm aboveground: aboveground: 
 
-alpha<-median(unlist(alpha_4[[1]])) # 1.220921e-06
+alpha4_c<-median(unlist(alpha_4[[1]])) # 1.220921e-06
 ##with 2cm aboveground: 1.046379e-06
 
 #bootstrap for specific heat or find reliable value
 specific_heat_lower<-1000
 specific_heat_higher<-1200  #mean=1140, sd=25) 
 density<-2.409*1000 #measured
-10.06*10^-7
+
 #calculate k
 k_lower<-alpha*specific_heat_lower*density
 k_median<-alpha*1100*density
 k_upper<-alpha*specific_heat_higher*density
-k_est<-alpha*1020*density #from Howlander et al 2012
+
+#from Howlander et al 2012
+#-> concrete with similar density and diffusivity
+k_est<-alpha*1020*density 
 #test
 flux_lower<-shf(FO_data_x = FO_concrete_2, k=k_est)
 plot_shf(flux_dat=flux_lower)

@@ -1,10 +1,17 @@
 library(gridExtra)
 library(tidyverse)
+library(boot)
+library(lubridate)
+library(dplyr)
+#source script to load slow data and QAQC
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R") 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 #source functions
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/functions_alpha.r")
 #calculate for individual soil profile
-FO_grass_depth<-read.csv("FO_grass_20cm_aG_10cm.csv")
+FO_grass_depth<-read.csv("FO_grass.csv")
+FO_grass_aG<-read.csv("FO_grass_20cm_aG_10cm.csv")
+FO_grass_depth<-FO_grass_aG[,c(1:50, 60)]
 #transpose
 FO_grass_time<-data.frame(t(FO_grass_depth))
 #set time as column name
@@ -14,26 +21,6 @@ FO_grass_time<-FO_grass_time[-dim(FO_grass_time)[1],]
 #add depth to plot
 FO_grass_plot<-FO_grass_time
 FO_grass_plot$depth<-as.numeric(substr(rownames(FO_grass_plot),start = 2, stop=100))
-#read in meteo data for sample day
-meteo_all<-read.csv("meteo_sample_day.csv")
-meteo_sub<-meteo_all[meteo_all$TIMESTAMP>="2021-08-04 07:00:00"&
-                       meteo_all$TIMESTAMP<="2021-08-04 09:30:00",]
-#reshape
-meteo_all_long <- meteo_all %>%                             
-  gather(variable, value, -c(TIMESTAMP))
-#reshape
-meteo_sub_long <- meteo_sub %>%                             
-  gather(variable, value, -c(TIMESTAMP))
-
-colnames(meteo_all)
-str(meteo_all_long)
-meteo_all_long$TIMESTAMP<-as.POSIXct(meteo_all_long$TIMESTAMP)
-meteo_sub_long$TIMESTAMP<-as.POSIXct(meteo_sub_long$TIMESTAMP)
-
-#plot ind var
-plot_meteo(meteo_sub_long,"AirTC_Avg_beton")
-plot_meteo(meteo_sub_long,"SUp_Avg_kiebitz")
-plot_meteo(meteo_sub_long, "Rain_mm_Tot")
 
 #soil profile to same same subset as meteo_data
 FO_grass_sub<-FO_grass_time[,c(which(colnames(FO_grass_time)=="2021-08-04 07:00:00"):which(colnames(FO_grass_time)=="2021-08-04 09:30:00"))]
@@ -42,7 +29,8 @@ FO_grass_sub<-FO_grass_time[,c(which(colnames(FO_grass_time)=="2021-08-04 07:00:
 for(i in 701:716 ){
   plot(FO_grass_plot$depth, FO_grass_plot[,i],  type="l", 
        main=paste("all values - " ,colnames(FO_grass_plot[i])), ylim=c(17,24))
-  abline(v=0.4722124, col="red")
+  abline(v=0.4722124, col="brown")
+  abline(v=0.533174, col="green")
   points(FO_grass_plot$depth, FO_grass_plot[,i])
   Sys.sleep(3)
 }
@@ -57,43 +45,52 @@ for(i in 1:4){
 }
 
 #calculate for 1 value
-color_5th_value(point=1)
-plot_5th_value(FO_data_x = FO_grass_1, range=707:716)
-alpha_1<-alpha(FO_data_x=FO_grass_1, 707:716)
-median(unlist(alpha_1[[1]]))
-boxplot(alpha_1[[1]])
+#color_5th_value_grass(range = 707:716, point=2, FO_data_x= FO_grass_time)
+plot_5th_value_grass(FO_data_x = FO_grass_4, range=707:716)
+color_5th_value_grass(FO_data_x=FO_grass_time, 
+                      range=707:716, point=3)
+
+alpha_1_g<-calc_alpha(FO_data_x=FO_grass_1, 707:716) #3.003784e-07
+median(unlist(alpha_1_g[[1]]))
+boxplot(alpha_1_g[[1]])
 
 #for second
-plot_5th_value(FO_data_x = FO_grass_2,  707:716)
-alpha_2<-alpha(FO_data_x=FO_grass_2,  707:716)
-median(unlist(alpha_2[[1]]))
-boxplot(alpha_2[[1]])
+#plot_5th_value(FO_data_x = FO_grass_2,  707:716)
+alpha_2_g<-calc_alpha(FO_data_x=FO_grass_2,  707:716)
+median(unlist(alpha_2_g[[1]])) #2.166522e-07
+boxplot(alpha_2_g[[1]])
 
 #for third
-alpha_3<-alpha(FO_data_x=FO_grass_3,  707:716)
-median(unlist(alpha_3[[1]]))
-boxplot(alpha_3[[1]])
+alpha_3_g<-calc_alpha(FO_data_x=FO_grass_3,  707:716)
+median(unlist(alpha_3_g[[1]])) #1.863725e-07
+boxplot(alpha_3_g[[1]])
 
 #for fourth
-alpha_4<-alpha(FO_data_x=FO_grass_4,  707:716)
-median(unlist(alpha_4[[1]]))
-boxplot(alpha_4[[1]])
-plot_temp_alpha(FO_data_x = FO_grass_1, alpha_x = alpha_1)
+alpha_4_g<-calc_alpha(FO_data_x=FO_grass_4,  707:716)
+median(unlist(alpha_4_g[[1]])) #1.863725e-07
+boxplot(alpha_4_g[[1]])
+
+#plot_temp_alpha(FO_data_x = FO_grass_1, alpha_x = alpha_1)
 
 #specific heat capacity
-median(unlist(alpha_1[[1]]))
-median(unlist(alpha_2[[1]]))
-median(unlist(alpha_3[[1]]))
-median(unlist(alpha_4[[1]]))
+alpha1_g<-median(unlist(alpha_1_g[[1]])) #6.046484e-07
+alpha2_g<-median(unlist(alpha_2_g[[1]])) #4.430371e-07
+alpha3_g<-median(unlist(alpha_3_g[[1]])) #6.02086e-07
+alpha4_g<-median(unlist(alpha_4_g[[1]])) #4.747325e-07
 
-specific_heat_lower<-1000
-specific_heat_higher<-1200  #mean=1140, sd=25) 
-density<-2.409*1000
+#bootstrap values
+daily_VWC<-bootstrap_k(alpha=alpha1_g)
 
-#calculate k
-k_lower<-alpha*specific_heat_lower*density
-k_upper<-alpha*specific_heat_higher*density
-i=1
+####save bootstrapped daily k####
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
+write.csv(daily_VWC, file="daily_VWC.csv")
+daily_VWC<-read.csv("daily_VWC.csv")
+
+#get VWC and k for sample day
+daily_VWC[daily_VWC$day=="2021-08-04",]
+k_lower_g<-daily_VWC$lower_k[daily_VWC$day=="2021-08-04"]
+k_upper_g<-daily_VWC$upper_k[daily_VWC$day=="2021-08-04"]
+
 #test
-flux_lower<-shf(FO_data_x = FO_concrete_4, k=k_lower)
-plot_shf(flux_dat=flux_lower)
+flux_lower<-shf(FO_data_x = FO_grass_4, k=k_upper_g, range=701:716)
+plot_shf_grass(flux_dat=flux_lower)
