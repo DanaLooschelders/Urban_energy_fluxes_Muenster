@@ -198,14 +198,14 @@ cp_solids<- rnorm(n=1000, mean=801, sd=5) #J/(kg K)
 #specific heat of water: 4182 J/kg/K
 cp_water<- 4182 # J/kg/K
 #soil water content for test days
-#dat.soil.merge$TIMESTAMP<-as.POSIXct(dat.soil.merge$TIMESTAMP)
-#dat.soil.merge$mean_VWC<-rowMeans(dat.soil.merge[,c("WC01_VWC_Avg","WC02_VWC_Avg", "WC03_VWC_Avg")], na.rm=T )
+dat.soil.merge$TIMESTAMP<-as.POSIXct(dat.soil.merge$TIMESTAMP)
+dat.soil.merge$mean_VWC<-rowMeans(dat.soil.merge[,c("WC01_VWC_Avg","WC02_VWC_Avg", "WC03_VWC_Avg")], na.rm=T )
 #calculate soil water content for each day
-#dat.soil.merge$day<-date(dat.soil.merge$TIMESTAMP)
+dat.soil.merge$day<-date(dat.soil.merge$TIMESTAMP)
 #write in soil.dat.merge
-#dat.soil.merge<- dat.soil.merge %>%
-  #group_by(day) %>%
-  #mutate(daily_VWC = mean(mean_VWC))
+dat.soil.merge<- dat.soil.merge %>%
+  group_by(day) %>%
+  mutate(daily_VWC = mean(mean_VWC))
 #write in new dataframe (short)
 daily_VWC<-dat.soil.merge %>%
   group_by(day) %>%

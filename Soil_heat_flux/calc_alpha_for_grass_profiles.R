@@ -3,6 +3,7 @@ library(tidyverse)
 library(boot)
 library(lubridate)
 library(dplyr)
+
 #source script to load slow data and QAQC
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R") 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
@@ -89,8 +90,7 @@ daily_VWC<-read.csv("daily_VWC.csv")
 #get VWC and k for sample day
 daily_VWC[daily_VWC$day=="2021-08-04",]
 k_lower_g<-daily_VWC$lower_k[daily_VWC$day=="2021-08-04"]
-k_upper_g<-daily_VWC$upper_k[daily_VWC$day=="2021-08-04"]
-
-#test
-flux_lower<-shf(FO_data_x = FO_grass_4, k=k_upper_g, range=701:716)
+flux_lower<-shf(FO_data_x = FO_grass_4, range =  701:716, k = k_lower_g)
 plot_shf_grass(flux_dat=flux_lower)
+
+

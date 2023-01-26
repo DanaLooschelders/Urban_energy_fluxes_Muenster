@@ -43,7 +43,7 @@ for(i in 1:4){
 #####calculate for 1 value
 #color_5th_value(point=1)
 #plot_5th_value(FO_data_x = FO_concrete_1)
-alpha_1<-calc_alpha(FO_data_x=FO_concrete_1)
+alpha_1<-calc_alpha(FO_data_x=FO_concrete_1, range = 821:850)
 median(unlist(alpha_1[[1]]))
 boxplot(alpha_1[[1]])
 
@@ -102,9 +102,9 @@ k_upper<-alpha*specific_heat_higher*density
 
 #from Howlander et al 2012
 #-> concrete with similar density and diffusivity
-k_est<-alpha*1020*density 
+k_est<-alpha1_c*1020*density 
 #test
-flux_lower<-shf(FO_data_x = FO_concrete_2, k=k_est)
-plot_shf(flux_dat=flux_lower)
+flux_lower<-shf(FO_data_x = FO_concrete_1, k=k_est,range=821:850 )
+plot_shf_concrete(flux_dat=flux_lower)
 
 flux_lower[[2]][[7]]
