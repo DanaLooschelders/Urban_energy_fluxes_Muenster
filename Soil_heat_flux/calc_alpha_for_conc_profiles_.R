@@ -102,9 +102,68 @@ k_upper<-alpha*specific_heat_higher*density
 
 #from Howlander et al 2012
 #-> concrete with similar density and diffusivity
-k_est<-alpha1_c*1020*density 
+k_est<-alpha2_c*1020*density 
 #test
-flux_lower<-shf(FO_data_x = FO_concrete_1, k=k_est,range=821:850 )
+flux_lower<-shf(FO_data_x = FO_concrete_2, k=k_est,range=821:850 )
 plot_shf_concrete(flux_dat=flux_lower)
 
 flux_lower[[2]][[7]]
+#calculate fluxes to merge together
+#one
+k_1<-alpha1_c*1020*density 
+flux_1<-shf(FO_data_x = FO_concrete_1, k=k_1,range=821:850 )
+#two
+k_2<-alpha2_c*1020*density 
+flux_2<-shf(FO_data_x = FO_concrete_2, k=k_2,range=821:850 )
+#three
+k_3<-alpha3_c*1020*density 
+flux_3<-shf(FO_data_x = FO_concrete_3, k=k_3,range=821:850 )
+#four
+k_4<-alpha4_c*1020*density 
+flux_4<-shf(FO_data_x = FO_concrete_4, k=k_4,range=821:850 )
+
+#plot together
+dat_1<-flux_1[[2]][[4]]
+dat_2<-flux_2[[2]][[4]]
+dat_3<-flux_3[[2]][[4]]
+dat_4<-flux_4[[2]][[4]]
+ggplot()+
+  geom_point(data=dat_1, aes( depth, shf*-1, col="point_1"))+
+  geom_point(data=dat_2, aes( depth, shf*-1, col="point_2"))+
+  geom_point(data=dat_3, aes( depth, shf*-1, col="point_3"))+
+  geom_point(data=dat_4, aes( depth, shf*-1, col="point_4"))+
+  xlab(label="height [m]")+
+  ylab(label="shf [W/m^2]")+
+  geom_line(data=dat_1, aes( depth, shf*-1, col="point_1"))+
+  geom_line(data=dat_2, aes( depth, shf*-1, col="point_2"))+
+  geom_line(data=dat_3, aes( depth, shf*-1, col="point_3"))+
+  geom_line(data=dat_4, aes( depth, shf*-1, col="point_4"))+
+  geom_vline(xintercept = 0.529, col="red")+
+  theme_bw()+
+  ggtitle(label=paste("concrete tower - soil heat flux ", names(flux_lower[[1]][4])))
+
+#plot as one line
+dat_ensemble<-rbind(dat_1, dat_2, dat_3, dat_4)
+dat_ensemble<-dat_ensemble[order(dat_ensemble$depth),]
+ggplot(data=dat_ensemble, aes( depth, shf*-1))+
+  geom_point()+
+  xlab(label="height [m]")+
+  ylab(label="shf [W/m^2]")+
+  geom_line()+
+  geom_vline(xintercept = 0.529, col="red")+
+  theme_bw()+
+  ggtitle(label=paste("concrete tower - soil heat flux ", names(flux_lower[[1]][4])))
+
+####pretty plot####
+dat<-flux_lower[[2]][[3]]
+ggplot(data=dat, aes( depth, shf*-1))+
+  geom_point()+
+  ggtitle(label=paste("concrete tower - soil heat flux ", names(flux_lower[[1]][3])))+
+  xlab(label="height [m]")+
+  ylab(label="shf [W/m^2]")+
+  geom_line()+
+  geom_vline(xintercept = 0.529, col="red")+
+  theme_bw()
+
+setwd("C:/Users/Dana/Desktop")
+ggsave(filename="concrete_sample_plot.jpg", width=297, height=210, units = "mm")

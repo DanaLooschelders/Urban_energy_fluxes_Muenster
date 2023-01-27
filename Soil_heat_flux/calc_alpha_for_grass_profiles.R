@@ -81,7 +81,7 @@ alpha4_g<-median(unlist(alpha_4_g[[1]])) #4.747325e-07
 
 #bootstrap values
 daily_VWC<-bootstrap_k(alpha=alpha1_g)
-
+range(daily_VWC$VWC, na.rm=T)
 ####save bootstrapped daily k####
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 write.csv(daily_VWC, file="daily_VWC.csv")
@@ -93,4 +93,67 @@ k_lower_g<-daily_VWC$lower_k[daily_VWC$day=="2021-08-04"]
 flux_lower<-shf(FO_data_x = FO_grass_4, range =  701:716, k = k_lower_g)
 plot_shf_grass(flux_dat=flux_lower)
 
+#calculate fluxes to merge together
+#one
+daily_VWC_1<-bootstrap_k(alpha=alpha1_g)
+k_1<-daily_VWC_1$lower_k[daily_VWC_1$day=="2021-08-04"]
+flux_1<-shf(FO_data_x=FO_grass_1, range =  701:716, k = k_1)
+#two
+daily_VWC_2<-bootstrap_k(alpha=alpha2_g)
+k_2<-daily_VWC_2$lower_k[daily_VWC_2$day=="2021-08-04"]
+flux_2<-shf(FO_data_x=FO_grass_2, range =  701:716, k = k_2)
+#three
+daily_VWC_3<-bootstrap_k(alpha=alpha3_g)
+k_3<-daily_VWC_3$lower_k[daily_VWC_3$day=="2021-08-04"]
+flux_3<-shf(FO_data_x=FO_grass_3, range =  701:716, k = k_3)
+#four
+daily_VWC_4<-bootstrap_k(alpha=alpha4_g)
+k_4<-daily_VWC_4$lower_k[daily_VWC_4$day=="2021-08-04"]
+flux_4<-shf(FO_data_x=FO_grass_4, range =  701:716, k = k_4)
+#plot together
+dat_1<-flux_1[[2]][[4]]
+dat_2<-flux_2[[2]][[4]]
+dat_3<-flux_3[[2]][[4]]
+dat_4<-flux_4[[2]][[4]]
+ggplot()+
+  geom_point(data=dat_1, aes( depth, shf*-1, col="point_1"))+
+  geom_point(data=dat_2, aes( depth, shf*-1, col="point_2"))+
+  geom_point(data=dat_3, aes( depth, shf*-1, col="point_3"))+
+  geom_point(data=dat_4, aes( depth, shf*-1, col="point_4"))+
+  xlab(label="height [m]")+
+  ylab(label="shf [W/m^2]")+
+  geom_line(data=dat_1, aes( depth, shf*-1, col="point_1"))+
+  geom_line(data=dat_2, aes( depth, shf*-1, col="point_2"))+
+  geom_line(data=dat_3, aes( depth, shf*-1, col="point_3"))+
+  geom_line(data=dat_4, aes( depth, shf*-1, col="point_4"))+
+  geom_vline(xintercept = 0.4722124, col="brown")+
+  geom_vline(xintercept = 0.533174, col="green")+
+  theme_bw()+
+  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_lower[[1]][4])))
+#plot as one line
+dat_ensemble<-rbind(dat_1, dat_2, dat_3, dat_4)
+dat_ensemble<-dat_ensemble[order(dat_ensemble$depth),]
+ggplot(data=dat_ensemble, aes( depth, shf*-1))+
+  geom_point()+
+  xlab(label="height [m]")+
+  ylab(label="shf [W/m^2]")+
+  geom_line()+
+  geom_vline(xintercept = 0.4722124, col="brown")+
+  geom_vline(xintercept = 0.533174, col="green")+
+  theme_bw()+
+  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_lower[[1]][4])))
 
+####plot pretty####
+dat<-flux_lower[[2]][[4]]
+ggplot(data=dat, aes( depth, shf*-1))+
+  geom_point()+
+  xlab(label="height [m]")+
+  ylab(label="shf [W/m^2]")+
+  geom_line()+
+  geom_vline(xintercept = 0.4722124, col="brown")+
+  geom_vline(xintercept = 0.533174, col="green")+
+  theme_bw()+
+  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_lower[[1]][4])))
+
+setwd("C:/Users/Dana/Desktop")
+ggsave(filename="grass_sample_plot.jpg", width=297, height=210, units = "mm")

@@ -33,3 +33,9 @@ mos <- do.call(mosaic, files_list)
 spplot(mos)
 mapview(mos,'maxpixels =  7e+06 ')
 
+#DTM with sea level calc
+setwd("C:/Users/Dana/sciebo/Hafen_Projekt_Lidar")
+library(raster)
+dtm_nn<-raster("dtm_over_sea_level_inverse_distance_weighting.tif")
+library(mapview)
+mapview(dtm_nn)
