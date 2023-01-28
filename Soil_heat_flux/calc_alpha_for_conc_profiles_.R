@@ -1,6 +1,7 @@
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 library(gridExtra)
 library(tidyverse)
+library(lubridate)
 #source function
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/functions_alpha.r")
 #calculate for individual soil profile
@@ -153,8 +154,52 @@ ggplot(data=dat_ensemble, aes( depth, shf*-1))+
   geom_vline(xintercept = 0.529, col="red")+
   theme_bw()+
   ggtitle(label=paste("concrete tower - soil heat flux ", names(flux_lower[[1]][4])))
+#calculate for whole time period for two centimeters
+k_1 #get k 
+#calculate temp diff over depth
+dT_dz<-(FO_concrete_1[10,1:3559]-FO_concrete_1[11,1:3559])/diff(FO_concrete_1$depth[10:11])
+shf_vec<--k_1*dT_dz #calculate shf 
+shf_whole<-data.frame("shf"=t(shf_vec), "DATETIME"=as.POSIXct(colnames(FO_concrete_1)[1:3559]))
+colnames(shf_whole)[1]<-"shf" #rename first column
+#plot ts for sub 2
+ggplot(data=shf_whole)+
+  geom_line(aes(DATETIME, shf))+
+  theme_bw()+
+  ylab(label="shf [W m^-2")+
+  ggtitle("soil heat flux - concrete")
+#check for outliers
+#Q3 + (1.5 * IQR)
+upper<-as.vector(quantile(shf_whole$shf)[4]+(1.5*IQR(shf_whole$shf)))
+#Q1 – (1.5 * IQR)
+lower<-as.vector(quantile(shf_whole$shf)[2]-(1.5*IQR(shf_whole$shf)))  
 
-####pretty plot####
+outliers<-which(shf_whole$shf>upper|shf_whole$shf<lower)
+shf_nooutlier<-shf_whole[-outliers,]
+#plot again
+ggplot(data=shf_nooutlier)+
+  geom_line(aes(DATETIME, shf))+
+  theme_bw()+
+  ylab(label="shf [W m^-2")+
+  ggtitle("soil heat flux - concrete")
+
+spikes<-which(abs(diff(shf_whole$shf))>100)
+shf_nospikes<-shf_whole[-spikes,]
+#plot again
+ggplot(data=shf_nospikes)+
+  geom_line(aes(DATETIME, shf))+
+  theme_bw()+
+  ylab(label="shf [W m^-2")+
+  ggtitle("soil heat flux - concrete")
+#plot diurnal cycle 
+shf_nospikes$hour<-hour(shf_nospikes$DATETIME) #create column with hour
+#plot diurnal cycle for concrete
+ggplot(data=shf_nospikes)+
+  geom_boxplot(aes(y=shf, x= hour, group=hour))+
+  theme_bw()+
+  ylab(label="shf [W m^-2")+
+  ggtitle("soil heat flux diurnal - concrete")
+
+####pretty sample plot####
 dat<-flux_lower[[2]][[3]]
 ggplot(data=dat, aes( depth, shf*-1))+
   geom_point()+

@@ -4,19 +4,25 @@ library(bigleaf)
 library(ggplot2)
 library(ggrepel)
 library(grid)
-source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/heat_fluxes_with_meteorology.r")
+source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
 ####PREP####
 #Prep data to do it for both EC towers splitting meteo.agg into kiebitz and beton
-#soil is extra --> used for both
-soil_heat<-dat.meteo.agg[,18:20]
+shf_nospikes #concrete
+#aggregate to half hour
+shf_30min <- aggregate(shf_nospikes$shf, 
+                   list(TIMESTAMP=cut(shf_nospikes$DATETIME, "30 mins")),
+                   mean)
 
+shf_30min$TIMESTAMP<-as.POSIXct(shf_30min$TIMESTAMP)
 #Beton
 meteo_beton<-dat.meteo.agg[,1:13]
+
 #assign new column names
 colnames(meteo_beton)[2:13]<-substr(colnames(meteo_beton)[2:13],1, nchar(colnames(meteo_beton)[2:13])-6)
 #add soil heat flux
-meteo_beton<-cbind(meteo_beton, soil_heat)
+meteo_beton<-left_join(meteo_beton, shf_30min, by="TIMESTAMP")
 
+colnames(meteo_beton)[14]<-"shf"
 #Kiebitz
 meteo_kiebitz<-dat.meteo.agg[,c(1,15:17,21:29)]
 #assign new column names
@@ -40,14 +46,22 @@ dat.flux.meteo$h2o_flux[dat.flux.meteo$qc_h2o_flux>6]<-NA
 dat.flux.meteo$LE[dat.flux.meteo$qc_LE>6]<-NA
 dat.flux.meteo$Tau[dat.flux.meteo$qc_Tau>6]<-NA
 dat.flux.meteo$H[dat.flux.meteo$qc_H>6]<-NA
-
+#exclude unreasonable radiation values
+#latent heat
+any(dat.flux.meteo$LE<0)
+dat.flux.meteo$LE[dat.flux.meteo$LE<0]<-0
+spikes<-which(diff(dat.flux.meteo$LE)>50)
+dat.flux.meteo$LE[spikes]<-NA
+#sensible heat
+any(dat.flux.meteo$H<0)
+dat.flux.meteo$H[dat.flux.meteo$H<0]<-0
+spikes<-which(diff(dat.flux.meteo$H)>50)
+dat.flux.meteo$H[spikes]<-NA
 #get the first row with no NA values for the column needed
 index_start=which(!is.na(rowSums(dat.flux.meteo[,c("LE", 
                                                    "H", 
                                                    "TotRNet_Avg", 
-                                                   "shf_Avg.1.", 
-                                                   "shf_Avg.2.", 
-                                                   "shf_Avg.3.")])))[1]
+                                                   "shf")])))[1]
 index_end=length(dat.flux.meteo$TIMESTAMP)
 #change timespan to time where all parameters occured
 dat.flux.meteo.cut<-dat.flux.meteo[index_start:index_end,]
@@ -64,10 +78,8 @@ dat.flux.meteo.cut<-dat.flux.meteo[index_start:index_end,]
       plot(dat.flux.meteo.cut$TIMESTAMP,Rn, type="l")
       abline(h = 0, col="red")
   #G: soil heat flux (slow data)
-      #average the three sensors
-      G<-rowMeans(dat.flux.meteo.cut[,c("shf_Avg.1.",
-                                     "shf_Avg.2.",
-                                     "shf_Avg.3.")])
+      #calculates from FO towers
+      G<-dat.flux.meteo.cut$shf
       #plot
       plot(dat.flux.meteo.cut$TIMESTAMP,G, type="l")
       abline(h = 0, col="red")
@@ -102,12 +114,28 @@ mean(EB, na.rm=T)
 #With Bigleaf
 #prep data frame
 EB_data<-data.frame("TIMESTAMP"=dat.flux.meteo.cut$TIMESTAMP,
-                    "Rn"=Rn, "G"=G, "LE"=LE, "H"=H)
+                    "Rn"=Rn, "G"=-G, "LE"=LE, "H"=H)
+
 #Function calculates energy balance ratio EBR = sum(LE + H)/sum(Rn − G − S)
 #for time steps
 EB_stepwise<-energy.closure(data=EB_data,instantaneous = TRUE, G=G)
-plot(dat.flux.meteo.cut$TIMESTAMP, EB_stepwise, type="l")
-abline(h = 0, col="red")
+EB_step<-data.frame("EB"=EB_stepwise, "datetime"=dat.flux.meteo.cut$TIMESTAMP)
+#plot
+ggplot(data=EB_step)+
+  geom_line(aes(datetime, EB))+
+  theme_bw()+
+  ggtitle("Energy Balance - Concrete")+
+  ylab(label="energy balance non-closure")
+#test to remove high-non-closures
+which(EB_step$EB<=-50)
+EB_step$EB[EB_step$EB<=-50]<-NA
+#plot again
+ggplot(data=EB_step)+
+  geom_line(aes(datetime, EB))+
+  theme_bw()+
+  ggtitle("Energy Balance - Concrete")+
+  ylab(label="energy balance non-closure")
+
 #QAQC
 summary(EB_stepwise)
 #Find time and check data of min
@@ -117,7 +145,7 @@ EB_data[which.min(EB_stepwise),]
 dat.flux.meteo.cut$TIMESTAMP[which.max(EB_stepwise)]
 EB_data[which.max(EB_stepwise),]
 #for whole time span with ground heat flux
-EB_whole<-energy.closure(data=EB_data, G=G, Rn=Rn, LE=LE, H=H,
+EB_whole<-energy.closure(data=EB_data, G=-G, Rn=Rn, LE=LE, H=H,
                          instantaneous = FALSE)
 EB_whole   
 
@@ -140,11 +168,17 @@ dat.flux.meteo.cut.ordered<- dat.flux.meteo.cut[order(dat.flux.meteo.cut$EB, dec
 #write 3 max values in dataframe
 EB_max3 <- head(dat.flux.meteo.cut.ordered, n=4)
 #keep only necessary columns
-EB_max3 <- EB_max3[,c(40,42,156,158:163,167,169:173)]
+EB_max3 <- EB_max3[,c("TIMESTAMP", "LE", 
+                      "H", 
+                      "TotRNet_Avg", 
+                      "shf", "EB")]
 #write 3 min values in dataframe
 EB_min3 <- tail(dat.flux.meteo.cut.ordered[!is.na(dat.flux.meteo.cut.ordered$EB),], n=4)
 #keep only necessary columns
-EB_min3 <- EB_min3[,c(40,42,156,158:163,167,169:173)]
+EB_min3 <- EB_min3[,c("TIMESTAMP","LE", 
+                      "H", 
+                      "TotRNet_Avg", 
+                      "shf", "EB")]
 #bind together
 EB_minmax<-rbind(EB_max3,EB_min3)
 ####Export to csv####

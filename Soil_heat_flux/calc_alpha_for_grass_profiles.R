@@ -143,6 +143,41 @@ ggplot(data=dat_ensemble, aes( depth, shf*-1))+
   theme_bw()+
   ggtitle(label=paste("grass tower - soil heat flux ", names(flux_lower[[1]][4])))
 
+#calculate for whole time period for two centimeters
+#get lower and upper k
+daily_VWC_1$lower_k 
+daily_VWC$upper_k
+#calculate temp diff over depth
+dT_dz<-(FO_grass_1[7,1:2914]-FO_grass_1[8,1:2914])/diff(FO_grass_1$depth[7:8])
+shf_g<-data.frame("dT"=t(FO_grass_1[7,1:2914]-FO_grass_1[8,1:2914]), 
+                "dz"=diff(FO_grass_1$depth[7:8]), 
+                "DATETIME"=as.POSIXct(colnames(FO_grass_1)[1:2914]),
+                "day"=date(as.POSIXct(colnames(FO_grass_1)[1:2914])),
+                "shf_lower"=NA, "shf_higher"=NA)
+colnames(shf_g)[1]<-"dT"
+#calculate for every day
+for(i in date(daily_VWC_1$day)){
+sub=shf_g[shf_g$day==i,]
+shf_g$shf_lower[shf_g$day==i]<--daily_VWC_1$lower_k[daily_VWC_1$day==i]*sub$dT/sub$dz
+shf_g$shf_higher[shf_g$day==i]<--daily_VWC_1$lower_k[daily_VWC_1$day==i]*sub$dT/sub$dz
+}
+
+#plot ts for sub 2
+ggplot(data=shf_g)+
+  geom_line(aes(DATETIME, shf))+
+  theme_bw()+
+  ylab(label="shf [W m^-2]")+
+  ggtitle("soil heat flux - grass")
+
+#plot diurnal cycle
+shf_g$hour<-hour(shf_g$DATETIME) #create column with hour
+#plot diurnal cycle for concrete
+ggplot(data=shf_g)+
+  geom_boxplot(aes(y=shf, x= hour, group=hour))+
+  theme_bw()+
+  ylab(label="shf [W m^-2]")+
+  ggtitle("soil heat flux diurnal - grass")
+
 ####plot pretty####
 dat<-flux_lower[[2]][[4]]
 ggplot(data=dat, aes( depth, shf*-1))+
