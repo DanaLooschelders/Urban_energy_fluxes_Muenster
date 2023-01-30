@@ -92,23 +92,23 @@ alpha4_c<-median(unlist(alpha_4[[1]])) # 1.220921e-06
 ##with 2cm aboveground: 1.046379e-06
 
 #bootstrap for specific heat or find reliable value
-specific_heat_lower<-1000
-specific_heat_higher<-1200  #mean=1140, sd=25) 
+#specific_heat_lower<-1000
+#specific_heat_higher<-1200  #mean=1140, sd=25) 
 density<-2.409*1000 #measured
 
 #calculate k
-k_lower<-alpha*specific_heat_lower*density
-k_median<-alpha*1100*density
-k_upper<-alpha*specific_heat_higher*density
+#k_lower<-alpha*specific_heat_lower*density
+#k_median<-alpha*1100*density
+#k_upper<-alpha*specific_heat_higher*density
 
 #from Howlander et al 2012
 #-> concrete with similar density and diffusivity
 k_est<-alpha2_c*1020*density 
 #test
 flux_lower<-shf(FO_data_x = FO_concrete_2, k=k_est,range=821:850 )
-plot_shf_concrete(flux_dat=flux_lower)
+#plot_shf_concrete(flux_dat=flux_lower)
 
-flux_lower[[2]][[7]]
+#flux_lower[[2]][[7]]
 #calculate fluxes to merge together
 #one
 k_1<-alpha1_c*1020*density 
@@ -159,7 +159,7 @@ k_1 #get k
 #calculate temp diff over depth
 dT_dz<-(FO_concrete_1[10,1:3559]-FO_concrete_1[11,1:3559])/diff(FO_concrete_1$depth[10:11])
 shf_vec<--k_1*dT_dz #calculate shf 
-shf_whole<-data.frame("shf"=t(shf_vec), "DATETIME"=as.POSIXct(colnames(FO_concrete_1)[1:3559]))
+shf_whole<-data.frame("shf"=t(shf_vec), "DATETIME"=as.POSIXct(colnames(FO_concrete_2)[1:3559]))
 colnames(shf_whole)[1]<-"shf" #rename first column
 #plot ts for sub 2
 ggplot(data=shf_whole)+
@@ -167,6 +167,7 @@ ggplot(data=shf_whole)+
   theme_bw()+
   ylab(label="shf [W m^-2")+
   ggtitle("soil heat flux - concrete")
+
 #check for outliers
 #Q3 + (1.5 * IQR)
 upper<-as.vector(quantile(shf_whole$shf)[4]+(1.5*IQR(shf_whole$shf)))
@@ -183,7 +184,7 @@ ggplot(data=shf_nooutlier)+
   ggtitle("soil heat flux - concrete")
 
 spikes<-which(abs(diff(shf_whole$shf))>100)
-shf_nospikes<-shf_whole[-spikes,]
+shf_nospikes<-shf_whole[-c(spikes,spikes+1)]
 #plot again
 ggplot(data=shf_nospikes)+
   geom_line(aes(DATETIME, shf))+

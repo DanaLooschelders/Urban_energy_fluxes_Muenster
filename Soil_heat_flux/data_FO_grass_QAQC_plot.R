@@ -184,7 +184,7 @@ for(i in seq(1, length(FO_grass_merged)-2, by=2)){
     FO_grass_merged[,i+1]<-NA #set second column to NA
   }else{} #do nothing
 }
-#use 10cm over threshold of 0.4722124
+ #use 10cm over threshold of 0.4722124
 threshold_grass<-0.5722124 #0.4722124 
 #get index of columns over threshold
 cols<-which(as.numeric(colnames(FO_grass_merged))>=threshold_grass)

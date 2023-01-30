@@ -7,10 +7,10 @@ library(grid)
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
 ####PREP####
 #Prep data to do it for both EC towers splitting meteo.agg into kiebitz and beton
-shf_nospikes #concrete
+shf_whole #concrete
 #aggregate to half hour
-shf_30min <- aggregate(shf_nospikes$shf, 
-                   list(TIMESTAMP=cut(shf_nospikes$DATETIME, "30 mins")),
+shf_30min <- aggregate(shf_whole$shf, 
+                   list(TIMESTAMP=cut(shf_whole$DATETIME, "30 mins")),
                    mean)
 
 shf_30min$TIMESTAMP<-as.POSIXct(shf_30min$TIMESTAMP)
@@ -48,15 +48,35 @@ dat.flux.meteo$Tau[dat.flux.meteo$qc_Tau>6]<-NA
 dat.flux.meteo$H[dat.flux.meteo$qc_H>6]<-NA
 #exclude unreasonable radiation values
 #latent heat
+plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$LE, type="b") #plot
+#remove values below zero
 any(dat.flux.meteo$LE<0)
 dat.flux.meteo$LE[dat.flux.meteo$LE<0]<-0
-spikes<-which(diff(dat.flux.meteo$LE)>50)
-dat.flux.meteo$LE[spikes]<-NA
+#remove spikes
+#spikes<-which(abs(diff(dat.flux.meteo$LE))>30)
+#dat.flux.meteo$LE[c(spikes, spikes+1)]<-NA
+#plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$LE, type="b") #plot again
+#spikes_lag<-which(abs(diff(dat.flux.meteo$LE, lag=2))>40)
+#dat.flux.meteo$LE[c(spikes_lag, spikes_lag+1)]<-NA
+#plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$LE, type="b") #plot again
+
 #sensible heat
-any(dat.flux.meteo$H<0)
+plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$H, type="b")
+#remove values below zero
+any(dat.flux.meteo$H<0) 
 dat.flux.meteo$H[dat.flux.meteo$H<0]<-0
-spikes<-which(diff(dat.flux.meteo$H)>50)
-dat.flux.meteo$H[spikes]<-NA
+plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$H, type="b")
+#remove spikes
+#spikes<-which(diff(dat.flux.meteo$H)>50)
+#dat.flux.meteo$H[c(spikes, spikes+1)]<-NA
+#plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$H, type="b")
+
+#soil heat flux
+plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$shf, type="b")
+#spikes<-which(abs(diff(dat.flux.meteo$shf))>200)
+#dat.flux.meteo$shf[c(spikes, spikes+1)]<-NA
+#plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$shf, type="b")
+
 #get the first row with no NA values for the column needed
 index_start=which(!is.na(rowSums(dat.flux.meteo[,c("LE", 
                                                    "H", 
@@ -129,6 +149,8 @@ ggplot(data=EB_step)+
 #test to remove high-non-closures
 which(EB_step$EB<=-50)
 EB_step$EB[EB_step$EB<=-50]<-NA
+which(EB_step$EB>=100)
+EB_step$EB[EB_step$EB>=100]<-NA
 #plot again
 ggplot(data=EB_step)+
   geom_line(aes(datetime, EB))+

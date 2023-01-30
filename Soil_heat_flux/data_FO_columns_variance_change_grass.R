@@ -9,6 +9,7 @@ library(dplyr)
 library(tidyverse)
 #use not aggregated data
 FO_grass_temp_time<-vector(mode='list', length=length(files))
+
 for(i in 1:length(FO_grass_only_temp)){
   print(i)
   #get starting datetime
@@ -72,12 +73,13 @@ rollmean_10min = as.data.frame(lapply(FO_grass_merged_cut[,1:327],
 vars_grass<-data.frame("height"=as.numeric(colnames(FO_grass_merged_cut)[1:327]))
 vars_grass$var<-as.numeric(c(colwise(var, na.rm=T)(rollmean_10min)))
 
-
 #plot
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
-ggplot(data=vars_grass[80:150,], aes(x=height, y=var))+
+ggplot(data=vars_grass[80:110,], aes(x=height, y=var))+
   geom_line()+
   theme_bw()+
+  geom_vline(xintercept=0.4722124, col="brown")+
+  geom_vline(xintercept=0.533174, col="green")+
   ylab(label="variance [°C]")+
   xlab(label="height [m]")+
   ggtitle(label="Soil-Atmosphere Threshold for Gras")
@@ -96,7 +98,7 @@ plot(vars_grass$height, vars_grass$var, type="l")
 
 #get first peak (probably soil/vegetation boundary)
 vars_grass$height[1:100][which.max(vars_grass$var[1:100])]
-#0.47
+#0.4722124
 #get second peak (probably vegetation/atmosphere boundary)
 vars_grass$height[100:150][which.max(vars_grass$var[100:150])]
 #0.533174
@@ -128,3 +130,39 @@ ggplot(var_hour_grass_long, aes(time, key)) +
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
 ggsave(filename="FO_Column_hourly_variance_grass.png", width=297, height=210, units = "mm")
+
+var_hour_grass_long_sub<-var_hour_grass_long[as.numeric(var_hour_grass_long$key)<1,]
+#try with hourly data
+#aggregate to 1 hour
+FO_grass_1h<-aggregate(FO_grass_df, 
+                          list(time_1h=cut(FO_grass_df$time, "1 hour")),
+                          mean)
+
+x <- cbind(lapply(FO_grass_1h[,2:112], FUN = var, na.rm = T))
+vardf <- data.frame('col' = as.numeric(substr(rownames(x),start=2, stop=30)), 'variation' = unlist(x))
+
+ggplot(vardf)+
+  geom_line(aes(x=col, y= variation))+
+  theme_bw()
+#get first peak (probably soil/vegetation boundary)
+vardf$col[1:100][which.max(vardf$variation[1:100])]
+#0.4722124
+#get second peak (probably vegetation/atmosphere boundary)
+vardf$col[100:150][which.max(vardf$variation[100:150])]
+#0.533174
+#try with 10 min data
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
+FO_grass_aG<-read.csv("FO_grass_20cm_aG_10cm.csv")
+
+x <- cbind(lapply(FO_grass_aG[,1:59], FUN = var, na.rm = T))
+vardf <- data.frame('col' = as.numeric(substr(rownames(x),start=2, stop=30)), 'variation' = unlist(x))
+
+ggplot(vardf)+
+  geom_line(aes(x=col, y= variation))+
+  theme_bw()
+#get first peak (probably soil/vegetation boundary)
+vardf$col[1:40][which.max(vardf$variation[1:40])]
+#0.4722124
+#get second peak (probably vegetation/atmosphere boundary)
+vardf$col[40:59][which.max(vardf$variation[40:59])]
+#0.533174
