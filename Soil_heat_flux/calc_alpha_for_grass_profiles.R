@@ -12,7 +12,10 @@ source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/functions_a
 #calculate for individual soil profile
 FO_grass_depth<-read.csv("FO_grass.csv")
 FO_grass_aG<-read.csv("FO_grass_20cm_aG_10cm.csv")
-FO_grass_depth<-FO_grass_aG[,c(1:50, 60)]
+
+FO_grass_depth<-FO_grass_aG[,c(1:50, 60)] #above threshold
+FO_grass_depth<-FO_grass_aG[,c(1:33, 60)] #new threshold 0.4366514: below original threshold
+
 #transpose
 FO_grass_time<-data.frame(t(FO_grass_depth))
 #set time as column name
@@ -47,37 +50,41 @@ for(i in 1:4){
 
 #calculate for 1 value
 #color_5th_value_grass(range = 707:716, point=2, FO_data_x= FO_grass_time)
-plot_5th_value_grass(FO_data_x = FO_grass_4, range=707:716)
-color_5th_value_grass(FO_data_x=FO_grass_time, 
-                      range=707:716, point=3)
+#plot_5th_value_grass(FO_data_x = FO_grass_4, range=707:716)
+#color_5th_value_grass(FO_data_x=FO_grass_time, 
+#                      range=707:716, point=3)
 
-alpha_1_g<-calc_alpha(FO_data_x=FO_grass_1, 707:716) #3.003784e-07
+alpha_1_g<-calc_alpha(FO_data_x=FO_grass_1, 707:716) #3.003784e-07  new threshold: 7.333339e-07
 median(unlist(alpha_1_g[[1]]))
 boxplot(alpha_1_g[[1]])
 
 #for second
 #plot_5th_value(FO_data_x = FO_grass_2,  707:716)
 alpha_2_g<-calc_alpha(FO_data_x=FO_grass_2,  707:716)
-median(unlist(alpha_2_g[[1]])) #2.166522e-07
+median(unlist(alpha_2_g[[1]])) #2.166522e-07  new threshold: 6.347845e-07
 boxplot(alpha_2_g[[1]])
 
 #for third
 alpha_3_g<-calc_alpha(FO_data_x=FO_grass_3,  707:716)
-median(unlist(alpha_3_g[[1]])) #1.863725e-07
+median(unlist(alpha_3_g[[1]])) #1.863725e-07  new threshold: 7.344112e-07
 boxplot(alpha_3_g[[1]])
 
 #for fourth
 alpha_4_g<-calc_alpha(FO_data_x=FO_grass_4,  707:716)
-median(unlist(alpha_4_g[[1]])) #1.863725e-07
+median(unlist(alpha_4_g[[1]])) #1.863725e-07    new threshold: 7.384248e-07
 boxplot(alpha_4_g[[1]])
 
 #plot_temp_alpha(FO_data_x = FO_grass_1, alpha_x = alpha_1)
 
 #specific heat capacity
-alpha1_g<-median(unlist(alpha_1_g[[1]])) #6.046484e-07
-alpha2_g<-median(unlist(alpha_2_g[[1]])) #4.430371e-07
-alpha3_g<-median(unlist(alpha_3_g[[1]])) #6.02086e-07
-alpha4_g<-median(unlist(alpha_4_g[[1]])) #4.747325e-07
+alpha1_g<-median(unlist(alpha_1_g[[1]])) #6.046484e-07  new threshold: 7.333339e-07
+var(unlist(alpha_1_g[[1]])) #variance: 7.197064e-11
+alpha2_g<-median(unlist(alpha_2_g[[1]])) #4.430371e-07  new threshold: 6.347845e-07
+var(unlist(alpha_2_g[[1]])) #variance: 1.376463e-10
+alpha3_g<-median(unlist(alpha_3_g[[1]])) #6.02086e-07   new threshold: 7.344112e-07
+var(unlist(alpha_3_g[[1]])) #variance: 5.518359e-12
+alpha4_g<-median(unlist(alpha_4_g[[1]])) #4.747325e-07  new threshold: 7.384248e-07
+var(unlist(alpha_4_g[[1]])) #variance: 2.400254e-12
 
 #bootstrap values
 daily_VWC<-bootstrap_k(alpha=alpha1_g)
@@ -97,24 +104,32 @@ plot_shf_grass(flux_dat=flux_lower)
 #one
 daily_VWC_1<-bootstrap_k(alpha=alpha1_g)
 k_1<-daily_VWC_1$lower_k[daily_VWC_1$day=="2021-08-04"]
+#upper k: 1.420698    new threshold:  1.724098
+#lower k: 1.392096    new threshold:  1.688017
 flux_1<-shf(FO_data_x=FO_grass_1, range =  701:716, k = k_1)
 #two
 daily_VWC_2<-bootstrap_k(alpha=alpha2_g)
 k_2<-daily_VWC_2$lower_k[daily_VWC_2$day=="2021-08-04"]
+#upper k: 1.041183    new threshold: 1.491132
+#lower k: 1.020694    new threshold: 1.461588
 flux_2<-shf(FO_data_x=FO_grass_2, range =  701:716, k = k_2)
 #three
 daily_VWC_3<-bootstrap_k(alpha=alpha3_g)
 k_3<-daily_VWC_3$lower_k[daily_VWC_3$day=="2021-08-04"]
+#upper k: 1.41417     new threshold: 1.726692
+#lower k: 1.386602    new threshold: 1.691456
 flux_3<-shf(FO_data_x=FO_grass_3, range =  701:716, k = k_3)
 #four
 daily_VWC_4<-bootstrap_k(alpha=alpha4_g)
 k_4<-daily_VWC_4$lower_k[daily_VWC_4$day=="2021-08-04"]
+#upper k: 1.09231   new threshold: 1.73447
+#lower k: 1.09231   new threshold: 1.699602
 flux_4<-shf(FO_data_x=FO_grass_4, range =  701:716, k = k_4)
 #plot together
-dat_1<-flux_1[[2]][[4]]
-dat_2<-flux_2[[2]][[4]]
-dat_3<-flux_3[[2]][[4]]
-dat_4<-flux_4[[2]][[4]]
+dat_1<-flux_1[[2]][[7]]
+dat_2<-flux_2[[2]][[7]]
+dat_3<-flux_3[[2]][[7]]
+dat_4<-flux_4[[2]][[7]]
 ggplot()+
   geom_point(data=dat_1, aes( depth, shf*-1, col="point_1"))+
   geom_point(data=dat_2, aes( depth, shf*-1, col="point_2"))+
@@ -129,7 +144,8 @@ ggplot()+
   geom_vline(xintercept = 0.4722124, col="brown")+
   geom_vline(xintercept = 0.533174, col="green")+
   theme_bw()+
-  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_lower[[1]][4])))
+  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][7])))
+
 #plot as one line
 dat_ensemble<-rbind(dat_1, dat_2, dat_3, dat_4)
 dat_ensemble<-dat_ensemble[order(dat_ensemble$depth),]
@@ -141,16 +157,19 @@ ggplot(data=dat_ensemble, aes( depth, shf*-1))+
   geom_vline(xintercept = 0.4722124, col="brown")+
   geom_vline(xintercept = 0.533174, col="green")+
   theme_bw()+
-  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_lower[[1]][4])))
+  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][7])))
+#find max shf for new threshold
+dat_ensemble$depth[which.max(dat_ensemble$shf*-1)]
+#new threshold: 0.4366514
 
 #calculate for whole time period for two centimeters
 #get lower and upper k
 daily_VWC_1$lower_k 
 daily_VWC$upper_k
 #calculate temp diff over depth
-dT_dz<-(FO_grass_1[7,1:2914]-FO_grass_1[8,1:2914])/diff(FO_grass_1$depth[7:8])
-shf_g<-data.frame("dT"=t(FO_grass_1[7,1:2914]-FO_grass_1[8,1:2914]), 
-                "dz"=diff(FO_grass_1$depth[7:8]), 
+dT_dz<-(FO_grass_2[7,1:2914]-FO_grass_2[8,1:2914])/diff(FO_grass_2$depth[7:8])
+shf_g<-data.frame("dT"=t(FO_grass_2[7,1:2914]-FO_grass_2[8,1:2914]), 
+                "dz"=diff(FO_grass_2$depth[7:8]), 
                 "DATETIME"=as.POSIXct(colnames(FO_grass_1)[1:2914]),
                 "day"=date(as.POSIXct(colnames(FO_grass_1)[1:2914])),
                 "shf_lower"=NA, "shf_higher"=NA)
@@ -158,22 +177,36 @@ colnames(shf_g)[1]<-"dT"
 #calculate for every day
 for(i in date(daily_VWC_1$day)){
 sub=shf_g[shf_g$day==i,]
-shf_g$shf_lower[shf_g$day==i]<--daily_VWC_1$lower_k[daily_VWC_1$day==i]*sub$dT/sub$dz
-shf_g$shf_higher[shf_g$day==i]<--daily_VWC_1$lower_k[daily_VWC_1$day==i]*sub$dT/sub$dz
+shf_g$shf_lower[shf_g$day==i]<--daily_VWC_2$lower_k[daily_VWC_2$day==i]*sub$dT/sub$dz
+shf_g$shf_higher[shf_g$day==i]<--daily_VWC_2$upper_k[daily_VWC_2$day==i]*sub$dT/sub$dz
 }
 
-#plot ts for sub 2
+#plot ts for sub 2 - lower and higher
 ggplot(data=shf_g)+
-  geom_line(aes(DATETIME, shf))+
+  geom_line(aes(DATETIME, shf_lower, col="lower"))+
+  geom_line(aes(DATETIME, shf_higher, col="higher"))+
+  theme_bw()+
+  ylab(label="shf [W m^-2]")+
+  ggtitle("soil heat flux - grass")
+#plot difference between higher and lower
+#plot ts for sub 2 - lower and higher
+ggplot(data=shf_g)+
+  geom_line(aes(DATETIME, shf_higher-shf_lower))+
   theme_bw()+
   ylab(label="shf [W m^-2]")+
   ggtitle("soil heat flux - grass")
 
 #plot diurnal cycle
 shf_g$hour<-hour(shf_g$DATETIME) #create column with hour
-#plot diurnal cycle for concrete
+#plot diurnal cycle for concrete - lower
 ggplot(data=shf_g)+
-  geom_boxplot(aes(y=shf, x= hour, group=hour))+
+  geom_boxplot(aes(y=shf_lower, x= hour, group=hour))+
+  theme_bw()+
+  ylab(label="shf [W m^-2]")+
+  ggtitle("soil heat flux diurnal - grass")
+#plot diurnal cycle for concrete - higher
+ggplot(data=shf_g)+
+  geom_boxplot(aes(y=shf_higher, x= hour, group=hour))+
   theme_bw()+
   ylab(label="shf [W m^-2]")+
   ggtitle("soil heat flux diurnal - grass")

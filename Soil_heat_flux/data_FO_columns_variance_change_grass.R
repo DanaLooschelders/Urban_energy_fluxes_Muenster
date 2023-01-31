@@ -65,7 +65,7 @@ FO_grass_merged_cut<-FO_grass_merged[colSums(!is.na(FO_grass_merged)) > 0]
 #QAQC
 #check that values are NA
 length(which(is.na(FO_grass_merged_cut)))
-
+write.csv(FO_grass_merged_cut, "FO_grass_merged_cut.csv")
 #use 10 min rolling mean and then calculate variance to determine threshold between soil/atmosphere
 library(zoo)
 rollmean_10min = as.data.frame(lapply(FO_grass_merged_cut[,1:327], 
@@ -159,7 +159,13 @@ vardf <- data.frame('col' = as.numeric(substr(rownames(x),start=2, stop=30)), 'v
 
 ggplot(vardf)+
   geom_line(aes(x=col, y= variation))+
+  xlab("Height")+
+  ylab("Temperature variation [°C]")+
+  geom_vline(xintercept=0.4722124, col="brown")+
+  geom_vline(xintercept=0.533174, col="green")+
   theme_bw()
+ggsave(filename="FO_Column_variance_grass_from_10min_data.png", width=297, height=210, units = "mm")
+
 #get first peak (probably soil/vegetation boundary)
 vardf$col[1:40][which.max(vardf$variation[1:40])]
 #0.4722124

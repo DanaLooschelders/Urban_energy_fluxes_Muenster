@@ -7,6 +7,7 @@ library(grid)
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
 ####PREP####
 #Prep data to do it for both EC towers splitting meteo.agg into kiebitz and beton
+####Beton####
 shf_whole #concrete
 #aggregate to half hour
 shf_30min <- aggregate(shf_whole$shf, 
@@ -14,7 +15,7 @@ shf_30min <- aggregate(shf_whole$shf,
                    mean)
 
 shf_30min$TIMESTAMP<-as.POSIXct(shf_30min$TIMESTAMP)
-#Beton
+
 meteo_beton<-dat.meteo.agg[,1:13]
 
 #assign new column names
@@ -23,13 +24,21 @@ colnames(meteo_beton)[2:13]<-substr(colnames(meteo_beton)[2:13],1, nchar(colname
 meteo_beton<-left_join(meteo_beton, shf_30min, by="TIMESTAMP")
 
 colnames(meteo_beton)[14]<-"shf"
-#Kiebitz
+####Kiebitz####
+shf_g #grass
+#aggregate to half hour
+shf_30min <- aggregate(shf_g$shf_higher, 
+                       list(TIMESTAMP=cut(shf_g$DATETIME, "30 mins")),
+                       mean)
+
+shf_30min$TIMESTAMP<-as.POSIXct(shf_30min$TIMESTAMP)
 meteo_kiebitz<-dat.meteo.agg[,c(1,15:17,21:29)]
 #assign new column names
 colnames(meteo_kiebitz)[2:13]<-substr(colnames(meteo_kiebitz)[2:13],1, nchar(colnames(meteo_kiebitz)[2:13])-8)
 #add soil heat flux
-meteo_kiebitz<-cbind(meteo_kiebitz, soil_heat)
+meteo_kiebitz<-left_join(meteo_kiebitz, shf_30min)
 
+colnames(meteo_kiebitz)[14]<-"shf"
 #####Station####
 #If Kiebitz:
 dat.flux.meteo<-cbind(dat.kiebitz.flux.meteo,meteo_kiebitz)
