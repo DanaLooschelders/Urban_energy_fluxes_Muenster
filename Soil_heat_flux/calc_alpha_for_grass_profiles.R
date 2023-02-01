@@ -3,7 +3,13 @@ library(tidyverse)
 library(boot)
 library(lubridate)
 library(dplyr)
-
+library(cmna)
+library(plyr)
+library(bigsnpr)
+library(reshape2)
+library(colorspace)
+library(scico)
+library(patchwork)
 #source script to load slow data and QAQC
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R") 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
@@ -30,7 +36,7 @@ FO_grass_plot$depth<-as.numeric(substr(rownames(FO_grass_plot),start = 2, stop=1
 FO_grass_sub<-FO_grass_time[,c(which(colnames(FO_grass_time)=="2021-08-04 07:00:00"):which(colnames(FO_grass_time)=="2021-08-04 09:30:00"))]
 #indices: 701:716
 #plot all values
-for(i in 701:716 ){
+for(i in 701:760 ){
   plot(FO_grass_plot$depth, FO_grass_plot[,i],  type="l", 
        main=paste("all values - " ,colnames(FO_grass_plot[i])), ylim=c(17,24))
   abline(v=0.4722124, col="brown")
@@ -97,7 +103,7 @@ daily_VWC<-read.csv("daily_VWC.csv")
 #get VWC and k for sample day
 daily_VWC[daily_VWC$day=="2021-08-04",]
 k_lower_g<-daily_VWC$lower_k[daily_VWC$day=="2021-08-04"]
-flux_lower<-shf(FO_data_x = FO_grass_4, range =  701:716, k = k_lower_g)
+flux_lower<-shf(FO_data_x = FO_grass_4, range =  755:760, k = k_lower_g)
 plot_shf_grass(flux_dat=flux_lower)
 
 #calculate fluxes to merge together
@@ -106,30 +112,99 @@ daily_VWC_1<-bootstrap_k(alpha=alpha1_g)
 k_1<-daily_VWC_1$lower_k[daily_VWC_1$day=="2021-08-04"]
 #upper k: 1.420698    new threshold:  1.724098
 #lower k: 1.392096    new threshold:  1.688017
-flux_1<-shf(FO_data_x=FO_grass_1, range =  701:716, k = k_1)
+flux_1<-shf(FO_data_x=FO_grass_1, range =  670:800, k = k_1)
 #two
 daily_VWC_2<-bootstrap_k(alpha=alpha2_g)
 k_2<-daily_VWC_2$lower_k[daily_VWC_2$day=="2021-08-04"]
 #upper k: 1.041183    new threshold: 1.491132
 #lower k: 1.020694    new threshold: 1.461588
-flux_2<-shf(FO_data_x=FO_grass_2, range =  701:716, k = k_2)
+flux_2<-shf(FO_data_x=FO_grass_2, range =  670:800, k = k_2)
 #three
 daily_VWC_3<-bootstrap_k(alpha=alpha3_g)
 k_3<-daily_VWC_3$lower_k[daily_VWC_3$day=="2021-08-04"]
 #upper k: 1.41417     new threshold: 1.726692
 #lower k: 1.386602    new threshold: 1.691456
-flux_3<-shf(FO_data_x=FO_grass_3, range =  701:716, k = k_3)
+flux_3<-shf(FO_data_x=FO_grass_3, range =  670:800, k = k_3)
 #four
 daily_VWC_4<-bootstrap_k(alpha=alpha4_g)
 k_4<-daily_VWC_4$lower_k[daily_VWC_4$day=="2021-08-04"]
 #upper k: 1.09231   new threshold: 1.73447
 #lower k: 1.09231   new threshold: 1.699602
-flux_4<-shf(FO_data_x=FO_grass_4, range =  701:716, k = k_4)
+flux_4<-shf(FO_data_x=FO_grass_4, range =  670:800, k = k_4)
+#find max value of soil heat flux over time
+max_shf<-data.frame("time"=names(flux_2[[1]]), "depth"=NA, "maxflux"=NA) #output dataframe
+
+  
+  #for every time step
+  for(i in 1:length(flux_1[[2]])){
+  #rowbind fluxes from one timestep together
+   dat_temp<-rbind(flux_1[[2]][[i]], flux_2[[2]][[i]], flux_3[[2]][[i]], flux_4[[2]][[i]])
+  #order for depth
+   dat_temp<-dat_temp[order(dat_temp$depth),]
+  #find maximum value
+   max_shf$depth[i]<-dat_temp$depth[which.max(dat_temp$shf*-1)]
+   max_shf$maxflux[i]<-max(dat_temp$shf*-1)
+   rm(dat_temp)
+  }
+#plot depth over a day 
+ggplot(data=max_shf)+
+  geom_line(aes(x=as.POSIXct(time), y=depth))+
+  geom_hline(yintercept = 0.4722124, col="brown")+
+  theme_bw()+
+  ggtitle("depth of max shf over time")
+ggsave("depth_max_flux_20210804.jpg", width=297, height=210, units = "mm")
+
+#calculate depth of ma shf over time with mean thermal conductivity over time
+#for 1
+meank1<-mean(daily_VWC_1$lower_k, na.rm=T)
+flux_whole1<-shf(FO_data_x=FO_grass_1,range=1:2914 , k = meank1)
+#for 2
+meank2<-mean(daily_VWC_1$lower_k, na.rm=T)
+flux_whole2<-shf(FO_data_x=FO_grass_1,range=1:2914 , k = meank2)
+#for 3
+meank3<-mean(daily_VWC_3$lower_k, na.rm=T)
+flux_whole3<-shf(FO_data_x=FO_grass_3,range=1:2914 , k = meank3)
+#for 4
+meank4<-mean(daily_VWC_4$lower_k, na.rm=T)
+flux_whole4<-shf(FO_data_x=FO_grass_4,range=1:2914 , k = meank4)
+#find max value of soil heat flux over time
+max_whole_shf<-data.frame("time"=names(flux_whole2[[1]]), "depth"=NA, "maxflux"=NA) #output dataframe
+#for every time step
+for(i in 1:length(flux_whole1[[2]])){
+  #rowbind fluxes from one timestep together
+  dat_temp<-rbind(flux_whole1[[2]][[i]], flux_whole2[[2]][[i]], flux_whole3[[2]][[i]], flux_whole4[[2]][[i]])
+  #order for depth
+  dat_temp<-dat_temp[order(dat_temp$depth),]
+  #find maximum value
+  max_whole_shf$depth[i]<-dat_temp$depth[which.max(dat_temp$shf*-1)]
+  max_whole_shf$maxflux[i]<-max(dat_temp$shf*-1)
+  rm(dat_temp)
+}
+
+#plot depth over whole time 
+ggplot(data=max_whole_shf)+
+  geom_line(aes(x=as.POSIXct(time), y=depth))+
+  geom_hline(yintercept = 0.4722124, col="brown")+
+  theme_bw()+
+  ylab("Depth [m]")+
+  xlab("Time")+
+  ggtitle("depth of max shf over time")
+
+ggsave("depth_max_flux_whole.jpg", width=297, height=210, units = "mm")
+
+#plot for mean day
+max_whole_shf$hour<-hour(max_whole_shf$time)
+ggplot(data=max_whole_shf)+
+  geom_hline(yintercept = 0.4722124, col="brown")+
+  geom_boxplot(aes(x=hour, y=depth, group=hour))+
+  theme_bw()+
+  ggtitle("depth of max shf for mean day")
+
 #plot together
-dat_1<-flux_1[[2]][[7]]
-dat_2<-flux_2[[2]][[7]]
-dat_3<-flux_3[[2]][[7]]
-dat_4<-flux_4[[2]][[7]]
+dat_1<-flux_1[[2]][[8]]
+dat_2<-flux_2[[2]][[8]]
+dat_3<-flux_3[[2]][[8]]
+dat_4<-flux_4[[2]][[8]]
 ggplot()+
   geom_point(data=dat_1, aes( depth, shf*-1, col="point_1"))+
   geom_point(data=dat_2, aes( depth, shf*-1, col="point_2"))+
@@ -144,7 +219,7 @@ ggplot()+
   geom_vline(xintercept = 0.4722124, col="brown")+
   geom_vline(xintercept = 0.533174, col="green")+
   theme_bw()+
-  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][7])))
+  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][8])))
 
 #plot as one line
 dat_ensemble<-rbind(dat_1, dat_2, dat_3, dat_4)
@@ -157,7 +232,7 @@ ggplot(data=dat_ensemble, aes( depth, shf*-1))+
   geom_vline(xintercept = 0.4722124, col="brown")+
   geom_vline(xintercept = 0.533174, col="green")+
   theme_bw()+
-  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][7])))
+  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][8])))
 #find max shf for new threshold
 dat_ensemble$depth[which.max(dat_ensemble$shf*-1)]
 #new threshold: 0.4366514
@@ -167,9 +242,9 @@ dat_ensemble$depth[which.max(dat_ensemble$shf*-1)]
 daily_VWC_1$lower_k 
 daily_VWC$upper_k
 #calculate temp diff over depth
-dT_dz<-(FO_grass_2[7,1:2914]-FO_grass_2[8,1:2914])/diff(FO_grass_2$depth[7:8])
-shf_g<-data.frame("dT"=t(FO_grass_2[7,1:2914]-FO_grass_2[8,1:2914]), 
-                "dz"=diff(FO_grass_2$depth[7:8]), 
+dT_dz<-(FO_grass_4[7,1:2914]-FO_grass_4[8,1:2914])/diff(FO_grass_4$depth[7:8])
+shf_g<-data.frame("dT"=t(FO_grass_4[7,1:2914]-FO_grass_4[8,1:2914]), 
+                "dz"=diff(FO_grass_4$depth[7:8]), 
                 "DATETIME"=as.POSIXct(colnames(FO_grass_1)[1:2914]),
                 "day"=date(as.POSIXct(colnames(FO_grass_1)[1:2914])),
                 "shf_lower"=NA, "shf_higher"=NA)
@@ -225,3 +300,42 @@ ggplot(data=dat, aes( depth, shf*-1))+
 
 setwd("C:/Users/Dana/Desktop")
 ggsave(filename="grass_sample_plot.jpg", width=297, height=210, units = "mm")
+
+####plot test subset for 10 min data for grass####
+meteo_grass_sub<-dat.kiebitz.meteo[dat.kiebitz.meteo$TIMESTAMP>=colnames(FO_grass_time)[750]&dat.kiebitz.meteo$TIMESTAMP<=colnames(FO_grass_time)[770],]
+  #prepare data
+  FO_grass_to_melt<-FO_grass_2[,750:770]
+  FO_grass_to_melt$ID<-as.factor(round(as.numeric(substr(rownames(FO_grass_2), start=2, stop=30)), 3))
+  FO_grass_melted = reshape2::melt(FO_grass_to_melt, id.vars = "ID")
+  #plot soil temperature
+    soiltemp<-ggplot(data=FO_grass_melted)+
+    geom_line(aes(x=as.POSIXct(variable), y=as.numeric(value), col=ID))+
+    theme_bw()+
+    xlab(label="Time")+
+    ylab(label="Temperature [°C]")+
+    scale_color_discrete_sequential(palette="Blues 3")
+  #plot meteo vars
+    meteo<-ggplot(data=meteo_grass_sub)+
+    geom_line(aes(x=as.POSIXct(TIMESTAMP), y=SUp_Avg/20, col="SUp"))+
+    geom_line(aes(x=as.POSIXct(TIMESTAMP), y=AirTC_Avg, col="AirT"))+
+    theme_bw()
+  #plot soil heat flux  
+    flux_plot1<-shf(FO_data_x=FO_grass_1, range =  750:760, k = k_1)
+    flux_plot2<-shf(FO_data_x=FO_grass_2, range =  750:760, k = k_2)
+    flux_plot3<-shf(FO_data_x=FO_grass_3, range =  750:760, k = k_3)
+    flux_plot4<-shf(FO_data_x=FO_grass_4, range =  750:760, k = k_4)
+  
+    shfplot<-ggplot(flux_plot2[[2]][[3]])+
+      geom_line(aes(x=depth, y=shf*-1))+
+      theme_bw()+
+      ggtitle(label=paste("Soil Heat Flux - ", names(flux_plot1[[1]][3])))
+    
+    soiltemp + shfplot + plot_layout(nrow=2)
+ 
+    soiltemp +  shfplot + meteo  + plot_layout(nrow=3)
+  
+
+soiltemp
+  
+#save plot
+ggsave(filename=paste("Temp_grass_testsubset_1", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
