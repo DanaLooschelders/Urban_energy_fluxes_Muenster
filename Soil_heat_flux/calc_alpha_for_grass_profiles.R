@@ -142,8 +142,8 @@ max_shf<-data.frame("time"=names(flux_2[[1]]), "depth"=NA, "maxflux"=NA) #output
   #order for depth
    dat_temp<-dat_temp[order(dat_temp$depth),]
   #find maximum value
-   max_shf$depth[i]<-dat_temp$depth[which.max(dat_temp$shf*-1)]
-   max_shf$maxflux[i]<-max(dat_temp$shf*-1)
+   max_shf$depth[i]<-dat_temp$depth[which.max(abs(dat_temp$shf*-1))]
+   max_shf$maxflux[i]<-max(abs(dat_temp$shf*-1))
    rm(dat_temp)
   }
 #plot depth over a day 
@@ -176,8 +176,8 @@ for(i in 1:length(flux_whole1[[2]])){
   #order for depth
   dat_temp<-dat_temp[order(dat_temp$depth),]
   #find maximum value
-  max_whole_shf$depth[i]<-dat_temp$depth[which.max(dat_temp$shf*-1)]
-  max_whole_shf$maxflux[i]<-max(dat_temp$shf*-1)
+  max_whole_shf$depth[i]<-dat_temp$depth[which.max(abs(dat_temp$shf*-1))]
+  max_whole_shf$maxflux[i]<-max(abs(dat_temp$shf*-1))
   rm(dat_temp)
 }
 
@@ -188,7 +188,7 @@ ggplot(data=max_whole_shf)+
   theme_bw()+
   ylab("Depth [m]")+
   xlab("Time")+
-  ggtitle("depth of max shf over time")
+  ggtitle("depth of max shf over time - grass")
 
 ggsave("depth_max_flux_whole.jpg", width=297, height=210, units = "mm")
 
@@ -198,7 +198,13 @@ ggplot(data=max_whole_shf)+
   geom_hline(yintercept = 0.4722124, col="brown")+
   geom_boxplot(aes(x=hour, y=depth, group=hour))+
   theme_bw()+
-  ggtitle("depth of max shf for mean day")
+  ggtitle("depth of max shf for mean day - grass")
+ggsave("depth_max_flux_mean day.jpg", width=297, height=210, units = "mm")
+
+#get median for each day
+aggregate(max_whole_shf$depth, by=list(max_whole_shf$hour), FUN=median)
+#get mean for each day
+aggregate(max_whole_shf$depth, by=list(max_whole_shf$hour), FUN=mean)
 
 #plot together
 dat_1<-flux_1[[2]][[8]]
@@ -242,9 +248,9 @@ dat_ensemble$depth[which.max(dat_ensemble$shf*-1)]
 daily_VWC_1$lower_k 
 daily_VWC$upper_k
 #calculate temp diff over depth
-dT_dz<-(FO_grass_4[7,1:2914]-FO_grass_4[8,1:2914])/diff(FO_grass_4$depth[7:8])
-shf_g<-data.frame("dT"=t(FO_grass_4[7,1:2914]-FO_grass_4[8,1:2914]), 
-                "dz"=diff(FO_grass_4$depth[7:8]), 
+dT_dz<-(FO_grass_2[9,1:2914]-FO_grass_2[10,1:2914])/diff(FO_grass_2$depth[9:10])
+shf_g<-data.frame("dT"=t(FO_grass_2[9,1:2914]-FO_grass_2[10,1:2914]), 
+                "dz"=diff(FO_grass_2$depth[7:8]), 
                 "DATETIME"=as.POSIXct(colnames(FO_grass_1)[1:2914]),
                 "day"=date(as.POSIXct(colnames(FO_grass_1)[1:2914])),
                 "shf_lower"=NA, "shf_higher"=NA)

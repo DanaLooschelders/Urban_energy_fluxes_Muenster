@@ -7,7 +7,9 @@ library(grid)
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
 ####PREP####
 #Prep data to do it for both EC towers splitting meteo.agg into kiebitz and beton
+
 ####Beton####
+
 shf_whole #concrete
 #aggregate to half hour
 shf_30min <- aggregate(shf_whole$shf, 
@@ -24,7 +26,9 @@ colnames(meteo_beton)[2:13]<-substr(colnames(meteo_beton)[2:13],1, nchar(colname
 meteo_beton<-left_join(meteo_beton, shf_30min, by="TIMESTAMP")
 
 colnames(meteo_beton)[14]<-"shf"
+
 ####Kiebitz####
+
 shf_g #grass
 #aggregate to half hour
 shf_30min <- aggregate(shf_g$shf_higher, 
@@ -39,6 +43,7 @@ colnames(meteo_kiebitz)[2:13]<-substr(colnames(meteo_kiebitz)[2:13],1, nchar(col
 meteo_kiebitz<-left_join(meteo_kiebitz, shf_30min)
 
 colnames(meteo_kiebitz)[14]<-"shf"
+
 #####Station####
 #If Kiebitz:
 dat.flux.meteo<-cbind(dat.kiebitz.flux.meteo,meteo_kiebitz)
@@ -47,6 +52,7 @@ station="EC04 Kiebitz"
 #If Beton:
 dat.flux.meteo<-cbind(dat.beton.flux.meteo, meteo_beton)
 station="EC02 Beton"
+
 #####EBR####
 #QAQC
 ##exclude fluxes with qc values >6
@@ -131,7 +137,7 @@ dat.flux.meteo.cut<-dat.flux.meteo[index_start:index_end,]
       #plot
       plot(dat.flux.meteo.cut$TIMESTAMP,LE, type="l")
       abline(h = 0, col="red")
-      
+
 #calculate energy balance      
 EB<-Rn-G-H-LE      
 plot(dat.flux.meteo.cut$TIMESTAMP, EB, type="l")
@@ -143,12 +149,15 @@ mean(EB, na.rm=T)
 #With Bigleaf
 #prep data frame
 EB_data<-data.frame("TIMESTAMP"=dat.flux.meteo.cut$TIMESTAMP,
-                    "Rn"=Rn, "G"=-G, "LE"=LE, "H"=H)
+                    "Rn"=dat.flux.meteo.cut$TotRNet_Avg, "G"=dat.flux.meteo.cut$shf*-1, 
+                    "LE"=dat.flux.meteo.cut$LE, "H"=dat.flux.meteo.cut$H)
+#EB_data<-EB_data[complete.cases(EB_data),]
+
 
 #Function calculates energy balance ratio EBR = sum(LE + H)/sum(Rn − G − S)
 #for time steps
-EB_stepwise<-energy.closure(data=EB_data,instantaneous = TRUE, G=G)
-EB_step<-data.frame("EB"=EB_stepwise, "datetime"=dat.flux.meteo.cut$TIMESTAMP)
+EB_stepwise<-energy.closure(data=EB_data,instantaneous = TRUE, G=-EB_data$G)
+EB_step<-data.frame("EB"=EB_stepwise, "datetime"=EB_data$TIMESTAMP)
 #plot
 ggplot(data=EB_step)+
   geom_line(aes(datetime, EB))+
@@ -158,8 +167,8 @@ ggplot(data=EB_step)+
 #test to remove high-non-closures
 which(EB_step$EB<=-50)
 EB_step$EB[EB_step$EB<=-50]<-NA
-which(EB_step$EB>=100)
-EB_step$EB[EB_step$EB>=100]<-NA
+which(EB_step$EB>=50)
+EB_step$EB[EB_step$EB>=50]<-NA
 #plot again
 ggplot(data=EB_step)+
   geom_line(aes(datetime, EB))+
@@ -176,7 +185,7 @@ EB_data[which.min(EB_stepwise),]
 dat.flux.meteo.cut$TIMESTAMP[which.max(EB_stepwise)]
 EB_data[which.max(EB_stepwise),]
 #for whole time span with ground heat flux
-EB_whole<-energy.closure(data=EB_data, G=-G, Rn=Rn, LE=LE, H=H,
+EB_whole<-energy.closure(data=EB_data, G=EB_data$G, Rn=EB_data$Rn, LE=EB_data$LE, H=EB_data$H,
                          instantaneous = FALSE)
 EB_whole   
 
@@ -184,7 +193,7 @@ EB_whole
 (1-EB_whole[5])*100
 
 #for whole time span without ground heat flux
-EB_noG<-energy.closure(data=EB_data,Rn=Rn, LE=LE, H=H,
+EB_noG<-energy.closure(data=EB_data,Rn=EB_data$Rn, LE=EB_data$LE, H=EB_data$H,
                          instantaneous = FALSE)
 EB_noG
 #Get percentage of energy gap
@@ -210,6 +219,7 @@ EB_min3 <- EB_min3[,c("TIMESTAMP","LE",
                       "H", 
                       "TotRNet_Avg", 
                       "shf", "EB")]
+?energy.closure
 #bind together
 EB_minmax<-rbind(EB_max3,EB_min3)
 ####Export to csv####
