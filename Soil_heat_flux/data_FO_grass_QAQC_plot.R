@@ -13,7 +13,6 @@ library(cmna)
 library(plyr)
 library(bigsnpr)
 
-
 ####aggregated data####
 setwd("Z:/klima/Projekte/2021_CalmCity/2_Daten/11_FODS_Columns/FO-column-grass/FO-column-grass/final")
 files<-list.files(pattern="nc")

@@ -139,12 +139,12 @@ dat.flux.meteo.cut<-dat.flux.meteo[index_start:index_end,]
       abline(h = 0, col="red")
 
 #calculate energy balance      
-EB<-Rn-G-H-LE      
-plot(dat.flux.meteo.cut$TIMESTAMP, EB, type="l")
-abline(h = 0, col="red")
+#EB<-Rn+G-H-LE      
+#plot(dat.flux.meteo.cut$TIMESTAMP, EB, type="l")
+#abline(h = 0, col="red")
 
 #calculate mean energy balance
-mean(EB, na.rm=T)
+#mean(EB, na.rm=T)
 
 #With Bigleaf
 #prep data frame
@@ -155,15 +155,35 @@ EB_data<-data.frame("TIMESTAMP"=dat.flux.meteo.cut$TIMESTAMP,
 
 
 #Function calculates energy balance ratio EBR = sum(LE + H)/sum(Rn − G − S)
+#ordinary least squares (OLSs) relationship between the half-hourly estimates 
+#of the dependent flux variables (LE + H) against the half-hourly estimates
+#independently derived available energy (Rn −G− S)
+                                                                                                                                                   
 #for time steps
 EB_stepwise<-energy.closure(data=EB_data,instantaneous = TRUE, G=-EB_data$G)
 EB_step<-data.frame("EB"=EB_stepwise, "datetime"=EB_data$TIMESTAMP)
+
+#calculate energy balance for every individual day
+EB_data$day<-date(EB_data$TIMESTAMP) #create column with day
+EB_day<-data.frame("day"=unique(EB_data$day), "EBR"=NA)#create output dataframe
+for( i in unique(EB_data$day)){
+  EB_temp<-energy.closure(data=EB_data[EB_data$day==i,],instantaneous = FALSE, G=EB_data$G[EB_data$day==i])
+  EB_day$EBR[EB_day$day==i]<-EB_temp[5]
+}
+
+EB_day_concrete<-EB_day
+EB_day_grass<-EB_day
+
+EB_day_both<-cbind(EB_day_concrete, EB_day$EBR)
+colnames(EB_day_both)[2:3]<-c("Concrete", "Grass")
+
 #plot
 ggplot(data=EB_step)+
   geom_line(aes(datetime, EB))+
   theme_bw()+
   ggtitle("Energy Balance - Concrete")+
   ylab(label="energy balance non-closure")
+
 #test to remove high-non-closures
 which(EB_step$EB<=-50)
 EB_step$EB[EB_step$EB<=-50]<-NA
@@ -199,12 +219,33 @@ EB_noG
 #Get percentage of energy gap
 (1-EB_noG[5])*100
 
+####other method####
+#cumulatively sum Rn − G − S and LE +H over specified time periods
+EB_data_complete<-EB_data[complete.cases(EB_data),]
+sum(EB_data_complete$LE+EB_data_complete$H)/sum(EB_data_complete$Rn-EB_data_complete$G)
+#EBR grass: 0.6002816
+#EBR concrete: 0.9336564
+
+####Energy balance Foken####
+#Res = Rn-H-LE-G
+EBR_Foken<-data.frame("TIMESTAMP"=EB_data_complete$TIMESTAMP, "EBR"=NA)
+EBR_Foken$EBR<-EB_data_complete$Rn-EB_data_complete$H-EB_data_complete$LE-EB_data_complete$G
+
+ggplot(data=EBR_Foken)+
+  geom_line(aes(x=TIMESTAMP, y=EBR))+
+  theme_bw()+
+  geom_hline(aes(yintercept=0), col="red")
+
+mean(EBR_Foken$EBR) 
+#concrete: mean residual of 3.91977 W/m^-2
+#grass: mean residual 43.3 W/m^-2
+
 #look into conditions at that point
 #add EB to dataframe
 dat.flux.meteo.cut$EB<-EB_stepwise
 dat.flux.meteo.cut$index<-rownames(dat.flux.meteo.cut)
 #order by EB values (decreasing)
-dat.flux.meteo.cut.ordered<- dat.flux.meteo.cut[order(dat.flux.meteo.cut$EB, decreasing = TRUE), ]  # Order data descending
+dat.flux.meteo.cut.ordered<- dat.flux.meteo.cut[order(dat.flux.meteo.cut$EB, decreasing = TRUE), ]  #Order data descending
 #write 3 max values in dataframe
 EB_max3 <- head(dat.flux.meteo.cut.ordered, n=4)
 #keep only necessary columns
