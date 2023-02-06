@@ -4,6 +4,12 @@ library(bigleaf)
 library(ggplot2)
 library(ggrepel)
 library(grid)
+library(tidyverse)
+library(lubridate)
+library(reshape2)
+library(colorspace)
+library(scico)
+library(patchwork)
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
 ####PREP####
 #Prep data to do it for both EC towers splitting meteo.agg into kiebitz and beton
@@ -28,7 +34,6 @@ meteo_beton<-left_join(meteo_beton, shf_30min, by="TIMESTAMP")
 colnames(meteo_beton)[14]<-"shf"
 
 ####Kiebitz####
-
 shf_g #grass
 #aggregate to half hour
 shf_30min <- aggregate(shf_g$shf_higher, 
@@ -166,10 +171,22 @@ EB_step<-data.frame("EB"=EB_stepwise, "datetime"=EB_data$TIMESTAMP)
 #calculate energy balance for every individual day
 EB_data$day<-date(EB_data$TIMESTAMP) #create column with day
 EB_day<-data.frame("day"=unique(EB_data$day), "EBR"=NA)#create output dataframe
+
 for( i in unique(EB_data$day)){
   EB_temp<-energy.closure(data=EB_data[EB_data$day==i,],instantaneous = FALSE, G=EB_data$G[EB_data$day==i])
   EB_day$EBR[EB_day$day==i]<-EB_temp[5]
 }
+ggplot(data=EB_day)+
+  geom_line(aes(x=day,y=EBR))+
+  geom_point(aes(x=day,y=EBR))+
+  theme_bw()+
+  geom_hline(aes(yintercept=1), col="red")+
+  ggtitle("Daily Energy Balance")
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+         filename=paste("daily_energy_balance_bigleaf", station, ".png"),
+                        width=297, height=210, units = "mm")
+
+which.max(EB_day$EBR)
 
 EB_day_concrete<-EB_day
 EB_day_grass<-EB_day
@@ -184,17 +201,25 @@ ggplot(data=EB_step)+
   ggtitle("Energy Balance - Concrete")+
   ylab(label="energy balance non-closure")
 
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("halfhour_energy_balance_bigleaf", station, ".png"),
+       width=297, height=210, units = "mm")
+
 #test to remove high-non-closures
-which(EB_step$EB<=-50)
-EB_step$EB[EB_step$EB<=-50]<-NA
-which(EB_step$EB>=50)
-EB_step$EB[EB_step$EB>=50]<-NA
+EB_step_nospikes<-EB_step
+which(EB_step_nospikes$EB<=-50)
+EB_step_nospikes$EB[EB_step_nospikes$EB<=-50]<-NA
+which(EB_step_nospikes$EB>=50)
+EB_step_nospikes$EB[EB_step_nospikes$EB>=50]<-NA
 #plot again
-ggplot(data=EB_step)+
+ggplot(data=EB_step_nospikes)+
   geom_line(aes(datetime, EB))+
   theme_bw()+
   ggtitle("Energy Balance - Concrete")+
   ylab(label="energy balance non-closure")
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("energy_balance_bigleaf_nospikes", station, ".png"),
+       width=297, height=210, units = "mm")
 
 #QAQC
 summary(EB_stepwise)
@@ -207,19 +232,20 @@ EB_data[which.max(EB_stepwise),]
 #for whole time span with ground heat flux
 EB_whole<-energy.closure(data=EB_data, G=EB_data$G, Rn=EB_data$Rn, LE=EB_data$LE, H=EB_data$H,
                          instantaneous = FALSE)
-EB_whole   
+EB_whole   #concrete:  0.934 
 
 #Get percentage of energy gap
-(1-EB_whole[5])*100
+(1-EB_whole[5])*100 #concrete: 6.6
 
 #for whole time span without ground heat flux
 EB_noG<-energy.closure(data=EB_data,Rn=EB_data$Rn, LE=EB_data$LE, H=EB_data$H,
                          instantaneous = FALSE)
-EB_noG
+EB_noG  #concrete:  0.521 
 #Get percentage of energy gap
-(1-EB_noG[5])*100
+(1-EB_noG[5])*100 #concrete: 47.9 
 
 ####other method####
+
 #cumulatively sum Rn − G − S and LE +H over specified time periods
 EB_data_complete<-EB_data[complete.cases(EB_data),]
 sum(EB_data_complete$LE+EB_data_complete$H)/sum(EB_data_complete$Rn-EB_data_complete$G)
@@ -234,11 +260,30 @@ EBR_Foken$EBR<-EB_data_complete$Rn-EB_data_complete$H-EB_data_complete$LE-EB_dat
 ggplot(data=EBR_Foken)+
   geom_line(aes(x=TIMESTAMP, y=EBR))+
   theme_bw()+
+  ggtitle("EB Residual")+
   geom_hline(aes(yintercept=0), col="red")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("energy_balance_Foken", station, ".png"),
+       width=297, height=210, units = "mm")
 
 mean(EBR_Foken$EBR) 
 #concrete: mean residual of 3.91977 W/m^-2
 #grass: mean residual 43.3 W/m^-2
+
+#plot for mean day
+EBR_Foken$hour<-hour(EBR_Foken$TIMESTAMP)
+EBR_Foken_melted<-melt(EBR_Foken, id.vars=c("TIMESTAMP", "hour"))
+
+ggplot(data=EBR_Foken_melted)+
+  geom_boxplot(aes(x=hour, y=value, group=hour))+
+  theme_bw()+
+  geom_hline(aes(yintercept=0), col="red")+
+  ggtitle("Residual per hour")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("mean_day_energy_balance_Foken", station, ".png"),
+       width=297, height=210, units = "mm")
 
 #look into conditions at that point
 #add EB to dataframe
@@ -260,29 +305,35 @@ EB_min3 <- EB_min3[,c("TIMESTAMP","LE",
                       "H", 
                       "TotRNet_Avg", 
                       "shf", "EB")]
-?energy.closure
+
 #bind together
 EB_minmax<-rbind(EB_max3,EB_min3)
 ####Export to csv####
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Tabellen")
 write.csv2(EB_minmax, file = paste(station, "EB_minmax.csv", sep="_"))
 
+#Plot to analyse minima and maxima of EB closure ratio
+#create annotation dataframe (containing all the observations over the EB threshold)
+highlight<-data.frame("x"=dat.flux.meteo.cut$TIMESTAMP)
+highlight$y<-NA
+highlight$y[highlight$x%in%EB_minmax$TIMESTAMP]<-500
 
 ####Plot####
-setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken")
+#setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance")
 #plot individual fluxes
 ggplot(data=EB_data)+
   geom_line(aes(x=TIMESTAMP, y=LE, color="LE"))+
   geom_line(aes(x=TIMESTAMP, y=Rn, color="Rn"))+
   geom_line(aes(x=TIMESTAMP, y=H, color="H"))+
-  geom_line(aes(x=TIMESTAMP, y=G, color="G"))+
+  geom_line(aes(x=TIMESTAMP, y=G*-1, color="G"))+
   ylab(label="Energy [W m^-2]")+
   xlab(label="Time")+
   ggtitle(paste("Energy Balance Components \nof", station))+
   scale_color_manual(values=c(  "#33a02c", "#1f78b4","#000000","#a6cee3"), 
                      name="Comp.\nof EB")+
   theme_bw()
-ggsave(filename=paste("EB_components", station,".pdf"), 
+ggsave(path="Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("EB_components", station,".png"), 
        width=30, height=20, units = "cm")
 #plot EB
 ggplot()+
@@ -292,19 +343,15 @@ ggplot()+
   ggtitle(paste("Energy Balance Ratio of", 
                      station),
           sub="EBR = sum(LE + H)/sum(Rn − G − S)")+
-  annotate("text", label=paste("Gap in %:\n",(1-EB_whole[5])*100), 
-x=as.POSIXct(dat.flux.meteo.cut$TIMESTAMP[60]), 
+  annotate("text", label=paste("Gap in %:\n",round((1-EB_whole[5])*100,2)), 
+x=as.POSIXct(dat.flux.meteo.cut$TIMESTAMP[110]), 
            y=max(EB_stepwise,na.rm=T)-20, size=3)+
   geom_point(data=highlight, aes(x=x, y=y))+
   theme_bw()
-ggsave(filename=paste("EB_ratio", station,".pdf"), 
+ggsave(path="Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("EB_ratio", station,".png"), 
        width=30, height=20, units = "cm")
 
-#Plot to analyse minima and maxima of EB closure ratio
-#create annotation dataframe (containing all the observations over the EB threshold)
-highlight<-data.frame("x"=dat.flux.meteo.cut$TIMESTAMP)
-highlight$y<-NA
-highlight$y[as.integer(EB_minmax$index)]<-600
 
 ggplot(data=EB_data)+
   geom_line(aes(x=TIMESTAMP, y=LE, color="LE"))+
@@ -340,7 +387,8 @@ ggplot(data=EB_data[c(as.integer(rownames(EB_minmax))),])+
 grid.text("Values are \nthe EBR in %", 
           x = unit(.99, "npc"), y = unit(.15, "npc"), 
           just = c("right", "bottom"), gp = gpar(fontsize = 8))
-ggsave(filename=paste("EB_ratio_only_nonclosure", station,".pdf"), 
+ggsave(path="Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("EB_ratio_only_nonclosure", station,".png"), 
        width=30, height=20, units = "cm")
 #plot lines with nonclosure
 ggplot(data=EB_data[c(as.integer(rownames(EB_minmax))),])+
@@ -362,5 +410,7 @@ ggplot(data=EB_data[c(as.integer(rownames(EB_minmax))),])+
 grid.text("Values are gap \nof EBR in %", 
           x = unit(.99, "npc"), y = unit(.15, "npc"), 
           just = c("right", "bottom"), gp = gpar(fontsize = 8))
-ggsave(filename=paste("EB_ratio_lines_nonclosure", station,".pdf"), 
+ggsave(path="Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("EB_ratio_lines_nonclosure", station,".pdf"), 
        width=30, height=20, units = "cm")
+
