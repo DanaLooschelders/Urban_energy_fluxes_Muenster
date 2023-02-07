@@ -17,10 +17,10 @@ setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Graf
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/functions_alpha.r")
 #calculate for individual soil profile
 FO_grass_depth<-read.csv("FO_grass.csv")
-FO_grass_aG<-read.csv("FO_grass_20cm_aG_10cm.csv")
+#FO_grass_aG<-read.csv("FO_grass_20cm_aG_10cm.csv")
 
-FO_grass_depth<-FO_grass_aG[,c(1:50, 60)] #above threshold
-FO_grass_depth<-FO_grass_aG[,c(1:33, 60)] #new threshold 0.4366514: below original threshold
+#FO_grass_depth<-FO_grass_aG[,c(1:50, 60)] #above threshold
+#FO_grass_depth<-FO_grass_aG[,c(1:33, 60)] #new threshold 0.4366514: below original threshold
 
 #transpose
 FO_grass_time<-data.frame(t(FO_grass_depth))
@@ -109,27 +109,27 @@ plot_shf_grass(flux_dat=flux_lower)
 #calculate fluxes to merge together
 #one
 daily_VWC_1<-bootstrap_k(alpha=alpha1_g)
-k_1<-daily_VWC_1$lower_k[daily_VWC_1$day=="2021-08-04"]
-#upper k: 1.420698    new threshold:  1.724098
-#lower k: 1.392096    new threshold:  1.688017
+k_1<-daily_VWC_1$upper_k[daily_VWC_1$day=="2021-08-04"]
+#upper k: 1.420698    new bootstrap:  1.265866
+#lower k: 1.392096    new bootstrap:  1.297752
 flux_1<-shf(FO_data_x=FO_grass_1, range =  670:800, k = k_1)
 #two
 daily_VWC_2<-bootstrap_k(alpha=alpha2_g)
-k_2<-daily_VWC_2$lower_k[daily_VWC_2$day=="2021-08-04"]
-#upper k: 1.041183    new threshold: 1.491132
-#lower k: 1.020694    new threshold: 1.461588
+k_2<-daily_VWC_2$upper_k[daily_VWC_2$day=="2021-08-04"]
+#upper k: 1.041183    new bootstrap: 0.9281003
+#lower k: 1.020694    new bootstrap: 0.9512925
 flux_2<-shf(FO_data_x=FO_grass_2, range =  670:800, k = k_2)
 #three
 daily_VWC_3<-bootstrap_k(alpha=alpha3_g)
-k_3<-daily_VWC_3$lower_k[daily_VWC_3$day=="2021-08-04"]
-#upper k: 1.41417     new threshold: 1.726692
-#lower k: 1.386602    new threshold: 1.691456
+k_3<-daily_VWC_3$upper_k[daily_VWC_3$day=="2021-08-04"]
+#upper k: 1.41417     new bootstrap: 1.25758
+#lower k: 1.386602    new bootstrap: 1.29295
 flux_3<-shf(FO_data_x=FO_grass_3, range =  670:800, k = k_3)
 #four
 daily_VWC_4<-bootstrap_k(alpha=alpha4_g)
-k_4<-daily_VWC_4$lower_k[daily_VWC_4$day=="2021-08-04"]
-#upper k: 1.09231   new threshold: 1.73447
-#lower k: 1.09231   new threshold: 1.699602
+k_4<-daily_VWC_4$upper_k[daily_VWC_4$day=="2021-08-04"]
+#upper k: 1.09231   new bootstrap: 0.9934805
+#lower k: 1.09231  new bootstrap: 1.018316
 flux_4<-shf(FO_data_x=FO_grass_4, range =  670:800, k = k_4)
 #find max value of soil heat flux over time
 max_shf<-data.frame("time"=names(flux_2[[1]]), "depth"=NA, "maxflux"=NA) #output dataframe

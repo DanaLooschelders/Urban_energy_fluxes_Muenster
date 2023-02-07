@@ -5,9 +5,9 @@ library(lubridate)
 #source function
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Soil_heat_flux/functions_alpha.r")
 #calculate for individual soil profile
-FO_concrete_aG<-read.csv("FO_concrete_20cm_aG_10cm.csv")
+#FO_concrete_aG<-read.csv("FO_concrete_20cm_aG_10cm.csv")
 FO_concrete_depth<-read.csv("FO_concrete_20cm.csv")
-FO_concrete_depth<-FO_concrete_aG[,c(1:53, 63)]
+#FO_concrete_depth<-FO_concrete_aG[,c(1:53, 63)]
 #transpose
 FO_concrete_time<-data.frame(t(FO_concrete_depth))
 #set time as column name

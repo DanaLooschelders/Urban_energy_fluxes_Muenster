@@ -188,7 +188,8 @@ rho_water<- 998 #kg/m3
 #density of soil soilds
 #2.58 Mg m3
 #2.58 *1000 -> 2580 kg m3
-rho_solids=rnorm(n=1000, mean=2580, sd=5)
+rho_solids=rnorm(n=1000, mean=2580, sd=15)
+#use standard deviation of 15 as particle density for other soils ranges from 2600 to 2700
 #hist(rho_solids)
 #####cp = specific heat
 #specific heat of soil solids for sandy loam soil
@@ -229,7 +230,7 @@ for (i in 1:dim(daily_VWC)[1]){
                          "cp_water"= 4182,  "theta"=daily_VWC$VWC[i],
                          "rho_soilds"=rho_solids,
                          "cp_soilds"=cp_solids, 
-                         "v_solids"= 1-daily_VWC$VWC[i])
+                         "v_solids"= 1-daily_VWC$VWC[i]-0.1) #1 - volume of water minus volume of air (in pores)
     boot_temp<-boot::boot(data = dat_temp, statistic=cond, R=1000) #bootstrap
     ci_temp<-boot.ci(boot.out = boot_temp,  type = "perc", conf = 0.95) #calculate CI
     ci_k<-ci_temp$percent[4:5] #extract parameter
