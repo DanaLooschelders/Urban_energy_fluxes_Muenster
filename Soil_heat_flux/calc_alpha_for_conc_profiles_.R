@@ -28,7 +28,7 @@ for(i in 107:119 ){
   Sys.sleep(2)
 }
 
-#take every fifth point (variying starting point i)
+#take every forth point (variying starting point i)
 for(i in 1:4){
   FO_concrete_temp <- FO_concrete_time[seq(i, nrow(FO_concrete_time), 4), ] #select every 5th row
   FO_concrete_temp[] <- lapply(FO_concrete_temp, as.numeric) #coerce to numeric
@@ -143,6 +143,9 @@ ggplot()+
   theme_bw()+
   ggtitle(label=paste("concrete tower - soil heat flux ", names(flux_lower[[1]][4])))
 
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
+       filename=paste("shf_four_profiles_concrete.png"),
+       width=297, height=210, units = "mm")
 #plot as one line
 dat_ensemble<-rbind(dat_1, dat_2, dat_3, dat_4)
 dat_ensemble<-dat_ensemble[order(dat_ensemble$depth),]
@@ -154,6 +157,9 @@ ggplot(data=dat_ensemble, aes( depth, shf*-1))+
   geom_vline(xintercept = 0.529, col="red")+
   theme_bw()+
   ggtitle(label=paste("concrete tower - soil heat flux ", names(flux_lower[[1]][4])))
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
+       filename=paste("shf_ensemble_profile_concrete.png"),
+       width=297, height=210, units = "mm")
 #calculate for whole time period for two centimeters
 k_1 #get k 
 #calculate temp diff over depth
@@ -161,13 +167,17 @@ dT_dz<-(FO_concrete_1[10,1:3559]-FO_concrete_1[11,1:3559])/diff(FO_concrete_1$de
 shf_vec<--k_2*dT_dz #calculate shf 
 shf_whole<-data.frame("shf"=t(shf_vec), "DATETIME"=as.POSIXct(colnames(FO_concrete_2)[1:3559]))
 colnames(shf_whole)[1]<-"shf" #rename first column
+#save as csv
+write.csv(shf_whole, file="shf_concrete.csv", row.names = F)
 #plot ts for sub 2
 ggplot(data=shf_whole)+
   geom_line(aes(DATETIME, shf))+
   theme_bw()+
   ylab(label="shf [W m^-2")+
   ggtitle("soil heat flux - concrete")
-
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
+       filename=paste("timeseries_shf_concerete.png"),
+       width=297, height=210, units = "mm")
 #calculate depth of ma shf over time with mean thermal conductivity over time
 #for 1
 flux_wholec1<-shf(FO_data_x=FO_concrete_1,range=1:3559 , k = k_1)
@@ -200,7 +210,7 @@ ggplot(data=max_whole_cshf)+
   xlab("Time")+
   ggtitle("depth of max shf over time - concrete")
 
-ggsave("depth_max_flux_whole.jpg", width=297, height=210, units = "mm")
+ggsave("depth_max_flux_whole_concrete.jpg", width=297, height=210, units = "mm")
 
 #plot for mean day
 max_whole_cshf$hour<-hour(max_whole_cshf$time)
@@ -209,7 +219,7 @@ ggplot(data=max_whole_cshf)+
   geom_boxplot(aes(x=hour, y=depth, group=hour))+
   theme_bw()+
   ggtitle("depth of max shf for mean day - concrete")
-ggsave("depth_max_flux_mean day.jpg", width=297, height=210, units = "mm")
+ggsave("depth_max_flux_mean_day_concrete.jpg", width=297, height=210, units = "mm")
 
 #get median for each day
 aggregate(max_whole_cshf$depth, by=list(max_whole_cshf$hour), FUN=median)
@@ -239,6 +249,7 @@ ggplot(data=shf_nospikes)+
   theme_bw()+
   ylab(label="shf [W m^-2")+
   ggtitle("soil heat flux - concrete")
+
 #plot diurnal cycle 
 shf_nospikes$hour<-hour(shf_nospikes$DATETIME) #create column with hour
 #plot diurnal cycle for concrete
@@ -247,6 +258,9 @@ ggplot(data=shf_nospikes)+
   theme_bw()+
   ylab(label="shf [W m^-2")+
   ggtitle("soil heat flux diurnal - concrete")
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min",
+       filename=paste("hourly_shf_concrete.png"),
+       width=297, height=210, units = "mm")
 
 ####pretty sample plot####
 dat<-flux_lower[[2]][[3]]

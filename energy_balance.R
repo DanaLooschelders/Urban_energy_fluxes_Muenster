@@ -16,8 +16,8 @@ source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_wi
 #Prep data to do it for both EC towers splitting meteo.agg into kiebitz and beton
 
 ####Beton####
-
-shf_whole #concrete
+shf_whole<-read.csv(file = "shf_concrete.csv")
+shf_whole$DATETIME<-as.POSIXct(shf_whole$DATETIME) #concrete
 #aggregate to half hour
 shf_30min <- aggregate(shf_whole$shf, 
                    list(TIMESTAMP=cut(shf_whole$DATETIME, "30 mins")),
@@ -35,7 +35,8 @@ meteo_beton<-left_join(meteo_beton, shf_30min, by="TIMESTAMP")
 colnames(meteo_beton)[14]<-"shf"
 
 ####Kiebitz####
-shf_g #grass
+shf_g<-read.csv(file="shf_grass.csv")
+shf_g$DATETIME<-as.POSIXct(shf_g$DATETIME) #grass
 #aggregate to half hour
 shf_30min <- aggregate(shf_g$shf_higher, 
                        list(TIMESTAMP=cut(shf_g$DATETIME, "30 mins")),

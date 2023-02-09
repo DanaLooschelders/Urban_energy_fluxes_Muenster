@@ -152,7 +152,7 @@ ggplot(data=max_shf)+
   geom_hline(yintercept = 0.4722124, col="brown")+
   theme_bw()+
   ggtitle("depth of max shf over time")
-ggsave("depth_max_flux_20210804.jpg", width=297, height=210, units = "mm")
+ggsave("depth_max_flux_20210804_grass.jpg", width=297, height=210, units = "mm")
 
 #calculate depth of ma shf over time with mean thermal conductivity over time
 #for 1
@@ -190,7 +190,7 @@ ggplot(data=max_whole_shf)+
   xlab("Time")+
   ggtitle("depth of max shf over time - grass")
 
-ggsave("depth_max_flux_whole.jpg", width=297, height=210, units = "mm")
+ggsave("depth_max_shf_whole_grass.jpg", width=297, height=210, units = "mm")
 
 #plot for mean day
 max_whole_shf$hour<-hour(max_whole_shf$time)
@@ -199,7 +199,7 @@ ggplot(data=max_whole_shf)+
   geom_boxplot(aes(x=hour, y=depth, group=hour))+
   theme_bw()+
   ggtitle("depth of max shf for mean day - grass")
-ggsave("depth_max_flux_mean day.jpg", width=297, height=210, units = "mm")
+ggsave("depth_max_flux_mean_day_grass.jpg", width=297, height=210, units = "mm")
 
 #get median for each day
 aggregate(max_whole_shf$depth, by=list(max_whole_shf$hour), FUN=median)
@@ -227,6 +227,10 @@ ggplot()+
   theme_bw()+
   ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][8])))
 
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
+       filename=paste("four_fluxes_grass.png"),
+       width=297, height=210, units = "mm")
+
 #plot as one line
 dat_ensemble<-rbind(dat_1, dat_2, dat_3, dat_4)
 dat_ensemble<-dat_ensemble[order(dat_ensemble$depth),]
@@ -239,6 +243,11 @@ ggplot(data=dat_ensemble, aes( depth, shf*-1))+
   geom_vline(xintercept = 0.533174, col="green")+
   theme_bw()+
   ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][8])))
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
+       filename=paste("ensemble_shf_grass.png"),
+       width=297, height=210, units = "mm")
+
 #find max shf for new threshold
 dat_ensemble$depth[which.max(dat_ensemble$shf*-1)]
 #new threshold: 0.4366514
@@ -261,7 +270,8 @@ sub=shf_g[shf_g$day==i,]
 shf_g$shf_lower[shf_g$day==i]<--daily_VWC_2$lower_k[daily_VWC_2$day==i]*sub$dT/sub$dz
 shf_g$shf_higher[shf_g$day==i]<--daily_VWC_2$upper_k[daily_VWC_2$day==i]*sub$dT/sub$dz
 }
-
+#save in csv
+write.csv(shf_g, file="shf_grass.csv", row.names = F)
 #plot ts for sub 2 - lower and higher
 ggplot(data=shf_g)+
   geom_line(aes(DATETIME, shf_lower, col="lower"))+
@@ -269,6 +279,10 @@ ggplot(data=shf_g)+
   theme_bw()+
   ylab(label="shf [W m^-2]")+
   ggtitle("soil heat flux - grass")
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
+       filename=paste("timeseries_shf_grass.png"),
+       width=297, height=210, units = "mm")
+
 #plot difference between higher and lower
 #plot ts for sub 2 - lower and higher
 ggplot(data=shf_g)+
@@ -276,7 +290,9 @@ ggplot(data=shf_g)+
   theme_bw()+
   ylab(label="shf [W m^-2]")+
   ggtitle("soil heat flux - grass")
-
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
+       filename=paste("timeseries_difference_shf_grass.png"),
+       width=297, height=210, units = "mm")
 #plot diurnal cycle
 shf_g$hour<-hour(shf_g$DATETIME) #create column with hour
 #plot diurnal cycle for concrete - lower
@@ -285,13 +301,18 @@ ggplot(data=shf_g)+
   theme_bw()+
   ylab(label="shf [W m^-2]")+
   ggtitle("soil heat flux diurnal - grass")
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
+       filename=paste("hourly_lower_shf_grass.png"),
+       width=297, height=210, units = "mm")
 #plot diurnal cycle for concrete - higher
 ggplot(data=shf_g)+
   geom_boxplot(aes(y=shf_higher, x= hour, group=hour))+
   theme_bw()+
   ylab(label="shf [W m^-2]")+
   ggtitle("soil heat flux diurnal - grass")
-
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
+       filename=paste("hourly_higher_shf_grass.png"),
+       width=297, height=210, units = "mm")
 ####plot pretty####
 dat<-flux_lower[[2]][[4]]
 ggplot(data=dat, aes( depth, shf*-1))+
@@ -339,9 +360,6 @@ meteo_grass_sub<-dat.kiebitz.meteo[dat.kiebitz.meteo$TIMESTAMP>=colnames(FO_gras
     soiltemp + shfplot + plot_layout(nrow=2)
  
     soiltemp +  shfplot + meteo  + plot_layout(nrow=3)
-  
-
-soiltemp
   
 #save plot
 ggsave(filename=paste("Temp_grass_testsubset_1", layer_name, "cm.png", sep="_"), width=297, height=210, units = "mm")
