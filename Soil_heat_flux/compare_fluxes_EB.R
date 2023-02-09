@@ -82,6 +82,7 @@ index_start=which(!is.na(rowSums(concrete.flux.meteo[,c("LE",
                                                    "H", 
                                                    "TotRNet_Avg", 
                                                    "shf")])))[1]
+
 index_end=length(concrete.flux.meteo$TIMESTAMP)
 #change timespan to time where all parameters occured
 concrete.flux.meteo.cut<-concrete.flux.meteo[index_start:index_end,]
@@ -106,7 +107,7 @@ concrete.flux.meteo$TotRNet_calc<-concrete.flux.meteo$SUp_Avg+concrete.flux.mete
 
 plot(concrete.flux.meteo$TotRNet_Avg-concrete.flux.meteo$TotRNet_calc, type="l")
 ####grass
-EB_data_grass_complete$SDn_Avg[1:100]==grass.flux.meteo$SDn_Avg[1:100]
+#EB_data_grass_complete$SDn_Avg[1:100]==grass.flux.meteo$SDn_Avg[1:100]
 
 length(grass.flux.meteo$TIMESTAMP)
 any(is.na(grass.flux.meteo$SUp_Avg))
