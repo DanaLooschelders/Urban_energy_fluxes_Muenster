@@ -326,37 +326,7 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
        width=297, height=210, units = "mm")
 #grass reflects more SW radiation
 #grass should reflect more than wet concrete but less than dry concrete
-
-#Foken 
-#grey, dry: 0,25–0,30 
-#grey, wet: 0,10–0,12
-#Gras: 0,18–0,20
-
-#Oke
-#concrete:0.1 - 0.35
-#grass (short to long): 0.16 - 0.26
-
-dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$Albedo_Avg_beton==Inf]<-NA
-plot(dat.beton.flux.meteo$Albedo_Avg_beton, type="l")
-alb<-dat.beton.flux.meteo$SDn_Avg_beton/dat.beton.flux.meteo$SUp_Avg_beton
-alb[alb==Inf]<-NA
-plot(alb, ylim=c(0,10))
-mean(alb, na.rm=T) #1.83729
-
-mean(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour>=7|dat.beton.flux.meteo$hour<=20], na.rm=T)
-range(dat.beton.flux.meteo$Albedo_Avg_beton, na.rm=T)
-table(dat.beton.flux.meteo$Albedo_Avg_beton)
-
-dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz==Inf]<-NA
-alb<-dat.kiebitz.flux.meteo$SDn_Avg_kiebitz/dat.kiebitz.flux.meteo$SUp_Avg_kiebitz
-alb[alb==Inf]<-NA
-plot(alb, ylim=c(0,10))
-mean(alb, na.rm=T) #1.83729
-
-mean(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour>=7|dat.kiebitz.flux.meteo$hour<=20], na.rm=T)
-plot(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz, type="l")
-range(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz, na.rm=T)
-table(dat.beton.flux.meteo$Albedo_Avg_kiebitz)
+#our grass surface has a higher albedo than our concrete surface
 
 ####plot outgoing longwave radiation
 ggplot()+
@@ -573,6 +543,21 @@ ggplot(data=EB_day_concrete)+
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("daily_energy_balance_residual_concrete.png"),
        width=297, height=210, units = "mm")
+
+#plot both in one graph
+ggplot(data=EB_day_concrete)+
+  geom_line(aes(x=day,y=Res, col="Residual"), size=2)+
+  geom_line(aes(x=day,y=EBR*1000, col="EBR"), size=2)+
+  theme_bw()+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20), 
+                     sec.axis=sec_axis(trans=~./1000, name="EBR"))+
+  geom_hline(aes(yintercept=1000, col="EBR"), linetype=2, size=2)+
+  geom_hline(aes(yintercept=0, col="Residual"), linetype=2, size=2)+
+  ggtitle("Daily Energy Balance - Concrete")
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("daily_energy_balance_residual_EBR_concrete.png"),
+       width=297, height=210, units = "mm")
+
 #plot
 ggplot(data=EB_step_concrete)+
   geom_line(aes(datetime, EB))+
@@ -743,6 +728,20 @@ ggplot(data=EB_day_grass)+
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("daily_energy_balance_residual_grass.png"),
        width=297, height=210, units = "mm")
+#plot both in one graph
+ggplot(data=EB_day_grass)+
+  geom_line(aes(x=day,y=Res, col="Residual"), size=2)+
+  geom_line(aes(x=day,y=EBR*1000, col="EBR"), size=2)+
+  theme_bw()+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20), 
+                     sec.axis=sec_axis(trans=~./1000, name="EBR"))+
+  geom_hline(aes(yintercept=1000, col="EBR"), linetype=2, size=2)+
+  geom_hline(aes(yintercept=0, col="Residual"), linetype=2, size=2)+
+  ggtitle("Daily Energy Balance - Grass")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("daily_energy_balance_residual_EBR_grass.png"),
+       width=297, height=210, units = "mm")
 
 #plot
 ggplot(data=EB_step_grass)+
@@ -862,7 +861,7 @@ EB_data_complete<-EB_data_grass_complete
 EB_step<-EB_step_grass
 EB_day<-EB_day_grass
 meteo<-meteo_kiebitz
-day=3
+
 plot_EBR_fluxes<-function(day=1){
   i=unique(EB_data_complete$day)[day]
   EB_data_temp<-EB_data_complete[EB_data_complete$day==i,]
@@ -887,8 +886,8 @@ plot_EBR_fluxes<-function(day=1){
     ylab(label="Residual [W/m^2]")+
     geom_hline(aes(yintercept=0), col="red")+
     annotate(geom="text", x=max(EBR_Foken$TIMESTAMP), y=100, 
-             label=paste("Mean Res:  \n", round(mean(EBR_Foken$EBR), 2), "[W/m^-2]"))+
-    annotate(geom="text", x=min(EBR_Foken$TIMESTAMP), y=100, label="Res = Rn - H - LE - G")
+             label=paste("Day Res:  \n",  round(EB_day$Res[EB_day$day==i], 2), "[W/m^-2]"))+
+    annotate(geom="text", x=min(EBR_Foken$TIMESTAMP), y=100, label="Res = Rn - H - LE - G")+
     ggtitle("EBR Foken")
   
   #bigleaf EBR plot
@@ -903,7 +902,7 @@ plot_EBR_fluxes<-function(day=1){
     ylab(label="EBR")+
     geom_hline(aes(yintercept=1), col="red")+
     annotate(geom="text", x=max(EB_step_temp$datetime), y=3, 
-             label=paste("Day Res:  \n", round(EB_day$EBR[EB_day$day==i], 2)))+
+             label=paste("Day EBR:  \n", round(EB_day$EBR[EB_day$day==i], 2)))+
     annotate(geom="text", x=min(EB_step_temp$datetime), y=3, label="EBR=sum(LE+H)/sum(Rn-G)")
 
   #meteo plots
@@ -921,10 +920,74 @@ plot_EBR_fluxes<-function(day=1){
   
 }
 
+plot_EBR_fluxes(day=3)
+#grass: one major EBR outlier at 6am, little rain and cloudy during afternoon
+#concrete:many outlier during the day
+plot_EBR_fluxes(day=4)
+#grass: one major EBR outlier at 6am, little rain during afternoon
+#concrete: one major EBR outlier during the day, otherwise good closure
+plot_EBR_fluxes(day=5)
+#grass: one major EBR outlier at 7am,no rain, partly cloudy
+#concrete: bad overall closure
+plot_EBR_fluxes(day=6)
+#grass: no major EBR outlier, minor round 6 am, no rain, overcast
+#concrete: bad overall closure
+plot_EBR_fluxes(day=7)
+#grass: minor EBR outlier before 6 am, no rain
+#concrete:good overall clousure, minor outlier in the afternoon
 plot_EBR_fluxes(day=8)
+#grass: minor EBR outlier after 6 am, no rain
+#concrete: good overall closure
+plot_EBR_fluxes(day=9)
+#grass: little rain morning and evening, no outlier for EBR
+#concrete:bad overall closure
+plot_EBR_fluxes(day=10)
+#grass: some rain during the day, mostly overcast, 
+#concrete: one major outlier at 6 am, bad overall closure
+plot_EBR_fluxes(day=11)
+#grass: a lot of rain in the evening, mostly overcast, major EBR outlier at 6 am
+#concrete: one major outlier at 6 am otherwise good overall closure
+plot_EBR_fluxes(day=11)
+#grass: a lot of rain in the evening, mostly overcast, major EBR outlier at 6 am, okay overall closure
+#concrete: outlier at 6 am, otherwise good closure
+plot_EBR_fluxes(day=12)
+#grass: some rain in the morning, no major outlier
+#concrete: outlier at 8 am, otherwise good closure
+plot_EBR_fluxes(day=13)
+#grass: some rain in the evening, major outlier at 6 am
+#concrete: outlier before 6pm after rain event
+plot_EBR_fluxes(day=14)
+#grass: no rain, no major outliers
+#concrete: major outlier at 6 am, why bad overall closure??
+plot_EBR_fluxes(day=15)
+#grass: no rain, major outlier at 6 am
+#concrete: one major outlier at 5pm, one minor at 6 am
+plot_EBR_fluxes(day=16)
+#grass: no rain, minor outlier at 6 am, overcast
+#concrete: no major outlier, why overall good closure?
+plot_EBR_fluxes(day=17)
+#grass: no rain, major outlier at 6 am, no clouds
+#concrete: no major outlier, why overall good closure?
+plot_EBR_fluxes(day=18)
+#grass: no rain, minor outlier at 6 am, no clouds
+#concrete: minor outlier around 6 am
+plot_EBR_fluxes(day=19)
+#grass: rain during midday, major outlier at and after 6 am, cloudy
+#concrete: bad overall closure, many outliers
+plot_EBR_fluxes(day=20)
+#grass: rain after midday, minor outlier at 6 am, cloudy
+#concrete: one major outlier at afternoon after rain event
+plot_EBR_fluxes(day=21)
+#grass: rain during night, major outlier at 6 am, overcast
+#concrete: one major outlier at 6 am, overall good closure
+plot_EBR_fluxes(day=22)
+#grass: rain during the day, overcast, no outliers but overall bad closure
+#concrete: overall bad closure
 
 EB_both<-data.frame("day"=EB_day_concrete$day, 
-                    "Concrete"=EB_day_concrete$EBR, 
-                    "grass"=EB_day_grass$EBR)
+                    "Concrete_EBR"=EB_day_concrete$EBR, 
+                    "Concrete_Res"=EB_day_concrete$Res,
+                    "Grass_EBR"=EB_day_grass$EBR,
+                    "Grass_Res"=EB_day_grass$Res)
 
 #plot stepwise closure as mean hour of the day
