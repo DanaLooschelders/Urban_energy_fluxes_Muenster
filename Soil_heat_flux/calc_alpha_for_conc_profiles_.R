@@ -124,10 +124,10 @@ k_4<-alpha4_c*1020*density #3.000022
 flux_4<-shf(FO_data_x = FO_concrete_4, k=k_4,range=821:850 )
 
 #plot together
-dat_1<-flux_1[[2]][[4]]
-dat_2<-flux_2[[2]][[4]]
-dat_3<-flux_3[[2]][[4]]
-dat_4<-flux_4[[2]][[4]]
+dat_1<-flux_1[[2]][[5]]
+dat_2<-flux_2[[2]][[5]]
+dat_3<-flux_3[[2]][[5]]
+dat_4<-flux_4[[2]][[5]]
 ggplot()+
   geom_point(data=dat_1, aes( depth, shf*-1, col="point_1"))+
   geom_point(data=dat_2, aes( depth, shf*-1, col="point_2"))+
@@ -164,7 +164,7 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 k_1 #get k 
 #calculate temp diff over depth
 dT_dz<-(FO_concrete_1[10,1:3559]-FO_concrete_1[11,1:3559])/diff(FO_concrete_1$depth[10:11])
-shf_vec<--k_2*dT_dz #calculate shf 
+shf_vec<--k_1*dT_dz #calculate shf 
 shf_whole<-data.frame("shf"=t(shf_vec), "DATETIME"=as.POSIXct(colnames(FO_concrete_2)[1:3559]))
 colnames(shf_whole)[1]<-"shf" #rename first column
 #save as csv

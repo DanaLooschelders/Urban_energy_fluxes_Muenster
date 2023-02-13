@@ -1,5 +1,6 @@
 #lidar data
-setwd("D:/CHM_point-to-raster")
+setwd("C:/Users/Dana/sciebo/Hafen_Projekt_Lidar/")
+setwd("C:/Users/Dana/Desktop/DTM_inverse_distance_weighting/")
 library(raster)
 library(rgdal)
 library(mapview)
@@ -39,3 +40,9 @@ library(raster)
 dtm_nn<-raster("dtm_over_sea_level_inverse_distance_weighting.tif")
 library(mapview)
 mapview(dtm_nn)
+library(raster)
+setwd("C:/Users/Dana/sciebo/ndom/reproduzierbares_Beispiel")
+
+pred_stack<-stack(file="/home/p/p_loet03/uhi/pred_stack_717.grd")
+pred_stack<-stack(file="C:/Users/Dana/sciebo/ndom/reproduzierbares_Beispiel/pred_stack_717.grd")
+pred_stack<-stack(x="C:/Users/Dana/sciebo/ndom/reproduzierbares_Beispiel/pred_stack_717.grd")

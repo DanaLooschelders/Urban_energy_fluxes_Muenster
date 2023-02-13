@@ -634,6 +634,14 @@ sum(EB_data_concrete_complete$LE+EB_data_concrete_complete$H)/
 #EBR grass: 0.6002816
 #EBR concrete: 0.9336564
 
+EB_day_concrete$EBR_2<-NA
+#calculate that for every day
+for( i in unique(concrete.flux.meteo$day)){
+  EB_dat_temp<- EB_data_concrete_complete[EB_data_concrete_complete$day==i,]
+  EB_day_concrete$EBR_2[EB_day_concrete$day==i]<-sum(EB_dat_temp$LE+EB_dat_temp$H)/
+    sum(EB_dat_temp$TotRNet_Avg-EB_dat_temp$shf*-1)
+}
+
 ####Energy balance Foken####
 #Res = Rn-H-LE-G
 EBR_Foken_concrete<-data.frame("TIMESTAMP"=EB_data_concrete_complete$TIMESTAMP, "EBR"=NA)
@@ -800,12 +808,19 @@ EB_noG  #grass:  0.521
 
 ####other method####
 #cumulatively sum Rn − G − S and LE +H over specified time periods
-#EB_data_grass_complete$
+#sum(LE+H)/sum(Rn-G)
 sum(EB_data_grass_complete$LE+EB_data_grass_complete$H)/
   sum(EB_data_grass_complete$TotRNet_Avg-EB_data_grass_complete$shf*-1)
 
 #EBR grass: 0.6002816
-#EBR grass: 0.9336564
+#EBR concrete: 0.9336564
+EB_day_grass$EBR_2<-NA
+#calculate that for every day
+for( i in unique(grass.flux.meteo$day)){
+  EB_dat_temp<- EB_data_grass_complete[EB_data_grass_complete$day==i,]
+  EB_day_grass$EBR_2[EB_day_grass$day==i]<-sum(EB_dat_temp$LE+EB_dat_temp$H)/
+    sum(EB_dat_temp$TotRNet_Avg-EB_dat_temp$shf*-1)
+}
 
 ####Energy balance Foken####
 #Res = Rn-H-LE-G
@@ -991,3 +1006,5 @@ EB_both<-data.frame("day"=EB_day_concrete$day,
                     "Grass_Res"=EB_day_grass$Res)
 
 #plot stepwise closure as mean hour of the day
+
+#test energy balance during the day and during the night

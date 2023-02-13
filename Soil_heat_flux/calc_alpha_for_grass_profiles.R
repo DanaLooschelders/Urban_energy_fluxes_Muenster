@@ -207,10 +207,10 @@ aggregate(max_whole_shf$depth, by=list(max_whole_shf$hour), FUN=median)
 aggregate(max_whole_shf$depth, by=list(max_whole_shf$hour), FUN=mean)
 
 #plot together
-dat_1<-flux_1[[2]][[8]]
-dat_2<-flux_2[[2]][[8]]
-dat_3<-flux_3[[2]][[8]]
-dat_4<-flux_4[[2]][[8]]
+dat_1<-flux_1[[2]][[40]]
+dat_2<-flux_2[[2]][[40]]
+dat_3<-flux_3[[2]][[40]]
+dat_4<-flux_4[[2]][[40]]
 ggplot()+
   geom_point(data=dat_1, aes( depth, shf*-1, col="point_1"))+
   geom_point(data=dat_2, aes( depth, shf*-1, col="point_2"))+
@@ -225,7 +225,7 @@ ggplot()+
   geom_vline(xintercept = 0.4722124, col="brown")+
   geom_vline(xintercept = 0.533174, col="green")+
   theme_bw()+
-  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][8])))
+  ggtitle(label=paste("grass tower - soil heat flux ", names(flux_1[[1]][40])))
 
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min/",
        filename=paste("four_fluxes_grass.png"),
@@ -259,7 +259,7 @@ daily_VWC$upper_k
 #calculate temp diff over depth
 dT_dz<-(FO_grass_2[9,1:2914]-FO_grass_2[10,1:2914])/diff(FO_grass_2$depth[9:10])
 shf_g<-data.frame("dT"=t(FO_grass_2[9,1:2914]-FO_grass_2[10,1:2914]), 
-                "dz"=diff(FO_grass_2$depth[7:8]), 
+                "dz"=diff(FO_grass_3$depth[9:10]), 
                 "DATETIME"=as.POSIXct(colnames(FO_grass_1)[1:2914]),
                 "day"=date(as.POSIXct(colnames(FO_grass_1)[1:2914])),
                 "shf_lower"=NA, "shf_higher"=NA)
