@@ -185,6 +185,11 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
        filename=paste("hourly_LEH_vs_totradshf_grass.png"),
        width=297, height=210, units = "mm")
 
+ggplot(dat=grass.flux.meteo)+
+  stat_summary(aes(x=hour, y=LE+H, col="LE+H", group=hour), fun.y=mean)+
+  stat_summary(aes(x=hour, y=TotRNet_Avg-shf*-1, col="TotRad-shf", group=hour), fun.y=mean)+
+  theme_bw()
+
 #plot EBR components for concrete
 ggplot(dat=concrete.flux.meteo)+
   geom_line(aes(x=TIMESTAMP, y=LE+H, col="LE+H"))+
@@ -201,6 +206,11 @@ ggplot(dat=concrete.flux.meteo)+
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("hourly_LEH_vs_totradshf_concrete.png"),
        width=297, height=210, units = "mm")
+
+ggplot(dat=concrete.flux.meteo)+
+  stat_summary(aes(x=hour, y=LE+H, col="LE+H", group=hour), fun.y=mean)+
+  stat_summary(aes(x=hour, y=TotRNet_Avg-shf*-1, col="TotRad-shf", group=hour), fun.y=mean)+
+  theme_bw()
 
 #####compare fluxes between grass and concrete####
 grass.flux.meteo$hour<-hour(grass.flux.meteo$TIMESTAMP)
