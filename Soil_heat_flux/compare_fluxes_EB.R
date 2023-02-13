@@ -1,5 +1,6 @@
 #compare fluxes for energy balance rations
 library(bigleaf)
+library(lubridate)
 library(ggplot2)
 library(ggrepel)
 library(grid)
@@ -127,13 +128,13 @@ plot(grass.flux.meteo$TotRNet_Avg-grass.flux.meteo$TotRNet_calc, type="l")
 
 #save both as csv for easy loading
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
-write.csv(concrete.flux.meteo, "concrete_flux_meteo.csv", row.names=F)
-write.csv(grass.flux.meteo, "grass_flux_meteo.csv", row.names=F)
+write.csv(concrete.flux.meteo, "concrete_flux_meteo_20230213.csv", row.names=F)
+write.csv(grass.flux.meteo, "grass_flux_meteo_20230213.csv", row.names=F)
 
 #load
-grass.flux.meteo<-read.csv("grass_flux_meteo.csv")
+grass.flux.meteo<-read.csv("grass_flux_meteo_20230213.csv")
 grass.flux.meteo$TIMESTAMP<-as.POSIXct(grass.flux.meteo$TIMESTAMP)
-concrete.flux.meteo<-read.csv("concrete_flux_meteo.csv")
+concrete.flux.meteo<-read.csv("concrete_flux_meteo_20230213.csv")
 concrete.flux.meteo$TIMESTAMP<-as.POSIXct(concrete.flux.meteo$TIMESTAMP)
 #for 4th August
 #check time
@@ -173,16 +174,34 @@ ggplot(dat=grass.flux.meteo)+
   geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg-shf*-1, col="TotRad-shf"))+
   theme_bw()
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
-       filename=paste("LE_H_grass.png"),
+       filename=paste("LEH_totradshf_grass.png"),
        width=297, height=210, units = "mm")
+
+ggplot(dat=grass.flux.meteo)+
+  geom_boxplot(aes(x=hour, y=LE+H, col="LE+H", group=hour))+
+  geom_boxplot(aes(x=hour, y=TotRNet_Avg-shf, col="TotRad-shf", group=hour))+
+  theme_bw()
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("hourly_LEH_vs_totradshf_grass.png"),
+       width=297, height=210, units = "mm")
+
 #plot EBR components for concrete
 ggplot(dat=concrete.flux.meteo)+
   geom_line(aes(x=TIMESTAMP, y=LE+H, col="LE+H"))+
-  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg-shf*-1, col="TotRad-shf"))+
+  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg-shf, col="TotRad-shf"))+
   theme_bw()
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("LE_H_concrete.png"),
        width=297, height=210, units = "mm")
+
+ggplot(dat=concrete.flux.meteo)+
+  geom_boxplot(aes(x=hour, y=LE+H, col="LE+H", group=hour))+
+  geom_boxplot(aes(x=hour, y=TotRNet_Avg-shf, col="TotRad-shf", group=hour))+
+  theme_bw()
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("hourly_LEH_vs_totradshf_concrete.png"),
+       width=297, height=210, units = "mm")
+
 #####compare fluxes between grass and concrete####
 grass.flux.meteo$hour<-hour(grass.flux.meteo$TIMESTAMP)
 concrete.flux.meteo$hour<-hour(concrete.flux.meteo$TIMESTAMP)
@@ -480,6 +499,7 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
        width=297, height=210, units = "mm")
 
 #grass has more latent heat in the morning
+
 #Soil Heat flux
 ggplot()+
   geom_line(data=grass.flux.meteo, aes(x=TIMESTAMP, y=shf, col="grass"))+
@@ -489,6 +509,55 @@ ggplot()+
   ggtitle(label="Soil heat flux")
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("SHF_concrete_grass.png"),
+       width=297, height=210, units = "mm")
+
+ggplot(data=grass.flux.meteo)+
+  geom_boxplot(aes(x=hour, y=shf, group=hour))+
+  theme_bw()+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  geom_hline(aes(yintercept=0), col="red")+
+  ggtitle(label="hourly shf - grass")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("shf_hourly_grass.png"),
+       width=297, height=210, units = "mm")
+
+ggplot(data=concrete.flux.meteo)+
+  geom_boxplot(aes(x=hour, y=shf, group=hour))+
+  theme_bw()+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  geom_hline(aes(yintercept=0), col="red")+
+  ggtitle(label="hourly shf - concrete")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("shf_hourly_concrete.png"),
+       width=297, height=210, units = "mm")
+
+#check difference 
+diff_shf<-data.frame("TIMESTAMP"=grass.flux.meteo$TIMESTAMP, 
+                     "diff"=grass.flux.meteo$shf-concrete.flux.meteo$shf)
+#plot difference
+ggplot(data=diff_shf)+
+  geom_line(aes(x=TIMESTAMP, y=diff))+
+  theme_bw()+
+  ylab(label="Difference SDn [W m^-2]")+
+  ggtitle(label="Difference grass - concrete")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("shf_diff_concrete_grass.png"),
+       width=297, height=210, units = "mm")
+diff_shf$hour<-hour(diff_shf$TIMESTAMP)
+diff_shf_melted<-melt(diff_shf, id.vars=c("hour", "TIMESTAMP"))
+#plot mean day of difference
+ggplot(data=diff_shf)+
+  geom_boxplot(aes(x=hour, y=diff, group=hour))+
+  theme_bw()+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  geom_hline(aes(yintercept=0), col="red")+
+  ggtitle(label="difference SDn grass - concrete")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("shf_diff_hourly_concrete_grass.png"),
        width=297, height=210, units = "mm")
 
 ####Energy Balance for concrete ####
@@ -662,7 +731,7 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 
 mean(EBR_Foken_concrete$EBR) 
 
-#concrete: mean residual of 3.91977 W/m^-2
+#concrete: mean residual of 3.91977 W/m^-2 new 1.144725
 #grass: mean residual 43.3 W/m^-2
 
 #plot for mean day
@@ -793,7 +862,7 @@ EB_whole_grass<-energy.closure(data=grass.flux.meteo,instantaneous = FALSE,
                                   LE=grass.flux.meteo$LE, 
                                   H=grass.flux.meteo$H)
 EB_whole_grass   #grass:  0.602 
-
+?energy.closure
 #Get percentage of energy gap
 (1-EB_whole_grass[5])*100 #grass: 39.8
 
@@ -843,7 +912,7 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 mean(EBR_Foken_grass$EBR) 
 
 #grass: mean residual of 3.91977 W/m^-2
-#grass: mean residual 43.3 W/m^-2
+#grass: mean residual 43.3 W/m^-2 new: 43.14786
 
 #plot for mean day
 EBR_Foken_grass$hour<-hour(EBR_Foken_grass$TIMESTAMP)

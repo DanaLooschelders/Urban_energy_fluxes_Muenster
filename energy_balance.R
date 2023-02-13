@@ -1,6 +1,7 @@
 #Energy Balance Calculation
 #install.packages("bigleaf")
 library(bigleaf)
+library(lubridate)
 library(ggplot2)
 library(ggrepel)
 library(grid)
@@ -35,7 +36,8 @@ meteo_beton<-left_join(meteo_beton, shf_30min, by="TIMESTAMP")
 colnames(meteo_beton)[14]<-"shf"
 
 ####Kiebitz####
-shf_g<-read.csv(file="shf_grass.csv")
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
+shf_g<-read.csv(file="shf_grass_20230213.csv")
 shf_g$DATETIME<-as.POSIXct(shf_g$DATETIME) #grass
 #aggregate to half hour
 shf_30min <- aggregate(shf_g$shf_higher, 
@@ -123,7 +125,7 @@ dat.flux.meteo.cut<-dat.flux.meteo[index_start:index_end,]
       #calculates from FO towers
       G<-dat.flux.meteo.cut$shf
       #plot
-      plot(dat.flux.meteo.cut$TIMESTAMP,G, type="l")
+      plot(dat.flux.meteo.cut$TIMESTAMP,G*-1, type="l")
       abline(h = 0, col="red")
       #Φsurface = Φ0.05 m + S (flux=soil_flux + Storage)
       #storage S = (T(t1) - T(t2)).cvolumic·x/(t1 - t2)
@@ -167,7 +169,7 @@ EB_data<-data.frame("TIMESTAMP"=dat.flux.meteo.cut$TIMESTAMP,
 #independently derived available energy (Rn −G− S)
                                                                                                                                                    
 #for time steps
-EB_stepwise<-energy.closure(data=EB_data,instantaneous = TRUE, G=-EB_data$G)
+EB_stepwise<-energy.closure(data=EB_data,instantaneous = TRUE, G=EB_data$G*-1)
 EB_step<-data.frame("EB"=EB_stepwise, "datetime"=EB_data$TIMESTAMP)
 
 #calculate energy balance for every individual day
@@ -232,7 +234,7 @@ EB_data[which.min(EB_stepwise),]
 dat.flux.meteo.cut$TIMESTAMP[which.max(EB_stepwise)]
 EB_data[which.max(EB_stepwise),]
 #for whole time span with ground heat flux
-EB_whole<-energy.closure(data=EB_data, G=EB_data$G, Rn=EB_data$Rn, LE=EB_data$LE, H=EB_data$H,
+EB_whole<-energy.closure(data=EB_data, G=EB_data$G*-1, Rn=EB_data$Rn, LE=EB_data$LE, H=EB_data$H,
                          instantaneous = FALSE)
 EB_whole   #concrete:  0.934 
 
@@ -251,7 +253,7 @@ EB_noG  #concrete:  0.521
 #cumulatively sum Rn − G − S and LE +H over specified time periods
 EB_data_complete<-EB_data[complete.cases(EB_data),]
 sum(EB_data_complete$LE+EB_data_complete$H)/sum(EB_data_complete$Rn-EB_data_complete$G)
-#EBR grass: 0.6002816
+#EBR grass: 0.6002816 #new 0.5955271
 #EBR concrete: 0.9336564
 
 ####Energy balance Foken####

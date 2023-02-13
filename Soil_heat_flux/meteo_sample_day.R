@@ -1,8 +1,8 @@
 #meteorology for sample day
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R") 
 #subset 2: "2021-08-10 13:05:12 CEST"  to "2021-08-11 13:05:36 CEST"
-starttime_2 <- as.POSIXct("2021-08-04 00:00:00 CEST")
-endtime_2 <- as.POSIXct("2021-08-05 00:00:00 CEST")
+starttime_2 <- as.POSIXct("2021-08-12 09:30:00")
+endtime_2 <- as.POSIXct("2021-08-12 10:50:00")
 #subset to 2
 meteo_2<-dat.meteo.merge[dat.meteo.merge$TIMESTAMP>=starttime_2&dat.meteo.merge$TIMESTAMP<=endtime_2,]
 rain_2<-dat.rain.merge[dat.rain.merge$TIMESTAMP>=starttime_2&dat.rain.merge$TIMESTAMP<=endtime_2,]

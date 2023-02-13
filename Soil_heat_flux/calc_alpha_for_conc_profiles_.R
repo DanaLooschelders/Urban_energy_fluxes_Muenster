@@ -18,11 +18,13 @@ FO_concrete_time<-FO_concrete_time[-dim(FO_concrete_time)[1],]
 FO_concrete_plot<-FO_concrete_time
 FO_concrete_plot$depth<-as.numeric(substr(rownames(FO_concrete_plot),start = 2, stop=100))
 #30.07.2021  08:00:00 - 09:50:00
+which(FO_concrete_depth$concrete_time=="2021-08-12 09:30:00") #1987
+which(FO_concrete_depth$concrete_time=="2021-08-12 10:50:00") #1995
 #all values
-for(i in 107:119 ){
+for(i in 1987:1995 ){
   plot(FO_concrete_plot$depth, FO_concrete_plot[,i],  
        type="l", main=paste("all values - " ,colnames(FO_concrete_plot[i])), 
-       ylim=c(20,28))
+       ylim=c(15,28))
   abline(v=0.529, col="red")
   points(FO_concrete_plot$depth, FO_concrete_plot[,i])
   Sys.sleep(2)
@@ -44,26 +46,26 @@ for(i in 1:4){
 #####calculate for 1 value
 #color_5th_value(point=1)
 #plot_5th_value(FO_data_x = FO_concrete_1)
-alpha_1_c<-calc_alpha(FO_data_x=FO_concrete_1)
-median(unlist(alpha_1_c[[1]]))
+alpha_1_c<-calc_alpha(FO_data_x=FO_concrete_1, range = 1987:1995)
+median(unlist(alpha_1_c[[1]])) #1.545302e-06 new timespan: 1.514364e-06
 boxplot(alpha_1_c[[1]])
 
 #####for second
 #color_5th_value(point=2)
 #plot_5th_value(FO_data_x = FO_concrete_2)
-alpha_2_c<-calc_alpha(FO_data_x=FO_concrete_2)
-median(unlist(alpha_2_c[[1]]))
+alpha_2_c<-calc_alpha(FO_data_x=FO_concrete_2, range= 1987:1995)
+median(unlist(alpha_2_c[[1]])) #1.20629e-06 new timespan: 1.124541e-06
 #boxplot(alpha_2[[1]])
 #####for third
 #color_5th_value(point=3)
-alpha_3_c<-calc_alpha(FO_data_x=FO_concrete_3)
-median(unlist(alpha_3_c[[1]]))
+alpha_3_c<-calc_alpha(FO_data_x=FO_concrete_3,1987:1995)
+median(unlist(alpha_3_c[[1]])) #9.81034e-07
 #boxplot(alpha_3[[1]])
 
 #####for fourth
 #color_5th_value(point=4)
 alpha_4_c<-calc_alpha(FO_data_x=FO_concrete_4)
-median(unlist(alpha_4_c[[1]]))
+median(unlist(alpha_4_c[[1]])) #1.220921e-06 #new timespan:  1.220921e-06
 #boxplot(alpha_4[[1]])
 
 #plot values
@@ -79,16 +81,16 @@ median(unlist(alpha_4_c[[1]]))
 #plot_temp_alpha(FO_data_x=FO_concrete_2, alpha_x=alpha_2)
 #specific heat capacity
 
-alpha1_c<-median(unlist(alpha_1_c[[1]])) # 1.679633e-06
+alpha1_c<-median(unlist(alpha_1_c[[1]])) # 1.679633e-06 #new 1.514364e-06
 #with 2cm aboveground: 1.531781e-06
 
-alpha2_c<-median(unlist(alpha_2_c[[1]])) # 1.429565e-06
+alpha2_c<-median(unlist(alpha_2_c[[1]])) # 1.429565e-06 #new  1.124541e-06
 #with 2cm aboveground: 1.21812e-06
 
-alpha3_c<-median(unlist(alpha_3_c[[1]])) # 1.232641e-06
+alpha3_c<-median(unlist(alpha_3_c[[1]])) # 1.232641e-06 #new  9.81034e-07
 #with 2cm aboveground: aboveground: 
 
-alpha4_c<-median(unlist(alpha_4_c[[1]])) # 1.220921e-06
+alpha4_c<-median(unlist(alpha_4_c[[1]])) # 1.220921e-06 #new 1.220921e-06
 ##with 2cm aboveground: 1.046379e-06
 
 #bootstrap for specific heat or find reliable value
@@ -111,16 +113,16 @@ flux_lower<-shf(FO_data_x = FO_concrete_2, k=k_est,range=821:850)
 #flux_lower[[2]][[7]]
 #calculate fluxes to merge together
 #one
-k_1<-alpha1_c*1020*density #4.12716
+k_1<-alpha1_c*1020*density #4.12716 #new 3.721064
 flux_1<-shf(FO_data_x = FO_concrete_1, k=k_1,range=821:850 )
 #two
-k_2<-alpha2_c*1020*density  #3.512698
+k_2<-alpha2_c*1020*density  #3.512698 #new  2.763201
 flux_2<-shf(FO_data_x = FO_concrete_2, k=k_2,range=821:850 )
 #three
-k_3<-alpha3_c*1020*density #3.02882
+k_3<-alpha3_c*1020*density #3.02882 #new  2.410577
 flux_3<-shf(FO_data_x = FO_concrete_3, k=k_3,range=821:850 )
 #four
-k_4<-alpha4_c*1020*density #3.000022
+k_4<-alpha4_c*1020*density #3.000022 #new 3.000022
 flux_4<-shf(FO_data_x = FO_concrete_4, k=k_4,range=821:850 )
 
 #plot together
@@ -168,10 +170,10 @@ shf_vec<--k_1*dT_dz #calculate shf
 shf_whole<-data.frame("shf"=t(shf_vec), "DATETIME"=as.POSIXct(colnames(FO_concrete_2)[1:3559]))
 colnames(shf_whole)[1]<-"shf" #rename first column
 #save as csv
-write.csv(shf_whole, file="shf_concrete.csv", row.names = F)
+write.csv(shf_whole, file="shf_concrete_20230213.csv", row.names = F)
 #plot ts for sub 2
 ggplot(data=shf_whole)+
-  geom_line(aes(DATETIME, shf))+
+  geom_line(aes(DATETIME, shf*-1))+
   theme_bw()+
   ylab(label="shf [W m^-2")+
   ggtitle("soil heat flux - concrete")
@@ -212,6 +214,11 @@ ggplot(data=max_whole_cshf)+
 
 ggsave("depth_max_flux_whole_concrete.jpg", width=297, height=210, units = "mm")
 
+max(max_whole_cshf$depth)
+max_whole_cshf$time[max_whole_cshf$depth>=0.523]
+diff(as.POSIXct(max_whole_cshf$time[max_whole_cshf$depth>=0.523]))
+hist(max_whole_cshf$depth)
+max_whole_shf$time[max_whole_shf$depth<=0.462&max_whole_shf$depth<=0.472]
 #plot for mean day
 max_whole_cshf$hour<-hour(max_whole_cshf$time)
 ggplot(data=max_whole_cshf)+
