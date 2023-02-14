@@ -12,6 +12,11 @@ library(colorspace)
 library(scico)
 library(patchwork)
 library(scales)
+library(tidyverse)
+library(plotly)
+library(Hmisc)
+library(ggpubr)
+library(gridExtra)
 
 #if grass
 grass.flux.meteo<-cbind(dat.kiebitz.flux.meteo, meteo_kiebitz)
@@ -52,6 +57,10 @@ grass.flux.meteo<-grass.flux.meteo[index_start:index_end,]
 
 grass.flux.meteo <- grass.flux.meteo [,c("TIMESTAMP",'LE','H', "TotRNet_Avg", "shf", "SDn_Avg", "SUp_Avg",
                               "LDnCo_Avg", "LUpCo_Avg")]
+
+grass.flux.meteo$TotRNet_Avg_2<-grass.flux.meteo$SDn_Avg-grass.flux.meteo$SUp_Avg+
+  grass.flux.meteo$LDnCo_Avg-grass.flux.meteo$LUpCo_Avg
+
 ##### Beton ####
 concrete.flux.meteo<-cbind(dat.beton.flux.meteo, meteo_beton)
 
@@ -91,6 +100,9 @@ concrete.flux.meteo.cut<-concrete.flux.meteo[index_start:index_end,]
 
 concrete.flux.meteo <- concrete.flux.meteo [,c("TIMESTAMP", "LE","H", "TotRNet_Avg", "shf", "SDn_Avg", "SUp_Avg",
                                          "LDnCo_Avg", "LUpCo_Avg")]
+
+concrete.flux.meteo$TotRNet_Avg_2<-concrete.flux.meteo$SDn_Avg-concrete.flux.meteo$SUp_Avg+
+  concrete.flux.meteo$LDnCo_Avg-concrete.flux.meteo$LUpCo_Avg
 #get to same length
 concrete.flux.meteo<-concrete.flux.meteo[concrete.flux.meteo$TIMESTAMP>=range(grass.flux.meteo$TIMESTAMP)[1]&
                                            concrete.flux.meteo$TIMESTAMP<=range(grass.flux.meteo$TIMESTAMP)[2],]
@@ -126,6 +138,8 @@ grass.flux.meteo$TotRNet_calc<-grass.flux.meteo$SUp_Avg+grass.flux.meteo$LUpCo_A
 
 plot(grass.flux.meteo$TotRNet_Avg-grass.flux.meteo$TotRNet_calc, type="l")
 
+grass.flux.meteo$hour<-hour(grass.flux.meteo$TIMESTAMP)
+concrete.flux.meteo$hour<-hour(concrete.flux.meteo$TIMESTAMP)
 #save both as csv for easy loading
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 write.csv(concrete.flux.meteo, "concrete_flux_meteo_20230213.csv", row.names=F)
@@ -145,20 +159,41 @@ concrete.flux.meteo$TIMESTAMP<-as.POSIXct(concrete.flux.meteo$TIMESTAMP)
 #concrete.flux.meteo<-concrete.flux.meteo[604:651,]
 
 #plot all fluxes of grass
-ggplot(data=grass.flux.meteo)+
-  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg, col="TotRNet_Avg"))+
+ggplot(data=concrete.flux.meteo[200:280,])+
+  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg_2, col="TotRNet_Avg"))+
   geom_line(aes(x=TIMESTAMP, y=LE, col="LE"))+
   geom_line(aes(x=TIMESTAMP, y=H, col="H"))+
-  geom_line(aes(x=TIMESTAMP, y=shf*-1, col="shf"))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  geom_line(aes(x=TIMESTAMP, y=shf, col="shf"))+
   theme_bw()
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("all_fluxes_grass.png"),
        width=297, height=210, units = "mm")
 
+#stat summary with points for median values
+ggplot(dat=grass.flux.meteo)+
+  ylab(label="Flux [W m^-2]")+
+  ggtitle("Mean day of gras fluxes")+
+  stat_summary(aes(x=hour, y=LE, col="LE", group=hour), fun.y=median)+
+  stat_summary(aes(x=hour, y=H, col="H", group=hour), fun.y=median)+
+  stat_summary(aes(x=hour, y=TotRNet_Avg_2, col="TotRad", group=hour), fun.y=median)+
+  stat_summary(aes(x=hour, y=shf, col="shf", group=hour), fun.y=median)+
+  theme_bw()
 
+#regression of components
+ggplot(dat=concrete.flux.meteo)+
+  geom_point(aes(x=TotRNet_Avg_2*-1-shf, y=LE+H))+
+  theme_bw()+
+  ylab(label="LE+H [W m^-2]")+
+  xlab(label="-NetR-SHF [W m^-2]")
+
+#meteo_all$TIMESTAMP>="2021-08-12 09:30:00"&
+#meteo_all$TIMESTAMP<="2021-08-12 10:50:00",
+ggplot(data=concrete.flux.meteo)+
+  geom_line(aes(x=TIMESTAMP))
 #plot all fluxes of concrete
 ggplot(data=concrete.flux.meteo)+
-  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg, col="TotRNet_Avg"))+
+  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg_2, col="TotRNet_Avg"))+
   geom_line(aes(x=TIMESTAMP, y=LE, col="LE"))+
   geom_line(aes(x=TIMESTAMP, y=H, col="H"))+
   geom_line(aes(x=TIMESTAMP, y=shf*-1, col="shf"))+
@@ -167,33 +202,56 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
        filename=paste("all_fluxes_concrete.png"),
        width=297, height=210, units = "mm")
 
+ggplot(dat=concrete.flux.meteo)+
+  ylab(label="Flux [W m^-2]")+
+  ggtitle("Mean day of concrete fluxes")+
+  stat_summary(aes(x=hour, y=LE, col="LE", group=hour), fun.y=median)+
+  stat_summary(aes(x=hour, y=H, col="H", group=hour), fun.y=median)+
+  stat_summary(aes(x=hour, y=TotRNet_Avg_2, col="TotRad", group=hour), fun.y=median)+
+  stat_summary(aes(x=hour, y=shf, col="shf", group=hour), fun.y=median)+
+  theme_bw()
+
+
 ##Function calculates energy balance ratio EBR = sum(LE + H)/sum(Rn − G − S)
 #plot EBR components for grass
 ggplot(dat=grass.flux.meteo)+
   geom_line(aes(x=TIMESTAMP, y=LE+H, col="LE+H"))+
-  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg-shf*-1, col="TotRad-shf"))+
+  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg_2-shf, col="TotRad-shf"))+
   theme_bw()
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("LEH_totradshf_grass.png"),
        width=297, height=210, units = "mm")
 
+#regression of components
+ggplot(dat=grass.flux.meteo)+
+  geom_point(aes(x=TotRNet_Avg_2-shf, y=LE+H))+
+  theme_bw()+
+  ylab(label="LE+H [W m^-2]")+
+  xlab(label="NetR-SHF [W m^-29")
+
+#hourly duiurnal 
 ggplot(dat=grass.flux.meteo)+
   geom_boxplot(aes(x=hour, y=LE+H, col="LE+H", group=hour))+
-  geom_boxplot(aes(x=hour, y=TotRNet_Avg-shf, col="TotRad-shf", group=hour))+
+  geom_boxplot(aes(x=hour, y=(TotRNet_Avg_2)-shf, col="TotRad-shf", group=hour))+
   theme_bw()
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("hourly_LEH_vs_totradshf_grass.png"),
        width=297, height=210, units = "mm")
 
+
 ggplot(dat=grass.flux.meteo)+
-  stat_summary(aes(x=hour, y=LE+H, col="LE+H", group=hour), fun.y=mean)+
-  stat_summary(aes(x=hour, y=TotRNet_Avg-shf*-1, col="TotRad-shf", group=hour), fun.y=mean)+
+  ylab("Mean Flux [W m^-2]")+
+  stat_summary(aes(x=hour, y=LE+H, col="LE+H", group=hour), fun.y=median)+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10), 
+                     sec.axis=sec_axis(trans=~./100, name="EBR"))+
+  stat_summary(aes(x=hour, y=(TotRNet_Avg_2)-shf, col="TotRad-shf", group=hour), fun.y=median)+
+  stat_summary(aes(x=hour, y=(LE+H)/(TotRNet_Avg-shf)*100, col="EBR", group=hour), fun.y=median)+
   theme_bw()
 
 #plot EBR components for concrete
 ggplot(dat=concrete.flux.meteo)+
   geom_line(aes(x=TIMESTAMP, y=LE+H, col="LE+H"))+
-  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg-shf, col="TotRad-shf"))+
+  geom_line(aes(x=TIMESTAMP, y=(TotRNet_Avg_2)-shf, col="TotRad-shf"))+
   theme_bw()
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("LE_H_concrete.png"),
@@ -201,25 +259,28 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 
 ggplot(dat=concrete.flux.meteo)+
   geom_boxplot(aes(x=hour, y=LE+H, col="LE+H", group=hour))+
-  geom_boxplot(aes(x=hour, y=TotRNet_Avg-shf, col="TotRad-shf", group=hour))+
+  geom_boxplot(aes(x=hour, y=(TotRNet_Avg_2)-shf, col="TotRad-shf", group=hour))+
   theme_bw()
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("hourly_LEH_vs_totradshf_concrete.png"),
        width=297, height=210, units = "mm")
 
 ggplot(dat=concrete.flux.meteo)+
-  stat_summary(aes(x=hour, y=LE+H, col="LE+H", group=hour), fun.y=mean)+
-  stat_summary(aes(x=hour, y=TotRNet_Avg-shf*-1, col="TotRad-shf", group=hour), fun.y=mean)+
+  ylab(label="Flux [W m^-2]")+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10), 
+                     sec.axis=sec_axis(trans=~./100, name="EBR"))+
+  stat_summary(aes(x=hour, y=LE+H, col="LE+H", group=hour), fun.y=median)+
+  stat_summary(aes(x=hour, y=(TotRNet_Avg_2)-shf, col="TotRad-shf", group=hour), fun.y=median)+
+  stat_summary(aes(x=hour, y=(LE+H)/(TotRNet_Avg-shf)*100, col="EBR", group=hour), fun.y=median)+
   theme_bw()
 
 #####compare fluxes between grass and concrete####
-grass.flux.meteo$hour<-hour(grass.flux.meteo$TIMESTAMP)
-concrete.flux.meteo$hour<-hour(concrete.flux.meteo$TIMESTAMP)
+
 
 #Total Net Radiation
 ggplot()+
-  geom_line(data=grass.flux.meteo, aes(x=TIMESTAMP, y=TotRNet_Avg, col="grass"))+
-  geom_line(data=concrete.flux.meteo, aes(x=TIMESTAMP, y=TotRNet_Avg, col="concrete"))+
+  geom_line(data=grass.flux.meteo, aes(x=TIMESTAMP, y=TotRNet_Avg_2, col="grass"))+
+  geom_line(data=concrete.flux.meteo, aes(x=TIMESTAMP, y=TotRNet_Avg_2, col="concrete"))+
   theme_bw()+
   ggtitle(label="Total Net Radiation")
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
@@ -227,7 +288,7 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
        width=297, height=210, units = "mm")
 #diurnal net rad
 ggplot()+
-  geom_boxplot(data=grass.flux.meteo, aes(x=hour, y=TotRNet_Avg, group=hour))+
+  geom_boxplot(data=grass.flux.meteo, aes(x=hour, y=TotRNet_Avg_2, group=hour))+
   theme_bw()+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
   ylab(label="Tot Net Radiation [W m^-2]")+
@@ -237,7 +298,7 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
        filename=paste("TotENet_hourly_grass.png"),
        width=297, height=210, units = "mm")
 ggplot()+
-  geom_boxplot(data=concrete.flux.meteo, aes(x=hour, y=TotRNet_Avg, group=hour))+
+  geom_boxplot(data=concrete.flux.meteo, aes(x=hour, y=TotRNet_Avg_2, group=hour))+
   theme_bw()+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
   geom_hline(aes(yintercept=0), col="red")+
@@ -573,8 +634,8 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 ####Energy Balance for concrete ####
 #for time steps
 EB_stepwise_concrete<-energy.closure(data=concrete.flux.meteo,instantaneous = TRUE, 
-                                     G=concrete.flux.meteo$shf*-1, 
-                                     Rn = concrete.flux.meteo$TotRNet_Avg,
+                                     G=concrete.flux.meteo$shf, 
+                                     Rn = concrete.flux.meteo$TotRNet_Avg_2,
                                     LE=concrete.flux.meteo$LE, 
                                      H=concrete.flux.meteo$H)
 EB_step_concrete<-data.frame("EB"=EB_stepwise_concrete, 
@@ -586,20 +647,28 @@ EB_data_concrete_complete$day<-date(EB_data_concrete_complete$TIMESTAMP)
 concrete.flux.meteo$day<-date(concrete.flux.meteo$TIMESTAMP) #create column with day
 EB_day_concrete<-data.frame("day"=unique(concrete.flux.meteo$day), "EBR"=NA, "Res"=NA)#create output dataframe
 
-for( i in unique(concrete.flux.meteo$day)){
+for(i in unique(concrete.flux.meteo$day)){
   EB_temp<-energy.closure(data=concrete.flux.meteo[concrete.flux.meteo$day==i,],
                           instantaneous = FALSE, 
-                          G=concrete.flux.meteo$shf[concrete.flux.meteo$day==i]*-1, 
-                          Rn = concrete.flux.meteo$TotRNet_Avg[concrete.flux.meteo$day==i])
+                          G=concrete.flux.meteo$shf[concrete.flux.meteo$day==i], 
+                          Rn = concrete.flux.meteo$TotRNet_Avg_2[concrete.flux.meteo$day==i]*-1)
   EB_day_concrete$EBR[EB_day_concrete$day==i]<-EB_temp[5]
   
   #Foken
   #sum of Foken Res for one day
-  EB_day_concrete$Res[EB_day_concrete$day==i]<-sum(EB_data_concrete_complete$TotRNet_Avg[EB_data_concrete_complete$day==i])-
+  EB_day_concrete$Res[EB_day_concrete$day==i]<-sum(EB_data_concrete_complete$TotRNet_Avg_2[EB_data_concrete_complete$day==i]*-1)-
     sum(EB_data_concrete_complete$H[EB_data_concrete_complete$day==i])-
     sum(EB_data_concrete_complete$LE[EB_data_concrete_complete$day==i])-
-    sum(EB_data_concrete_complete$shf[EB_data_concrete_complete$day==i]*-1)
+    sum(EB_data_concrete_complete$shf[EB_data_concrete_complete$day==i])
 }
+
+#residuum tagesgang
+Residuum<-EB_data_concrete_complete$TotRNet_Avg_2*-1-
+  EB_data_concrete_complete$H-
+  EB_data_concrete_complete$LE-
+  EB_data_concrete_complete$shf
+plot(EB_data_concrete_complete$TIMESTAMP[1:100], Residuum[1:100], type="l")
+abline(h=0)
 
 ggplot(data=EB_day_concrete)+
   geom_line(aes(x=day,y=EBR))+
@@ -685,18 +754,20 @@ ggplot(data=EB_step_concrete_nospikes)+
 
 #for whole time span with ground heat flux
 EB_whole_concrete<-energy.closure(data=concrete.flux.meteo,instantaneous = FALSE, 
-                                               G=concrete.flux.meteo$shf*-1, 
-                                               Rn = concrete.flux.meteo$TotRNet_Avg,
-                                               LE=concrete.flux.meteo$LE, 
-                                               H=concrete.flux.meteo$H)
+                                               G = concrete.flux.meteo$shf, 
+                                               Rn = concrete.flux.meteo$TotRNet_Avg_2,
+                                               LE = concrete.flux.meteo$LE, 
+                                               H = concrete.flux.meteo$H)
 EB_whole_concrete   #concrete:  0.934 
+
+
 
 #Get percentage of energy gap
 (1-EB_whole_concrete[5])*100 #concrete: 6.6
 
 #for whole time span without ground heat flux
 EB_noG<-energy.closure(data=concrete.flux.meteo,instantaneous = FALSE, 
-                       Rn = concrete.flux.meteo$TotRNet_Avg,
+                       Rn = concrete.flux.meteo$TotRNet_Avg_2,
                        LE=concrete.flux.meteo$LE, 
                        H=concrete.flux.meteo$H)
 EB_noG  #concrete:  0.521 
@@ -708,7 +779,15 @@ EB_noG  #concrete:  0.521
 #cumulatively sum Rn − G − S and LE +H over specified time periods
 
 sum(EB_data_concrete_complete$LE+EB_data_concrete_complete$H)/
-  sum(EB_data_concrete_complete$TotRNet_Avg-EB_data_concrete_complete$shf*-1)
+  sum((EB_data_concrete_complete$TotRNet_Avg_2*-1)-EB_data_concrete_complete$shf)
+
+sum(EB_data_concrete_complete$LE+EB_data_concrete_complete$H)/
+  sum((EB_data_concrete_complete$TotRNet_Avg_2*-1))
+
+sum(EB_data_concrete_complete$TotRNet_Avg_2*-1)-
+  sum(EB_data_concrete_complete$LE)-
+  sum(EB_data_concrete_complete$H)-
+  sum(EB_data_concrete_complete$shf)
 
 #EBR grass: 0.6002816
 #EBR concrete: 0.9336564
@@ -718,16 +797,16 @@ EB_day_concrete$EBR_2<-NA
 for( i in unique(concrete.flux.meteo$day)){
   EB_dat_temp<- EB_data_concrete_complete[EB_data_concrete_complete$day==i,]
   EB_day_concrete$EBR_2[EB_day_concrete$day==i]<-sum(EB_dat_temp$LE+EB_dat_temp$H)/
-    sum(EB_dat_temp$TotRNet_Avg-EB_dat_temp$shf*-1)
+    sum(EB_dat_temp$TotRNet_Avg_2-EB_dat_temp$shf)
 }
 
 ####Energy balance Foken####
 #Res = Rn-H-LE-G
 EBR_Foken_concrete<-data.frame("TIMESTAMP"=EB_data_concrete_complete$TIMESTAMP, "EBR"=NA)
-EBR_Foken_concrete$EBR<-EB_data_concrete_complete$TotRNet_Avg-
+EBR_Foken_concrete$EBR<-EB_data_concrete_complete$TotRNet_Avg_2-
   EB_data_concrete_complete$H-
   EB_data_concrete_complete$LE-
-  EB_data_concrete_complete$shf*-1
+  EB_data_concrete_complete$shf
 
 ggplot(data=EBR_Foken_concrete)+
   geom_line(aes(x=TIMESTAMP, y=EBR))+
@@ -763,8 +842,8 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 ####Energy Balance for Grass####
 #for time steps
 EB_stepwise_grass<-energy.closure(data=grass.flux.meteo,instantaneous = TRUE, 
-                                     G=grass.flux.meteo$shf*-1, 
-                                     Rn = grass.flux.meteo$TotRNet_Avg,
+                                     G=grass.flux.meteo$shf, 
+                                     Rn = grass.flux.meteo$TotRNet_Avg_2,
                                      LE=grass.flux.meteo$LE, 
                                      H=grass.flux.meteo$H)
 EB_step_grass<-data.frame("EB"=EB_stepwise_grass, 
@@ -782,14 +861,14 @@ for( i in unique(grass.flux.meteo$day)){
   #whole EBR for one day
   EB_temp<-energy.closure(data=grass.flux.meteo[grass.flux.meteo$day==i,],
                           instantaneous = FALSE, 
-                          G=grass.flux.meteo$shf[grass.flux.meteo$day==i]*-1, 
-                          Rn = grass.flux.meteo$TotRNet_Avg[grass.flux.meteo$day==i])
+                          G=grass.flux.meteo$shf[grass.flux.meteo$day==i], 
+                          Rn = grass.flux.meteo$TotRNet_Avg[grass.flux.meteo$day==i]_2)
   EB_day_grass$EBR[EB_day_grass$day==i]<-EB_temp[5]
   #sum of Foken Res for one day
-  EB_day_grass$Res[EB_day_grass$day==i]<-sum(EB_data_grass_complete$TotRNet_Avg[EB_data_grass_complete$day==i])-
+  EB_day_grass$Res[EB_day_grass$day==i]<-sum(EB_data_grass_complete$TotRNet_Avg_2[EB_data_grass_complete$day==i])-
     sum(EB_data_grass_complete$H[EB_data_grass_complete$day==i])-
     sum(EB_data_grass_complete$LE[EB_data_grass_complete$day==i])-
-    sum(EB_data_grass_complete$shf[EB_data_grass_complete$day==i]*-1)
+    sum(EB_data_grass_complete$shf[EB_data_grass_complete$day==i])
 }
 #bigleaf daily closure
 ggplot(data=EB_day_grass)+
@@ -867,8 +946,8 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 
 #for whole time span with ground heat flux
 EB_whole_grass<-energy.closure(data=grass.flux.meteo,instantaneous = FALSE, 
-                                  G=grass.flux.meteo$shf*-1, 
-                                  Rn = grass.flux.meteo$TotRNet_Avg,
+                                  G=grass.flux.meteo$shf, 
+                                  Rn = grass.flux.meteo$TotRNet_Avg_2,
                                   LE=grass.flux.meteo$LE, 
                                   H=grass.flux.meteo$H)
 EB_whole_grass   #grass:  0.602 
@@ -878,7 +957,7 @@ EB_whole_grass   #grass:  0.602
 
 #for whole time span without ground heat flux
 EB_noG<-energy.closure(data=grass.flux.meteo,instantaneous = FALSE, 
-                       Rn = grass.flux.meteo$TotRNet_Avg,
+                       Rn = grass.flux.meteo$TotRNet_Avg_2,
                        LE=grass.flux.meteo$LE, 
                        H=grass.flux.meteo$H)
 EB_noG  #grass:  0.521 
@@ -889,7 +968,7 @@ EB_noG  #grass:  0.521
 #cumulatively sum Rn − G − S and LE +H over specified time periods
 #sum(LE+H)/sum(Rn-G)
 sum(EB_data_grass_complete$LE+EB_data_grass_complete$H)/
-  sum(EB_data_grass_complete$TotRNet_Avg-EB_data_grass_complete$shf*-1)
+  sum(EB_data_grass_complete$TotRNet_Avg_2*-1-EB_data_grass_complete$shf)
 
 #EBR grass: 0.6002816
 #EBR concrete: 0.9336564
@@ -898,16 +977,16 @@ EB_day_grass$EBR_2<-NA
 for( i in unique(grass.flux.meteo$day)){
   EB_dat_temp<- EB_data_grass_complete[EB_data_grass_complete$day==i,]
   EB_day_grass$EBR_2[EB_day_grass$day==i]<-sum(EB_dat_temp$LE+EB_dat_temp$H)/
-    sum(EB_dat_temp$TotRNet_Avg-EB_dat_temp$shf*-1)
+    sum(EB_dat_temp$TotRNet_Avg_2-EB_dat_temp$shf)
 }
 
 ####Energy balance Foken####
 #Res = Rn-H-LE-G
 EBR_Foken_grass<-data.frame("TIMESTAMP"=EB_data_grass_complete$TIMESTAMP, "EBR"=NA)
-EBR_Foken_grass$EBR<-EB_data_grass_complete$TotRNet_Avg-
+EBR_Foken_grass$EBR<-EB_data_grass_complete$TotRNet_Avg_2-
   EB_data_grass_complete$H-
   EB_data_grass_complete$LE-
-  EB_data_grass_complete$shf*-1
+  EB_data_grass_complete$shf
 
 ggplot(data=EBR_Foken_grass)+
   geom_line(aes(x=TIMESTAMP, y=EBR))+
@@ -921,7 +1000,7 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 
 mean(EBR_Foken_grass$EBR) 
 
-#grass: mean residual of 3.91977 W/m^-2
+#concrete: mean residual of 3.91977 W/m^-2
 #grass: mean residual 43.3 W/m^-2 new: 43.14786
 
 #plot for mean day
@@ -961,16 +1040,16 @@ plot_EBR_fluxes<-function(day=1){
   EB_data_temp<-EB_data_complete[EB_data_complete$day==i,]
   #plot fluxes
   flux_plot<-ggplot(data=EB_data_temp)+
-    geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg, col="Rn"))+
+    geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg_2, col="Rn"))+
     geom_line(aes(x=TIMESTAMP, y=H, col="H"))+
-    geom_line(aes(x=TIMESTAMP, y=shf*-1, col="G"))+
+    geom_line(aes(x=TIMESTAMP, y=shf, col="G"))+
     geom_line(aes(x=TIMESTAMP, y=LE, col="LE"))+
     geom_hline(aes(yintercept=0), col="black")+
     ylab(label="Flux [W/m^-2]")+
     theme_bw()
   #calculate closure
   EBR_Foken<-data.frame("TIMESTAMP"=EB_data_temp$TIMESTAMP, "EBR"=NA)
-  EBR_Foken$EBR<-EB_data_temp$TotRNet_Avg-EB_data_temp$H-EB_data_temp$LE-EB_data_temp$shf
+  EBR_Foken$EBR<-EB_data_temp$TotRNet_Avg_2-EB_data_temp$H-EB_data_temp$LE-EB_data_temp$shf
   #sum(EBR_Foken$EBR)/sum(EB_data_temp$Rn,EB_data_temp$H,EB_data_temp$LE,EB_data_temp$shf*-1)
   #plot closure
   energy_plot<-ggplot(data=EBR_Foken)+
@@ -1087,3 +1166,5 @@ EB_both<-data.frame("day"=EB_day_concrete$day,
 #plot stepwise closure as mean hour of the day
 
 #test energy balance during the day and during the night
+
+

@@ -26,7 +26,7 @@ dat.SS.agg<-dat.SS.meteo[3:4177,] %>%
   summarize_all(~mean(.,na.rm=F))
 dat.SS.agg$TIMESTAMP<-as.POSIXct(dat.SS.agg$TIMESTAMP)
 #set Steinfurter Str to same time as CalmCity data
-dat.SS.agg$TIMESTAMP<-dat.SS.agg$TIMESTAMP-60*60 #substract one hour to match
+dat.SS.agg$TIMESTAMP<-dat.SS.agg$TIMESTAMP+60*60 #substract one hour to match
 #cut to same length as concrete/grass towers
 dat.SS.cut<-dat.SS.agg[dat.SS.agg$TIMESTAMP>=range(grass.flux.meteo$TIMESTAMP)[1]&
                          dat.SS.agg$TIMESTAMP<=range(grass.flux.meteo$TIMESTAMP)[2],]
@@ -50,6 +50,12 @@ diff_SUp_all<-data.frame("TIMESTAMP"=grass.flux.meteo$TIMESTAMP,
 #lag +2 -> + 1h: lag(grass.flux.meteo$SUp_Avg,n=2)-concrete.flux.meteo$SUp_Avg)
 #lag -2 -> -1h: grass.flux.meteo$SUp_Avg-lag(concrete.flux.meteo$SUp_Avg, n=2))
 #any(grass.flux.meteo$TIMESTAMP!=concrete.flux.meteo$TIMESTAMP) #make sure timestamps fit
+ggplot(dat.SS.cut[740:800,])+
+  geom_line(aes(x=TIMESTAMP, y=SUp_Avg, col="Steinf"))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 15))+
+  geom_line(data=concrete.flux.meteo[740:800,], aes(x=TIMESTAMP, y=SUp_Avg, col="concrete"))+
+  geom_line(data=grass.flux.meteo[740:800,], aes(x=TIMESTAMP, y=SUp_Avg, col="grass"))+
+  theme_bw()
 
 #test with one hour lag
 #plot difference
@@ -59,7 +65,7 @@ ggplot(data=diff_SUp_all)+
   ylab(label="Difference SUp [W m^-2]")+
   ggtitle(label="Difference grass - concrete")
 
-ggplot(data=diff_SUp_all)+
+ggplot(data=diff_SUp_all[200:280,])+
   geom_line(aes(x=TIMESTAMP, y=diff_sc))+
   theme_bw()+
   ylab(label="Difference SUp [W m^-2]")+

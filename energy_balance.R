@@ -16,6 +16,7 @@ source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_wi
 ####PREP####
 #Prep data to do it for both EC towers splitting meteo.agg into kiebitz and beton
 
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 ####Beton####
 shf_whole<-read.csv(file = "shf_concrete.csv")
 shf_whole$DATETIME<-as.POSIXct(shf_whole$DATETIME) #concrete
