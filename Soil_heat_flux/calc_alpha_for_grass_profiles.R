@@ -49,8 +49,6 @@ for(i in 1868:1876 ){
   Sys.sleep(3)
 }
 
-#TAKE TIMEFRAME TO CALCULATE DIFFUSIVITY WHERE SHF IS MAX AT SURFACE!!!!!
-
 #take every fifth point (variying starting point i)
 for(i in 1:4){
   FO_grass_temp <- FO_grass_time[seq(i, nrow(FO_grass_time), 4), ] #select every 5th row

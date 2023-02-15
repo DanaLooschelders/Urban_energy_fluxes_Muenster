@@ -54,9 +54,9 @@ index_start=which(!is.na(rowSums(grass.flux.meteo[,c("LE",
 index_end=length(grass.flux.meteo$TIMESTAMP)
 #change timespan to time where all parameters occured
 grass.flux.meteo<-grass.flux.meteo[index_start:index_end,]
-
+grass.flux.meteo$AirTC_Avg
 grass.flux.meteo <- grass.flux.meteo [,c("TIMESTAMP",'LE','H', "TotRNet_Avg", "shf", "SDn_Avg", "SUp_Avg",
-                              "LDnCo_Avg", "LUpCo_Avg")]
+                              "LDnCo_Avg", "LUpCo_Avg", "AirTC_Avg")]
 
 grass.flux.meteo$TotRNet_Avg_2<-grass.flux.meteo$SDn_Avg-grass.flux.meteo$SUp_Avg+
   grass.flux.meteo$LDnCo_Avg-grass.flux.meteo$LUpCo_Avg
@@ -99,7 +99,7 @@ index_end=length(concrete.flux.meteo$TIMESTAMP)
 concrete.flux.meteo.cut<-concrete.flux.meteo[index_start:index_end,]
 
 concrete.flux.meteo <- concrete.flux.meteo [,c("TIMESTAMP", "LE","H", "TotRNet_Avg", "shf", "SDn_Avg", "SUp_Avg",
-                                         "LDnCo_Avg", "LUpCo_Avg")]
+                                         "LDnCo_Avg", "LUpCo_Avg",  "AirTC_Avg")]
 
 concrete.flux.meteo$TotRNet_Avg_2<-concrete.flux.meteo$SDn_Avg-concrete.flux.meteo$SUp_Avg+
   concrete.flux.meteo$LDnCo_Avg-concrete.flux.meteo$LUpCo_Avg
@@ -157,15 +157,17 @@ concrete.flux.meteo$TIMESTAMP<-as.POSIXct(concrete.flux.meteo$TIMESTAMP)
 #subset
 #grass.flux.meteo<-grass.flux.meteo[604:651,]
 #concrete.flux.meteo<-concrete.flux.meteo[604:651,]
-
+concrete.flux.meteo$L
 #plot all fluxes of grass
-ggplot(data=concrete.flux.meteo[200:280,])+
-  geom_line(aes(x=TIMESTAMP, y=TotRNet_Avg_2, col="TotRNet_Avg"))+
-  geom_line(aes(x=TIMESTAMP, y=LE, col="LE"))+
-  geom_line(aes(x=TIMESTAMP, y=H, col="H"))+
+ggplot(data=concrete.flux.meteo)+
+  geom_line(aes(x=TIMESTAMP, y=SUp_Avg, col="SUp_Avg"), stat="summary", fun="median")+
+  geom_line(aes(x=TIMESTAMP, y=SDn_Avg, col="SDn_Avg"), stat="summary", fun="median")+
+  geom_line(aes(x=TIMESTAMP, y=LUpCo_Avg, col="LUpCo_Avg"), stat="summary", fun="median")+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
-  geom_line(aes(x=TIMESTAMP, y=shf, col="shf"))+
+  geom_line(aes(x=TIMESTAMP, y=LDnCo_Avg, col="LDnCo_Avg"), stat="summary", fun="median")+
   theme_bw()
+
+
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("all_fluxes_grass.png"),
        width=297, height=210, units = "mm")
@@ -801,9 +803,9 @@ for( i in unique(concrete.flux.meteo$day)){
 }
 
 ####Energy balance Foken####
-#Res = Rn-H-LE-G
+#Res = -Rn-H-LE-G
 EBR_Foken_concrete<-data.frame("TIMESTAMP"=EB_data_concrete_complete$TIMESTAMP, "EBR"=NA)
-EBR_Foken_concrete$EBR<-EB_data_concrete_complete$TotRNet_Avg_2-
+EBR_Foken_concrete$EBR<-EB_data_concrete_complete$TotRNet_Avg_2*-1-
   EB_data_concrete_complete$H-
   EB_data_concrete_complete$LE-
   EB_data_concrete_complete$shf
@@ -819,6 +821,15 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
        width=297, height=210, units = "mm")
 
 mean(EBR_Foken_concrete$EBR) 
+
+#plot median day
+EBR_Foken_concrete$hour<-hour(EBR_Foken_concrete$TIMESTAMP)
+ggplot(data = EBR_Foken_concrete)+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  geom_hline(aes(yintercept=0), col="black", linetype="dashed")+
+  geom_line(aes(x=hour, y=Res), stat="summary", fun="median")+
+  ylab(bquote('Residual [W' ~m^-2* ']'))+
+  theme_bw()
 
 #concrete: mean residual of 3.91977 W/m^-2 new 1.144725
 #grass: mean residual 43.3 W/m^-2
@@ -862,13 +873,13 @@ for( i in unique(grass.flux.meteo$day)){
   EB_temp<-energy.closure(data=grass.flux.meteo[grass.flux.meteo$day==i,],
                           instantaneous = FALSE, 
                           G=grass.flux.meteo$shf[grass.flux.meteo$day==i], 
-                          Rn = grass.flux.meteo$TotRNet_Avg[grass.flux.meteo$day==i]_2)
+                          Rn = grass.flux.meteo$TotRNet_Avg[grass.flux.meteo$day==i]*-1)
   EB_day_grass$EBR[EB_day_grass$day==i]<-EB_temp[5]
   #sum of Foken Res for one day
-  EB_day_grass$Res[EB_day_grass$day==i]<-sum(EB_data_grass_complete$TotRNet_Avg_2[EB_data_grass_complete$day==i])-
+  EB_day_grass$Res[EB_day_grass$day==i]<-(sum(EB_data_grass_complete$TotRNet_Avg_2[EB_data_grass_complete$day==i]*-1)-
     sum(EB_data_grass_complete$H[EB_data_grass_complete$day==i])-
     sum(EB_data_grass_complete$LE[EB_data_grass_complete$day==i])-
-    sum(EB_data_grass_complete$shf[EB_data_grass_complete$day==i])
+    sum(EB_data_grass_complete$shf[EB_data_grass_complete$day==i]))/length(EB_data_grass_complete$TotRNet_Avg_2[EB_data_grass_complete$day==i])
 }
 #bigleaf daily closure
 ggplot(data=EB_day_grass)+
@@ -927,6 +938,15 @@ ggplot(data=EB_step_grass[EB_step_grass$EB>=10*-1&EB_step_grass$EB<=10,])+
   ggtitle("Hourly Grass EB")+
   geom_hline(aes(yintercept=1, col="red"))+
   ylab("EBR")
+
+dat.beton.flux.meteo$day<-date(dat.beton.flux.meteo$TIMESTAMP)
+concrete.subset<-dat.beton.flux.meteo[dat.beton.flux.meteo$day=="2021-08-16",]
+concrete.subset$AirTC_Avg_beton
+ggplot(data=concrete.subset)+
+  geom_line(aes(x=TIMESTAMP, y=SUp_Avg_beton, col="SUp"))+
+  geom_line(aes(x=TIMESTAMP, y=Rain_mm_Tot*100, col="Rain"))+
+  geom_line(aes(x=TIMESTAMP, y=AirTC_Avg_beton, col="AirTemp"))+
+  theme_bw()
 
 #test to remove high-non-closures
 EB_step_grass_nospikes<-EB_step_grass

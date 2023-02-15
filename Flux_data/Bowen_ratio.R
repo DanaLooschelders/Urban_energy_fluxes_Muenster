@@ -10,6 +10,9 @@ library(ggpubr)
 dat.beton.flux.meteo$BR_beton<-dat.beton.flux.meteo$H/dat.beton.flux.meteo$LE
 dat.kiebitz.flux.meteo$BR_kiebitz<-dat.kiebitz.flux.meteo$H/dat.kiebitz.flux.meteo$LE
 
+concrete.flux.meteo$bowen_ratio<-concrete.flux.meteo$H/concrete.flux.meteo$LE
+grass.flux.meteo$bowen_ratio<-grass.flux.meteo$H/grass.flux.meteo$LE
+
 #test normal distribution beton
 qqnorm(dat.beton.flux.meteo$BR_beton)
 qqline(dat.beton.flux.meteo$BR_beton)
