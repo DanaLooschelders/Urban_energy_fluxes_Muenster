@@ -32,15 +32,9 @@ grass.flux.meteo$H[grass.flux.meteo$qc_H>6]<-NA
 #exclude unreasonable radiation values
 #latent heat
 plot(grass.flux.meteo$TIMESTAMP, grass.flux.meteo$LE, type="b") #plot
-#remove values below zero
-any(grass.flux.meteo$LE<0)
-grass.flux.meteo$LE[grass.flux.meteo$LE<0]<-0
+
 
 #sensible heat
-plot(grass.flux.meteo$TIMESTAMP, grass.flux.meteo$H, type="b")
-#remove values below zero
-any(grass.flux.meteo$H<0) 
-grass.flux.meteo$H[grass.flux.meteo$H<0]<-0
 plot(grass.flux.meteo$TIMESTAMP, grass.flux.meteo$H, type="b")
 
 #soil heat flux
@@ -74,15 +68,10 @@ concrete.flux.meteo$H[concrete.flux.meteo$qc_H>6]<-NA
 #exclude unreasonable radiation values
 #latent heat
 plot(concrete.flux.meteo$TIMESTAMP, concrete.flux.meteo$LE, type="b") #plot
-#remove values below zero
-any(concrete.flux.meteo$LE<0)
-concrete.flux.meteo$LE[concrete.flux.meteo$LE<0]<-0
 
 #sensible heat
 plot(concrete.flux.meteo$TIMESTAMP, concrete.flux.meteo$H, type="b")
-#remove values below zero
-any(concrete.flux.meteo$H<0) 
-concrete.flux.meteo$H[concrete.flux.meteo$H<0]<-0
+
 plot(concrete.flux.meteo$TIMESTAMP, concrete.flux.meteo$H, type="b")
 
 #soil heat flux
@@ -142,13 +131,13 @@ grass.flux.meteo$hour<-hour(grass.flux.meteo$TIMESTAMP)
 concrete.flux.meteo$hour<-hour(concrete.flux.meteo$TIMESTAMP)
 #save both as csv for easy loading
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
-write.csv(concrete.flux.meteo, "concrete_flux_meteo_20230213.csv", row.names=F)
-write.csv(grass.flux.meteo, "grass_flux_meteo_20230213.csv", row.names=F)
+write.csv(concrete.flux.meteo, "concrete_flux_meteo_20230217.csv", row.names=F)
+write.csv(grass.flux.meteo, "grass_flux_meteo_20230217.csv", row.names=F)
 
 #load
-grass.flux.meteo<-read.csv("grass_flux_meteo_20230213.csv")
+grass.flux.meteo<-read.csv("grass_flux_meteo_20230217.csv")
 grass.flux.meteo$TIMESTAMP<-as.POSIXct(grass.flux.meteo$TIMESTAMP)
-concrete.flux.meteo<-read.csv("concrete_flux_meteo_20230213.csv")
+concrete.flux.meteo<-read.csv("concrete_flux_meteo_20230217.csv")
 concrete.flux.meteo$TIMESTAMP<-as.POSIXct(concrete.flux.meteo$TIMESTAMP)
 #for 4th August
 #check time
@@ -157,7 +146,7 @@ concrete.flux.meteo$TIMESTAMP<-as.POSIXct(concrete.flux.meteo$TIMESTAMP)
 #subset
 #grass.flux.meteo<-grass.flux.meteo[604:651,]
 #concrete.flux.meteo<-concrete.flux.meteo[604:651,]
-concrete.flux.meteo$L
+
 #plot all fluxes of grass
 ggplot(data=concrete.flux.meteo)+
   geom_line(aes(x=TIMESTAMP, y=SUp_Avg, col="SUp_Avg"), stat="summary", fun="median")+
@@ -757,10 +746,10 @@ ggplot(data=EB_step_concrete_nospikes)+
 #for whole time span with ground heat flux
 EB_whole_concrete<-energy.closure(data=concrete.flux.meteo,instantaneous = FALSE, 
                                                G = concrete.flux.meteo$shf, 
-                                               Rn = concrete.flux.meteo$TotRNet_Avg_2,
+                                               Rn = concrete.flux.meteo$TotRNet_Avg_2*-1,
                                                LE = concrete.flux.meteo$LE, 
                                                H = concrete.flux.meteo$H)
-EB_whole_concrete   #concrete:  0.934 
+EB_whole_concrete   #concrete:  0.352 
 
 
 
@@ -769,10 +758,10 @@ EB_whole_concrete   #concrete:  0.934
 
 #for whole time span without ground heat flux
 EB_noG<-energy.closure(data=concrete.flux.meteo,instantaneous = FALSE, 
-                       Rn = concrete.flux.meteo$TotRNet_Avg_2,
+                       Rn = concrete.flux.meteo$TotRNet_Avg_2*-1,
                        LE=concrete.flux.meteo$LE, 
                        H=concrete.flux.meteo$H)
-EB_noG  #concrete:  0.521 
+EB_noG  #concrete:  0.515 
 #Get percentage of energy gap
 (1-EB_noG[5])*100 #concrete: 47.9 
 
@@ -967,22 +956,22 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 #for whole time span with ground heat flux
 EB_whole_grass<-energy.closure(data=grass.flux.meteo,instantaneous = FALSE, 
                                   G=grass.flux.meteo$shf, 
-                                  Rn = grass.flux.meteo$TotRNet_Avg_2,
+                                  Rn = grass.flux.meteo$TotRNet_Avg_2*-1,
                                   LE=grass.flux.meteo$LE, 
                                   H=grass.flux.meteo$H)
-EB_whole_grass   #grass:  0.602 
+EB_whole_grass   #grass:  0.546 
 ?energy.closure
 #Get percentage of energy gap
-(1-EB_whole_grass[5])*100 #grass: 39.8
+(1-EB_whole_grass[5])*100 #grass: 45.4
 
 #for whole time span without ground heat flux
 EB_noG<-energy.closure(data=grass.flux.meteo,instantaneous = FALSE, 
-                       Rn = grass.flux.meteo$TotRNet_Avg_2,
+                       Rn = grass.flux.meteo$TotRNet_Avg_2*-1,
                        LE=grass.flux.meteo$LE, 
                        H=grass.flux.meteo$H)
 EB_noG  #grass:  0.521 
 #Get percentage of energy gap
-(1-EB_noG[5])*100 #grass: 47.9 
+(1-EB_noG[5])*100 #grass: 0.543 
 
 ####other method####
 #cumulatively sum Rn − G − S and LE +H over specified time periods

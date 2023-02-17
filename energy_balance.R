@@ -18,7 +18,7 @@ source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_wi
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 ####Beton####
-shf_whole<-read.csv(file = "shf_concrete.csv")
+shf_whole<-read.csv(file = "shf_concrete_20230213.csv")
 shf_whole$DATETIME<-as.POSIXct(shf_whole$DATETIME) #concrete
 #aggregate to half hour
 shf_30min <- aggregate(shf_whole$shf, 
@@ -74,9 +74,7 @@ dat.flux.meteo$H[dat.flux.meteo$qc_H>6]<-NA
 #exclude unreasonable radiation values
 #latent heat
 plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$LE, type="b") #plot
-#remove values below zero
-any(dat.flux.meteo$LE<0)
-dat.flux.meteo$LE[dat.flux.meteo$LE<0]<-0
+
 #remove spikes
 #spikes<-which(abs(diff(dat.flux.meteo$LE))>30)
 #dat.flux.meteo$LE[c(spikes, spikes+1)]<-NA
@@ -88,8 +86,6 @@ dat.flux.meteo$LE[dat.flux.meteo$LE<0]<-0
 #sensible heat
 plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$H, type="b")
 #remove values below zero
-any(dat.flux.meteo$H<0) 
-dat.flux.meteo$H[dat.flux.meteo$H<0]<-0
 plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$H, type="b")
 #remove spikes
 #spikes<-which(diff(dat.flux.meteo$H)>50)
