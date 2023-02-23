@@ -12,11 +12,12 @@
 #check albedo product from rad instrument
 plot(dat.beton.flux.meteo$Albedo_Avg_beton, type="l") #makes no sense to calculate for night time
 #calculate albedo for only daytime
-mean(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=8&dat.beton.flux.meteo$hour_num<=20], na.rm=T)
-#mean beton: 0.16055
-range(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=8&dat.beton.flux.meteo$hour_num<=20], na.rm=T)
-#0.1083333 0.6033333
+mean(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13], na.rm=T)
+#mean beton:0.1495431
 
+range(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13], na.rm=T)
+# 0.1120000 0.1833333
+hist(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13])
 #plot albedo components
 ggplot(data=dat.beton.flux.meteo)+
   geom_line(aes(x=TIMESTAMP, y=SUp_Avg_beton, col="SUp"))+
@@ -26,11 +27,11 @@ ggplot(data=dat.beton.flux.meteo)+
 #calculate albedo from averaged fluxes
 dat.beton.flux.meteo$albedo<-dat.beton.flux.meteo$SDn_Avg_beton/dat.beton.flux.meteo$SUp_Avg_beton
 #calculate daytime mean
-mean(dat.beton.flux.meteo$albedo[dat.beton.flux.meteo$hour_num>=8&dat.beton.flux.meteo$hour_num<=20], na.rm=T)
-#mean beton: 0.1601458
+mean(dat.beton.flux.meteo$albedo[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13], na.rm=T)
+#mean beton: 0.1503788
 
 #time series of albedo
-ggplot(data=dat.beton.flux.meteo[dat.beton.flux.meteo$hour_num>=8&dat.beton.flux.meteo$hour_num<=20,])+
+ggplot(data=dat.beton.flux.meteo[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13,])+
   geom_line(aes(x=TIMESTAMP, y=albedo))+
   theme_bw()
 
@@ -42,17 +43,18 @@ ggplot(data=dat.kiebitz.flux.meteo)+
   theme_bw()
 
 #mean of albedo from rad instrument product
-mean(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=8&dat.kiebitz.flux.meteo$hour_num<=20], na.rm=T)
-#0.2106841
+mean(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13], na.rm=T)
+#0.2028889
+hist(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13])
 #plot timeseries of daytime albedo product
-plot(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=8&dat.kiebitz.flux.meteo$hour_num<=20], type="l")
+plot(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13], type="l")
 
 #calculate albedo from averged fluxes
 dat.kiebitz.flux.meteo$albedo<-dat.kiebitz.flux.meteo$SDn_Avg_kiebitz/dat.kiebitz.flux.meteo$SUp_Avg_kiebitz
 #get daytime mean of albedo product
-mean(dat.kiebitz.flux.meteo$albedo[dat.kiebitz.flux.meteo$hour_num>=8&dat.kiebitz.flux.meteo$hour_num<=20], na.rm=T)
-#mean kiebitz: 0.2120945
+mean(dat.kiebitz.flux.meteo$albedo[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13], na.rm=T)
+#mean kiebitz:  0.2045054
 #time series of albedo
-ggplot(data=dat.kiebitz.flux.meteo[dat.kiebitz.flux.meteo$hour_num>=8&dat.kiebitz.flux.meteo$hour_num<=20,])+
+ggplot(data=dat.kiebitz.flux.meteo[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13,])+
   geom_line(aes(x=TIMESTAMP, y=albedo))+
   theme_bw()

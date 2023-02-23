@@ -123,7 +123,7 @@ ggplot(data=EBR_Foken_concrete)+ #[200:248,]
   theme_bw()+
   ggtitle("EB Residual")+
   geom_hline(aes(yintercept=0), col="red")
-
+#create column with only hour
 EBR_Foken_concrete$hour<-hour(EBR_Foken_concrete$TIMESTAMP)
 
 #resiudal over time grass
@@ -138,21 +138,28 @@ ggplot(data=EBR_Foken_grass)+ #[200:248,]
   theme_bw()+
   ggtitle("EB Residual")+
   geom_hline(aes(yintercept=0), col="red")
-
+#create column with only hour
+EBR_Foken_grass$hour<-hour(EBR_Foken_grass$TIMESTAMP)
 
 EBR_Foken_concrete$index<-"concrete"
 EBR_Foken_grass$index<-"grass"
 EBR_both<-rbind(EBR_Foken_concrete, EBR_Foken_grass)
 
 ggplot()+
+  geom_line(data=EBR_Foken_concrete, aes(x=TIMESTAMP, y=Res, col="concrete"))+
+  geom_line(data=EBR_Foken_grass, aes(x=TIMESTAMP, y=Res, col="grass"))+
+  theme_bw()
+
+ggplot()+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
   geom_hline(aes(yintercept=0), col="black", linetype="dashed")+
   geom_rect( aes(xmin=-Inf, xmax=5, ymin=-Inf, ymax=Inf), alpha=.5, fill='grey')+
   geom_rect( aes(xmin=20, xmax=Inf, ymin=-Inf, ymax=Inf), alpha=.5, fill='grey')+
-  geom_line(data = EBR_both,aes(x=hour, y=Res), stat="summary", fun="median")+
+  geom_line(data = EBR_both,aes(x=hour, y=Res, group=index, col=index, linetype=index), stat="summary", fun="mean")+
   ylab(bquote('Residual [W' ~m^-2* ']'))+
-  theme_bw()+
-  facet_grid(cols=vars(index))
+  scale_color_manual("", values=c("black", "#009A17"))+
+  scale_linetype_manual("", values=c(2,1))+
+  theme_bw()
 
 #regression of components for concrete
 ggplot(dat=concrete.flux.meteo)+

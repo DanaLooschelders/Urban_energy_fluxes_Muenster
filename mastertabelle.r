@@ -106,3 +106,4 @@ sum(master_all_complete$LE_kiebitz+master_all_complete$H_kiebitz)/
 
 sum(master_all_complete$LE_beton+master_all_complete$H_beton)/
   sum((master_all_complete$NetRad_beton*-1)-master_all_complete$shf_beton)
+

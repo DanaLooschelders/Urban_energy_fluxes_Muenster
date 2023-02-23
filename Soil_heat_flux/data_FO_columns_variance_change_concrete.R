@@ -48,6 +48,7 @@ plot(vars_concrete$height, vars_concrete$var, type="l")
 vars_concrete$height[which.max(vars_concrete$var)]
 #0.5341675
 
+
 #plot Variance over the whole timeseries
 #calculate variance for every 10 mins 
 var_hour = as.data.frame(lapply(FO_concrete_temp_time_df_order[,1:376], 
@@ -75,3 +76,70 @@ ggplot(var_hour_long, aes(time, key)) +
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
 ggsave(filename="FO_Column_hourly_variance_concrete.png", width=297, height=210, units = "mm")
+
+#calculate variance for individual days
+#create date column
+FO_concrete_temp_time_df_order$date<-date(FO_concrete_temp_time_df_order$time)
+#create output dataframe
+daily_var<-data.frame("date"=unique(FO_concrete_temp_time_df_order$date), "maxvar"=NA)
+#loop through days
+for(i in unique(FO_concrete_temp_time_df_order$date)){
+  #calculate rolling mean per hour
+rollmean_hour_temp = as.data.frame(lapply(FO_concrete_temp_time_df_order[FO_concrete_temp_time_df_order$date==i,1:376], 
+                                     function(x) rollmean(x, k = 25, fill = NA))) #10 min rolling mean 
+vars_concrete_temp<-data.frame("height"=as.numeric(colnames(FO_concrete_temp_time_df_order)[1:376]))
+#calculate variance over whole time
+vars_concrete_temp$var<-as.numeric(c(colwise(var, na.rm=T)(rollmean_hour_temp)))
+#write into output dataframe
+daily_var$maxvar[daily_var$date==i]<-vars_concrete_temp$height[which.max(vars_concrete_temp$var)]
+}
+
+#get rain data
+dat.rain.merge$date<-date(dat.rain.merge$TIMESTAMP)
+rain_daily<-aggregate(Rain_mm_Tot~date, FUN=sum, data=dat.rain.merge)  
+
+daily_var<-left_join(rain_daily, daily_var, by="date")
+daily_var<-daily_var[,c(1,3)]
+daily_var$index<-"variance"
+colnames(daily_var)[2]<-"value"
+rain_daily$index<-"rain"
+colnames(rain_daily)[2]<-"value"
+rainvar<-rbind(rain_daily, daily_var)
+#plot variance over days
+ggplot(data=rainvar)+
+  geom_line(aes(x=date, y=value))+
+  theme_bw()+
+  #geom_hline(aes(yintercept=0.5341675), col="red")+
+  facet_grid(rows=vars(index), scales = "free_y")
+
+i=unique(FO_concrete_temp_time_df_order$date)[2]
+#calcualte daily variance over whole time
+daily_var_simple<-data.frame("date"=unique(rain_daily$date), "maxvar"=NA)
+#loop through days
+for(i in unique(FO_concrete_temp_time_df_order$date)){
+  #create data frame
+  vars_concrete_temp<-data.frame("height"=as.numeric(colnames(FO_concrete_temp_time_df_order)[1:376]))
+  #calculate variance over whole time for every day
+  vars_concrete_temp$var <- c(unlist(lapply(FO_concrete_temp_time_df_order[FO_concrete_temp_time_df_order$date==i,1:376], 
+                                            function(x) var(x)))) #10 min rolling mean 
+  #write into output dataframe
+  daily_var_simple$maxvar[daily_var_simple$date==i]<-vars_concrete_temp$height[which.max(vars_concrete_temp$var)]
+}
+
+var_simple<-ggplot(daily_var_simple)+
+  geom_point(aes(x=as.factor(date), y=maxvar), size=5)+
+  theme_bw()+
+  ylab("Height of \nmax Var [m]")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5))+
+  geom_hline(aes(yintercept=0.5341675), col="red", linetype="dotted")
+
+rain<-ggplot(rain_daily)+
+  geom_bar(aes(x=as.factor(date), y=value), stat="identity")+
+  ylab(label="Rain [l/m^2]")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5))
+
+var_simple+rain+plot_layout(nrow=2)
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns")
+ggsave(filename="daily_rain_maxvar.png", width=297, height=210, units = "mm")

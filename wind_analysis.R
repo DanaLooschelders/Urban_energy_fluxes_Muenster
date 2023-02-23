@@ -96,8 +96,19 @@ wind_kiebitz <- wind_kiebitz %>%   distinct(TIMESTAMP, .keep_all = TRUE)
 #wind steadiness: vector wind / scalar wind
 wind_beton$steadiness<-wind_beton$vector_windspeed/wind_beton$scalar_windspeed
 range(wind_beton$steadiness, na.rm=T)
+mean(wind_beton$steadiness, na.rm=T)
+ggplot(data=wind_beton)+
+  geom_line(aes(x=TIMESTAMP, y=steadiness))+
+  theme_bw()
+
 wind_kiebitz$steadiness<-wind_kiebitz$vector_windspeed/wind_kiebitz$scalar_windspeed
 range(wind_kiebitz$steadiness, na.rm=T)
+
+mean(wind_kiebitz$steadiness, na.rm=T)
+ggplot(data=wind_kiebitz)+
+  geom_line(aes(x=TIMESTAMP, y=steadiness))+
+  theme_bw()
+
 #wind persistance 
 #P = 2/pi * sin^-1(k)
 wind_beton$Persistance<-(2/pi)*asin(wind_beton$steadiness)
@@ -173,4 +184,46 @@ ggplot(data=wind_kiebitz)+
   ggtitle(label="Wind persistance EC04", subtitle = "P = 2/pi*sin^-1(k)")
 ggsave(filename="wind_persistance_EC04.pdf",
        device="pdf",width=297, height=210, units = "mm")
+
+#wind stats
+#kiebitz
+range(wind_kiebitz$vector_windspeed, na.rm=T)
+range(wind_kiebitz$scalar_windspeed, na.rm=T)
+hist(wind_kiebitz$vector_windspeed)
+hist(wind_kiebitz$scalar_windspeed)
+#overall mean
+grass_wind_dat<-kiebitz[,c("TIMESTAMP", "wind_speed", "wind_dir")]
+colnames(grass_wind_dat)<-c("date", "ws", "wd")
+
+timeAverage(avg.time = "year", mydata=grass_wind_dat,vector.ws = TRUE)$ws #vector
+#1.27418
+timeAverage(avg.time = "year", mydata=grass_wind_dat,vector.ws = FALSE)$ws #scalar
+# 1.524129
+
+#beton
+range(wind_beton$vector_windspeed, na.rm=T)
+range(wind_beton$scalar_windspeed, na.rm=T)
+hist(wind_beton$vector_windspeed)
+hist(wind_beton$scalar_windspeed)
+
+#overall mean
+beton_wind_dat<-beton[,c("TIMESTAMP", "wind_speed", "wind_dir")]
+colnames(beton_wind_dat)<-c("date", "ws", "wd")
+
+timeAverage(avg.time = "year", mydata=beton_wind_dat,vector.ws = TRUE)$ws #vector
+#1.448099
+timeAverage(avg.time = "year", mydata=beton_wind_dat,vector.ws = FALSE)$ws #scalar
+#1.960371
+
+#plot both
+wind_beton$index<-"Concrete"
+wind_kiebitz$index<-"Grass"
+
+wind_both<-rbind(wind_beton, wind_kiebitz)
+
+ggplot(data=wind_both)+
+  geom_histogram(aes(x=vector_windspeed))+
+  theme_bw()+
+  xlab(bquote('Wind Speed [' ~ms^-1* ']'))+
+  facet_grid(cols=vars(index))
 

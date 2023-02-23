@@ -37,7 +37,7 @@ dat.SS.cut$SUp_Avg[dat.SS.cut$SUp_Avg<0]<-0
 #calculate albedo
 dat.SS.cut$hour<-as.numeric(hour(dat.SS.cut$TIMESTAMP))
 dat.SS.cut$albedo<-dat.SS.cut$SDn_Avg/dat.SS.cut$SUp_Avg
-mean(dat.SS.cut$albedo[dat.SS.cut$hour>=8&dat.SS.cut$hour<=20], na.rm=T)
+mean(dat.SS.cut$albedo[dat.SS.cut$hour>=10&dat.SS.cut$hour<=13], na.rm=T)
 
 #calculate difference with concrete
 ggplot()+
