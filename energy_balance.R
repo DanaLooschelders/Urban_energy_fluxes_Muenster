@@ -12,7 +12,9 @@ library(reshape2)
 library(colorspace)
 library(scico)
 library(patchwork)
+
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_with_meteorology.r")
+
 ####PREP####
 #Prep data to do it for both EC towers splitting meteo.agg into kiebitz and beton
 
@@ -54,6 +56,8 @@ meteo_kiebitz<-left_join(meteo_kiebitz, shf_30min)
 
 colnames(meteo_kiebitz)[14]<-"shf"
 
+range(meteo_kiebitz$TIMESTAMP)
+range(meteo_kiebitz$TIMESTAMP)
 #####Station####
 #If Kiebitz:
 dat.flux.meteo<-cbind(dat.kiebitz.flux.meteo,meteo_kiebitz)

@@ -14,6 +14,7 @@ plot(dat.beton.flux.meteo$Albedo_Avg_beton, type="l") #makes no sense to calcula
 #calculate albedo for only daytime
 mean(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13], na.rm=T)
 #mean beton:0.1495431
+sd(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13], na.rm=T)
 
 range(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13], na.rm=T)
 # 0.1120000 0.1833333
@@ -56,5 +57,60 @@ mean(dat.kiebitz.flux.meteo$albedo[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebi
 #mean kiebitz:  0.2045054
 #time series of albedo
 ggplot(data=dat.kiebitz.flux.meteo[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13,])+
-  geom_line(aes(x=TIMESTAMP, y=albedo))+
+  geom_point(aes(x=as.POSIXct(date), y=albedo, col="albedo"), stat="summary", fun="mean")+
+  geom_bar(data=dat.kiebitz.flux.meteo, aes(x=as.POSIXct(date), y=Rain_mm_Tot/100), stat="summary", fun="sum")+
   theme_bw()
+
+ggplot(data=dat.beton.flux.meteo[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13,])+
+  geom_point(aes(x=as.POSIXct(date), y=albedo, col="albedo"), stat="summary", fun="mean")+
+  geom_bar(data=dat.beton.flux.meteo, aes(x=as.POSIXct(date), y=Rain_mm_Tot/100), stat="summary", fun="sum")+
+  theme_bw()
+
+#calculate albedo for every day
+daily_rain_sum<-aggregate(data=dat.kiebitz.flux.meteo, Rain_mm_Tot~date, FUN=sum)
+daily_albedo_mean<-aggregate(data=dat.kiebitz.flux.meteo[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13,],
+                             albedo~date, FUN=mean)
+daily_LE_sum<-aggregate(data=dat.beton.flux.meteo, LE~date, FUN=sum)
+
+daily_both<-full_join(daily_albedo_mean, daily_rain_sum, by="date")
+
+ggplot(daily_both[daily_both$Rain_mm_Tot<28,])+
+  geom_point(aes(x=albedo, y=Rain_mm_Tot))+
+  theme_bw()
+
+summary(lm(data = daily_both, albedo~Rain_mm_Tot)) #p-value: 0.7308
+
+daily_both<-full_join(daily_albedo_mean, daily_LE_sum, by="date")
+
+ggplot(daily_both)+
+  geom_point(aes(x=albedo, y=LE))+
+  theme_bw()
+
+summary(lm(data = daily_both, albedo~LE)) #p:value 0.687 
+
+
+range(daily_both$albedo, na.rm=T) # 0.1909904 0.2250322
+
+#concrete
+daily_rain_sum<-aggregate(data=dat.beton.flux.meteo, Rain_mm_Tot~date, FUN=sum)
+daily_albedo_mean<-aggregate(data=dat.beton.flux.meteo[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13,],
+                             albedo~date, FUN=mean)
+daily_LE_sum<-aggregate(data=dat.beton.flux.meteo, LE~date, FUN=sum)
+
+daily_both<-full_join(daily_albedo_mean, daily_rain_sum, by="date")
+
+ggplot(daily_both[daily_both$Rain_mm_Tot<28,])+
+  geom_point(aes(x=albedo, y=Rain_mm_Tot))+
+  theme_bw()
+
+summary(lm(data = daily_both, albedo~Rain_mm_Tot)) #p-value: 0.3186
+
+daily_both<-full_join(daily_albedo_mean, daily_LE_sum, by="date")
+
+ggplot(daily_both)+
+  geom_point(aes(x=albedo, y=LE))+
+  theme_bw()
+
+summary(lm(data = daily_both, albedo~LE)) #p-value: 0.5667
+
+range(daily_both$albedo, na.rm=T)

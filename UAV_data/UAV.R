@@ -3,16 +3,45 @@
 #install.packages("tiff")
 library(tiff)
 library(raster)
+library(mapview)
 library(sp)
 library(rgdal)
+library(beepr)
+
+#probably
+#Blue (B): 450 nm ± 16 nm 
+#green (G): 560 nm ± 16 nm 
+#red (R): 650 nm ± 16 nm
+#red edge (RE): 730 nm ± 16 nm
+#near-infrared (NIR): 840 nm ± 26 nm
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/04_UAV_data/UAS Data for Analysis/UAS Data for Analysis")
 gli<-raster("CalmCity_GreenLeafIndex_GLI.tif")
 height<-raster("CalmCity_CanopyHeightModel.tif")
 veg<-raster("CalmCity_Vegetation_Classification.tif")
+
+setwd("D:/")
+multi<-stack("CalmCity_Multispectral_2021.tif")
+multi$CalmCity_Multispectral_2021_
+mapview(multi$CalmCity_Multispectral_2021_1)
+
+range(values())
+
+plotRGB(multi, red="CalmCity_Multispectral_2021_3", 
+    green = "CalmCity_Multispectral_2021_2", 
+    blue = "CalmCity_Multispectral_2021_1")
+
 #check visually
 spplot(gli)
 spplot(height)
+height_cut<-height
+#ncell(height_cut)
+height_cut[height_cut>6]<-NA
+spplot(height_cut)
+res(height)
+mapview(height_cut)
+mapview(height[height<10])
+
 spplot(veg)
 #check resolution
 res(height)

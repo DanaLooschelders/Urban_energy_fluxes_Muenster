@@ -20,7 +20,7 @@ NDVI_drone_2021<-(drone_2021[[5]]-drone_2021[[3]])/(drone_2021[[5]]+drone_2021[[
 NDVI_drone_2022<-(drone_2022[[5]]-drone_2022[[3]])/(drone_2022[[5]]+drone_2022[[3]])
 
 #plot
-plot(NDVI_drone)
+plot(NDVI_drone_2021)
 #calculate LAI
 LAI_drone_2021<-0.128*exp(NDVI_drone_2021/0.311)
 LAI_drone_2022<-0.128*exp(NDVI_drone_2022/0.311)

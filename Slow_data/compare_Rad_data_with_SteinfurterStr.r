@@ -27,7 +27,7 @@ dat.SS.agg<-dat.SS.meteo[3:4177,] %>%
   summarize_all(~mean(.,na.rm=F))
 dat.SS.agg$TIMESTAMP<-as.POSIXct(dat.SS.agg$TIMESTAMP)
 #set Steinfurter Str to same time as CalmCity data
-dat.SS.agg$TIMESTAMP<-dat.SS.agg$TIMESTAMP+60*60 #substract one hour to match
+dat.SS.agg$TIMESTAMP<-dat.SS.agg$TIMESTAMP-60*60 #substract one hour to match
 #cut to same length as concrete/grass towers
 dat.SS.cut<-dat.SS.agg[dat.SS.agg$TIMESTAMP>=range(grass.flux.meteo$TIMESTAMP)[1]&
                          dat.SS.agg$TIMESTAMP<=range(grass.flux.meteo$TIMESTAMP)[2],]
@@ -49,11 +49,59 @@ ggplot()+
 ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
        filename=paste("SWUp_concrete_grass_Steinf.png"),
        width=297, height=210, units = "mm")
+
+ggplot()+
+  geom_line(data=grass.flux.meteo, aes(x=TIMESTAMP, y=LUpCo_Avg, col="grass"))+
+  geom_line(data=concrete.flux.meteo, aes(x=TIMESTAMP, y=LUpCo_Avg, col="concrete"))+
+  geom_line(data=dat.SS.cut, aes(x=TIMESTAMP, y=LUpCo_Avg, col="Steinfurter"))+
+  theme_bw()+
+  ggtitle(label="Outgoing LW")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("SWUp_concrete_grass_Steinf.png"),
+       width=297, height=210, units = "mm")
+
+#plot daily aggregate of fluxes
+ggplot()+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  geom_line(data=grass.flux.meteo, aes(x=hour, y=LUpCo_Avg, col="grass"), stat="summary", fun="median")+
+  geom_line(data=concrete.flux.meteo, aes(x=hour, y=LUpCo_Avg, col="concrete"), stat="summary", fun="median")+
+  geom_line(data=dat.SS.cut, aes(x=hour, y=LUpCo_Avg, col="Steinfurter"), stat="summary", fun="median")+
+  theme_bw()+
+  ggtitle(label="Reflected LW")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("LUpCo_Avg_daily_concrete_grass_Steinf.png"),
+       width=297, height=210, units = "mm")
+
+ggplot()+
+  geom_line(data=grass.flux.meteo, aes(x=hour, y=LDnCo_Avg, col="grass"), stat="summary", fun="median")+
+  geom_line(data=concrete.flux.meteo, aes(x=hour, y=LDnCo_Avg, col="concrete"), stat="summary", fun="median")+
+  geom_line(data=dat.SS.cut, aes(x=hour, y=LDnCo_Avg, col="Steinfurter"), stat="summary", fun="median")+
+  theme_bw()+
+  ggtitle(label="Outgoing LW")
+
+ggplot()+
+  geom_line(data=grass.flux.meteo, aes(x=hour, y=SDn_Avg, col="grass"), stat="summary", fun="median")+
+  geom_line(data=concrete.flux.meteo, aes(x=hour, y=SDn_Avg, col="concrete"), stat="summary", fun="median")+
+  geom_line(data=dat.SS.cut, aes(x=hour, y=SDn_Avg, col="Steinfurter"), stat="summary", fun="median")+
+  theme_bw()+
+  ggtitle(label="Reflected SW")
+
 #check difference 
 diff_SUp_all<-data.frame("TIMESTAMP"=grass.flux.meteo$TIMESTAMP, 
                      "diff_gc"=grass.flux.meteo$SUp_Avg-concrete.flux.meteo$SUp_Avg,
                      "diff_sc"=dat.SS.cut$SUp_Avg-concrete.flux.meteo$SUp_Avg,
                      "diff_sg"=dat.SS.cut$SUp_Avg-grass.flux.meteo$SUp_Avg)
+
+#check difference 
+diff_SDn_all<-data.frame("TIMESTAMP"=grass.flux.meteo$TIMESTAMP, 
+                         "diff_gc"=grass.flux.meteo$SDn_Avg-concrete.flux.meteo$SDn_Avg,
+                         "diff_sc"=dat.SS.cut$SDn_Avg-concrete.flux.meteo$SDn_Avg,
+                         "diff_sg"=dat.SS.cut$SDn_Avg-grass.flux.meteo$SDn_Avg,
+                         "SUP_Avg"=grass.flux.meteo$SUp_Avg)
+diff_SDn_all<-left_join(x = diff_SDn_all, y=dat.kiebitz.rain, by="TIMESTAMP")
+
 #lag +2 -> + 1h: lag(grass.flux.meteo$SUp_Avg,n=2)-concrete.flux.meteo$SUp_Avg)
 #lag -2 -> -1h: grass.flux.meteo$SUp_Avg-lag(concrete.flux.meteo$SUp_Avg, n=2))
 #any(grass.flux.meteo$TIMESTAMP!=concrete.flux.meteo$TIMESTAMP) #make sure timestamps fit
@@ -64,6 +112,46 @@ ggplot(dat.SS.cut[740:800,])+
   geom_line(data=grass.flux.meteo[740:800,], aes(x=TIMESTAMP, y=SUp_Avg, col="grass"))+
   theme_bw()
 
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("SWUp_concrete_grass_Steinf_Strahlungstag.png"),
+       width=297, height=210, units = "mm")
+
+#for reflected shortwave rad
+ggplot(dat.SS.cut[740:800,])+
+  geom_line(aes(x=TIMESTAMP, y=SDn_Avg, col="Steinf"))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 15))+
+  geom_line(data=concrete.flux.meteo[740:800,], aes(x=TIMESTAMP, y=SDn_Avg, col="concrete"))+
+  geom_line(data=grass.flux.meteo[740:800,], aes(x=TIMESTAMP, y=SDn_Avg, col="grass"))+
+  theme_bw()
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("SWDn_concrete_grass_Steinf_Strahlungstag.png"),
+       width=297, height=210, units = "mm")
+
+#for reflected longwave rad
+ggplot(dat.SS.cut[740:800,])+
+  geom_line(aes(x=TIMESTAMP, y=LDnCo_Avg, col="Steinf"))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 15))+
+  geom_line(data=concrete.flux.meteo[740:800,], aes(x=TIMESTAMP, y=LDnCo_Avg, col="concrete"))+
+  geom_line(data=grass.flux.meteo[740:800,], aes(x=TIMESTAMP, y=LDnCo_Avg, col="grass"))+
+  theme_bw()
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("LWDn_concrete_grass_Steinf_Strahlungstag.png"),
+       width=297, height=210, units = "mm")
+
+#for outgoing longwave rad
+ggplot(dat.SS.cut[740:800,])+
+  geom_line(aes(x=TIMESTAMP, y=LUpCo_Avg, col="Steinf"))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 15))+
+  geom_line(data=concrete.flux.meteo[740:800,], aes(x=TIMESTAMP, y=LUpCo_Avg, col="concrete"))+
+  geom_line(data=grass.flux.meteo[740:800,], aes(x=TIMESTAMP, y=LUpCo_Avg, col="grass"))+
+  theme_bw()
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("LWUp_concrete_grass_Steinf_Strahlungstag.png"),
+       width=297, height=210, units = "mm")
+
 #test with one hour lag
 #plot difference
 ggplot(data=diff_SUp_all)+
@@ -72,10 +160,27 @@ ggplot(data=diff_SUp_all)+
   ylab(label="Difference SUp [W m^-2]")+
   ggtitle(label="Difference grass - concrete")
 
+#plot difference
+ggplot(data=diff_SDn_all)+
+  geom_line(aes(x=TIMESTAMP, y=diff_gc))+
+  geom_bar(aes(x=TIMESTAMP,y=Rain_mm_Tot*20), stat="identity", fill="red")+
+  scale_y_continuous(sec.axis=sec_axis(trans=~.x/20, name="Precipitation [mm]"))+
+  theme_bw()+
+  ylab(label="Difference SDn [W m^-2]")+
+  ggtitle(label="Difference grass - concrete")
+
+
 ggplot(data=diff_SUp_all[200:280,])+
   geom_line(aes(x=TIMESTAMP, y=diff_sc))+
   theme_bw()+
   ylab(label="Difference SUp [W m^-2]")+
+  ggtitle(label="Difference steinfurter - concrete")
+
+
+ggplot(data=diff_SDn_all)+
+  geom_line(aes(x=TIMESTAMP, y=diff_sc))+
+  theme_bw()+
+  ylab(label="Difference SDn [W m^-2]")+
   ggtitle(label="Difference steinfurter - concrete")
 
 ggplot(data=diff_SUp_all)+
@@ -108,6 +213,17 @@ mean(abs(diff_SUp_all$diff_sg), na.rm=T) #30.93221
 #scattering? 
 #timestamp kiebitz? -> no
 #angle difference? -> impossible
+ggplot()+
+  geom_line(data=grass.flux.meteo, aes(x=TIMESTAMP, y=SDn_Avg, col="grass"))+
+  geom_line(data=concrete.flux.meteo, aes(x=TIMESTAMP, y=SDn_Avg, col="concrete"))+
+  geom_line(data=dat.SS.cut, aes(x=TIMESTAMP, y=SDn_Avg, col="Steinfurter"))+
+  theme_bw()+
+  ggtitle(label="reflected SW")
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Energy_Balance",
+       filename=paste("SWUp_concrete_grass_Steinf.png"),
+       width=297, height=210, units = "mm")
+
 
 #calculate surface temp
 grass.flux.meteo$SurfaceTemp<-nthroot(grass.flux.meteo$LDnCo_Avg/(5.67*10^-8), 4)-272

@@ -2,6 +2,8 @@
 #import font to match latex font
 #install.packages("extrafont")
 library(extrafont) 
+library(tidyverse)
+
 # link www.fontsquirrel.com/fonts/latin-modern-roman
 
 # execute once to add fonts:
@@ -164,25 +166,26 @@ colnames(both_sub)[4]<-"G"
 
 allflux<-ggplot(dat=both_sub)+
   ylab(bquote('Fluxes [W' ~m^-2* ']'))+
+  xlab("Hour of Day")+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
   stat_summary(aes(x=hour, y=LE, linetype="LE", color="LE"), 
-               size=0.8, fun.y=median, geom="line")+
-  stat_summary(aes(x=hour, y=H, linetype="H", color="H"), fun.y=median, 
+               size=0.8, fun.y=mean, geom="line")+
+  stat_summary(aes(x=hour, y=H, linetype="H", color="H"), fun.y=mean, 
                size=0.8, geom="line")+
-  stat_summary(aes(x=hour, y=TotRNet_Avg_2, linetype="TotRad", color="TotRad"), 
-               size=0.8, fun.y=median, geom="line")+
+  stat_summary(aes(x=hour, y=TotRNet_Avg_2, linetype="Rn", color="Rn"), 
+               size=0.8, fun.y=mean, geom="line")+
   stat_summary(aes(x=hour, y=G, linetype="G", color="G"), size=0.8, 
-               fun.y=median, geom="line")+
+               fun.y=mean, geom="line")+
   theme_bw()+theme(text = element_text(size=30, family="LM Roman 10"), 
                    legend.position="bottom")+
   labs(color  = " ", linetype = " ")+
   scale_color_manual(values=c("black", "#a6cee3", "#1f78b4", "#33a02c"))+
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 8))+
   scale_linetype_manual(values=c(3,1,2,4))+
   facet_grid(cols=vars(index))
+###################################################
 
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Thesis")
-png("allFluxes_diurnal_hourly.png", width=297, height=210, units = "mm" , res=100)
+png("allFluxes_diurnal_mean_hourly.png", width=297, height=210, units = "mm" , res=100)
 print(allflux)
 dev.off()
 
@@ -212,7 +215,7 @@ temp<-ggplot(dat=all_sub)+
   stat_summary(aes(x=hour, y=AirTC_Avg, linetype="Air", color="Air"), 
                size=0.8, fun.y=median, geom="line")+
   stat_summary(aes(x=hour, y=SurfaceTemp, linetype="Surface", color="Surface"), 
-               size=0.8, fun.y=median, geom="line")+
+               size=0.8, fun.y=mean, geom="line")+
   theme_bw()+
   labs(color  = " ", linetype = " ")+
   scale_color_manual(values=c( "#1f78b4", "#33a02c"))+
@@ -227,9 +230,9 @@ png("AirSurfaceTemp_diurnal_hourly.png", width=297, height=210, units = "mm" , r
 print(temp)
 dev.off()
 
-ggplot(dat=all_sub_melt)+
+AirSurfTemp<-ggplot(dat=all_sub_melt)+
   stat_summary(aes(x=hour, y=Temp, col=index, linetype=index), 
-               size=0.8, fun.y=median, geom="line")+
+               size=0.8, fun.y=mean, geom="line")+
   theme_bw()+
   ylab(label="Temperature [°C]")+
   scale_color_manual(" ", values=c( "#1f78b4", "#33a02c", "black"))+
@@ -238,6 +241,12 @@ ggplot(dat=all_sub_melt)+
   theme(text = element_text(size=30, family="LM Roman 10"), 
         legend.position="bottom")+
   facet_grid(cols=vars(ID))
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Thesis")
+png("AirSurfaceTemp_diurnal_hourly_Ver2.png", width=297, height=210, units = "mm" , res=100)
+print(AirSurfTemp)
+dev.off()
+
 ggsave(filename = "AirSurfaceTemp_diurnal_hourly_Ver2.png",
        device="png",width=297, height=210, units = "mm",
        path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Thesis")
@@ -264,3 +273,51 @@ setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Graf
 png("wind_hist.png", width=297, height=210, units = "mm" , res=100)
 print(windplot)
 dev.off()
+
+#radiation fluxes
+grass_rad<-grass.flux.meteo[,c("hour", "SUp_Avg", "SDn_Avg", "LDnCo_Avg", "LUpCo_Avg")]
+grass_rad$index<-"grass"
+concrete_rad<-concrete.flux.meteo[,c("hour", "SUp_Avg", "SDn_Avg", "LDnCo_Avg", "LUpCo_Avg")]
+concrete_rad$index<-"concrete"
+steinf_rad<-dat.SS.cut[,c("hour", "SUp_Avg", "SDn_Avg", "LDnCo_Avg", "LUpCo_Avg")]
+steinf_rad$index<-"rural"
+
+all_rad<-rbind(grass_rad, concrete_rad, steinf_rad)
+all_rad_melted<-melt(all_rad, id.vars=c("hour", "index"))
+
+str(all_rad_melted)
+
+#plot daily aggregate of fluxes
+ggplot(data=all_rad_melted)+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6))+
+  ylab(bquote('Radiation [W' ~m^-2* ']'))+
+  theme_bw()+
+  theme(text = element_text(size=30, family="LM Roman 10"), 
+        legend.position="bottom")+
+  geom_line(aes(x=hour, y=value, group=index, col=index, linetype=index), stat="summary", fun="mean")+
+  scale_color_manual(" ", values=c( "#1f78b4", "#33a02c", "black"))+
+  scale_linetype_manual(" ", values=c(1,2,3))+
+  facet_wrap(~variable, scales="free_y", 
+             labeller = as_labeller(c(SUp_Avg="SW incoming", SDn_Avg="SW reflected", 
+                                      LDnCo_Avg="LW outgoing", LUpCo_Avg= "LW reflected")))
+
+ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Thesis/",
+       filename=paste("All_rad_daily_mean_concrete_grass_Steinf.png"),
+       width=297, height=210, units = "mm")
+
+#surface temp
+ggplot(dat=all_sub)+
+  stat_summary(aes(x=hour, y=SurfaceTemp, col=index, linetype=index), 
+               size=0.8, fun.y=median, geom="line")+
+  theme_bw()+
+  scale_color_manual(" ", values=c( "#1f78b4", "#33a02c", "black"))+
+  scale_linetype_manual(" ", values=c(1,2,3))
+#both
+ggplot(dat=all_sub_melt)+
+  stat_summary(aes(x=hour, y=Temp, col=index, linetype=index), 
+               size=0.8, fun.y=median, geom="line")+
+  theme_bw()+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 30))+
+  scale_color_manual(" ", values=c( "#1f78b4", "#33a02c", "black"))+
+  scale_linetype_manual(" ", values=c(1,2,3))+
+  facet_grid(cols=vars(ID))

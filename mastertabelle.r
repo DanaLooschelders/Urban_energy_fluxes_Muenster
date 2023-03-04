@@ -94,6 +94,8 @@ range(master_all$LE_kiebitz, na.rm=T)
 master_all<-master_all[,-which(names(master_all) %in% c("u_unrot_kiebitz",  "v_unrot_kiebitz", "w_unrot_kiebitz", 
                            "u_unrot_beton", "v_unrot_beton", "w_unrot_beton"))]
 write.csv(master_all, file="mastertable_20230217.csv", row.names = F)
+setwd("Z:/klima/Projekte/2021_CalmCity/6_Datenauswertung/Mastertabelle")
+master_all<-read.csv(master_all)
 colnames(master_all)
 master_all$LE
 

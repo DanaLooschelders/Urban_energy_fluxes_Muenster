@@ -128,6 +128,11 @@ daily_VWC_3<-bootstrap_k(alpha=alpha3_g)
 k_3<-daily_VWC_3$lower_k[daily_VWC_3$day=="2021-08-12"]
 #upper k: 1.453004   
 #lower k: 1.413914  
+#calculate cv
+k_lower<-daily_VWC_3$lower_k[daily_VWC_3$day=="2021-08-12"]
+k_upper<- daily_VWC_3$upper_k[daily_VWC_3$day=="2021-08-12"]
+k_lower/alpha3_g
+k_upper/alpha3_g
 flux_3<-shf(FO_data_x=FO_grass_3, range = 1868:1876, k = k_3)
 #four
 daily_VWC_4<-bootstrap_k(alpha=alpha4_g)
