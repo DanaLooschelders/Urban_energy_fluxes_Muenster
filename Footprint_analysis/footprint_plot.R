@@ -26,7 +26,7 @@ dist2center <- sqrt(rowSums((t(t(ellipse)-ctr))^2))
 #These are, respectively, the largest and smallest values of dist2center. 
 area_beton<-pi*min(dist2center)*max(dist2center)
 #17407.35
-
+area_beton/10000 
 ####Quilt Plot####
 
 #original
@@ -116,7 +116,7 @@ dist2center <- sqrt(rowSums((t(t(ellipse)-ctr))^2))
 #These are, respectively, the largest and smallest values of dist2center. 
 area_kiebitz<-pi*min(dist2center)*max(dist2center)
 #9326.346
-
+area_kiebitz/10000 
 ####Quilt Plot
 #original
 quilt.plot(ffp_x_k,ffp_y_k,ffp_f_k,nx=100,ny=100, xlim=c(-80,40),ylim=c(-80,40))
@@ -271,3 +271,10 @@ qmap(location="muenster")
 (FFP_kiebitz$x_2d_UTM),#vector of x coordinates
 c(FFP_kiebitz$y_2d_UTM),#vector of y coordinates
 c(FFP_kiebitz$fclim_2d)
+
+
+library(lidR)
+library(terra)
+??terra::shade
+
+dat.beton.flux.meteo$z

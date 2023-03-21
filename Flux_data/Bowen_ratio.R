@@ -8,7 +8,9 @@ library(ggpubr)
 #calculate Bowen ratio
   #Bo=sensible/latent   
 dat.beton.flux.meteo$BR_beton<-dat.beton.flux.meteo$H/dat.beton.flux.meteo$LE
+mean(dat.beton.flux.meteo$BR_beton, na.rm=T) #3.311191
 dat.kiebitz.flux.meteo$BR_kiebitz<-dat.kiebitz.flux.meteo$H/dat.kiebitz.flux.meteo$LE
+mean(dat.kiebitz.flux.meteo$BR_kiebitz, na.rm=T) # 0.8602273
 
 concrete.flux.meteo$bowen_ratio<-concrete.flux.meteo$H/concrete.flux.meteo$LE
 grass.flux.meteo$bowen_ratio<-grass.flux.meteo$H/grass.flux.meteo$LE

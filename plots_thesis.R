@@ -44,7 +44,7 @@ sum(abs(grass.flux.meteo$shf), na.rm=T)/sum(abs(concrete.flux.meteo$shf), na.rm=
 
 
 #as aggregated  median_mad line for each hour with errorbars
-shf<-ggplot(concrete.flux.meteo, aes(x=as.factor(hour), y=shf))+
+shf<-ggplot(concrete.flux.meteo[concrete.flux.meteo$TIMESTAMP>="2021-08-19 15:00:00",], aes(x=as.factor(hour), y=shf))+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
   geom_hline(yintercept=0, col="black", linetype="dashed")+
   stat_summary(dat=concrete.flux.meteo, aes(col="EC02 (concrete)"), fun.data = "median_mad", 
@@ -67,6 +67,40 @@ setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Graf
 png("SHF_Flux_both_diurnal_hourly.png", width=297, height=210, units = "mm" , res=100)
 print(shf)
 dev.off()
+
+concrete.flux.meteo$day<-date(concrete.flux.meteo$TIMESTAMP)
+grass.flux.meteo$day<-date(grass.flux.meteo$TIMESTAMP)
+day_shf<-data.frame("day"=concrete.flux.meteo$day[concrete.flux.meteo$day<="2021-08-18"], 
+                    "shf"=concrete.flux.meteo$shf[concrete.flux.meteo$day<="2021-08-18"])
+day_shf_gras<-data.frame("day"=grass.flux.meteo$day[grass.flux.meteo$day<="2021-08-18"], 
+                         "shf"=grass.flux.meteo$shf[grass.flux.meteo$day<="2021-08-18"])
+daily_agg_shf_c<-aggregate(shf~day, data=day_shf, FUN=sum)
+daily_agg_shf_g<-aggregate(shf~day, data=day_shf_gras, FUN=sum)
+
+daily_agg_shf_g$day[daily_agg_shf_g$shf/24>0]
+
+dailysum_shf<-ggplot(daily_agg_shf_c)+
+  geom_line(aes(x=day, y=shf/24, col="concrete", linetype="concrete"), size=2)+
+  geom_line(data=daily_agg_shf_g, aes(x=day, y=shf/24, col="grass", linetype="grass"), size=2)+
+  theme_bw()+theme(text = element_text(size=30, family="LM Roman 10"), 
+                   legend.position="bottom")+
+  xlab(label="date")+
+  scale_x_date(breaks = scales::pretty_breaks(n = 6))+
+  scale_color_manual(" ", values=c("black", "#009A17"))+
+  scale_linetype_manual(" " ,values= c(2,1))+
+  ylab(bquote('G [W' ~m^-2~h^-1*']'))+
+  geom_hline(yintercept=0, col="black", linetype="dotted", size=2)
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Thesis")
+png("SHF_Flux_both_daily_sum.png", width=297, height=210, units = "mm" , res=100)
+print(dailysum_shf)
+dev.off()
+
+diff_SHF<-data.frame("TIMESTAMP"=concrete.flux.meteo$TIMESTAMP, "hour"=hour(concrete.flux.meteo$TIMESTAMP),
+                     "diff"=abs(concrete.flux.meteo$shf)-abs(grass.flux.meteo$shf))
+ggplot(data=diff_SHF)+
+  geom_line(aes(x=hour, y=diff), stat="summary", fun="median")+
+  theme_bw()
 
 #net radiation
 netrad<-ggplot(concrete.flux.meteo, aes(x=as.factor(hour), y=TotRNet_Avg_2))+
@@ -112,7 +146,7 @@ le<-ggplot(concrete.flux.meteo, aes(x=as.factor(hour), y=LE))+
   scale_shape_manual(" ", values=c(15, 19))+
   theme_bw()+theme(text = element_text(size=30, family="LM Roman 10"), 
         legend.position="bottom")
- 
+
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Thesis")
 png("LE_both_diurnal_hourly.png", width=297, height=210, units = "mm" , res=100)
 print(le)
@@ -321,3 +355,114 @@ ggplot(dat=all_sub_melt)+
   scale_color_manual(" ", values=c( "#1f78b4", "#33a02c", "black"))+
   scale_linetype_manual(" ", values=c(1,2,3))+
   facet_grid(cols=vars(ID))
+
+
+stability_1<-dat.beton.flux.meteo[, c("TIMESTAMP", "hour_num", "X.z.d..L")]
+stability_1$index<-"concrete"
+stability_2<-dat.kiebitz.flux.meteo[, c("TIMESTAMP", "hour_num", "X.z.d..L")]
+stability_2$index<-"grass"
+
+stability<-rbind(stability_1, stability_2)
+#get into long format
+means_long <- pivot_longer(stability, -c(TIMESTAMP, index, hour_num), values_to = "mean", names_to = "variable")
+sd_long <- pivot_longer(stability, -c(TIMESTAMP, index, hour_num), values_to = "sd", names_to = "variable")
+
+df_join <- means_long %>% 
+  left_join(sd_long)
+
+
+#plot
+library(ggpubr)
+stab<-ggplot(data = df_join, 
+       aes(x = hour_num, group = index)) + 
+  geom_line(aes(y = mean, color = index), stat="summary", fun="median", size = 2) + 
+  stat_summary(aes(x=hour_num, y=mean, group=index, fill=index),geom="ribbon",
+               fun.data = "median_mad",  alpha= 0.3)+
+  scale_color_manual(" ", values=c( "black", "#33a02c"))+
+  scale_fill_manual(" ", values=c( "black", "#33a02c"))+
+  scale_linetype_manual(" ", values=c(1,2))+
+  ylab(label="Monin-Obukhov stability parameter")+
+  theme_bw()+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  theme(text = element_text(size=30, family="LM Roman 10"), 
+        legend.position="bottom")+
+  xlab("Hour of Day")
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Thesis")
+png("stability_median.png", width=297, height=210, units = "mm" , res=100)
+print(stab)
+dev.off()
+
+
+#########################
+#calculate gradients for different depths for concrete
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
+FO_concrete_1<-read.csv(file="temperature_profile_concrete.csv")
+temp_diff_concrete<-data.frame("dT_02"= as.numeric(t(FO_concrete_1[10,1:3559]-FO_concrete_1[11,1:3559])),
+                               "dT_24"= as.numeric(t(FO_concrete_1[9,1:3559]-FO_concrete_1[10,1:3559])),
+                               "dT_46"= as.numeric(t(FO_concrete_1[8,1:3559]-FO_concrete_1[9,1:3559])),
+                               "dT_68"= as.numeric(t(FO_concrete_1[7,1:3559]-FO_concrete_1[8,1:3559])),
+                               "TIMESTAMP"= as.POSIXct(colnames(FO_concrete_1)[1:3559]), 
+                               "hour"=hour(as.POSIXct(colnames(FO_concrete_1)[1:3559])),
+                               "depth_02"=diff(FO_concrete_1$depth[10:11]),
+                               "depth_24"=diff(FO_concrete_1$depth[9:10]),
+                               "depth_46"=diff(FO_concrete_1$depth[8:9]),
+                               "depth_68"=diff(FO_concrete_1$depth[8:9]),
+                               "index"=rep("concrete"))
+FO_grass_test<-read.csv("temperature_profile_grass.csv")
+
+temp_diff_grass<-data.frame("dT_02"= as.numeric(t(FO_grass_3[9,1:2914]-FO_grass_3[10,1:2914])),
+                            "dT_24"= as.numeric(t(FO_grass_3[8,1:2914]-FO_grass_3[9,1:2914])),
+                            "dT_46"= as.numeric(t(FO_grass_3[7,1:2914]-FO_grass_3[8,1:2914])),
+                            "dT_68"= as.numeric(t(FO_grass_3[6,1:2914]-FO_grass_3[7,1:2914])),
+                            "TIMESTAMP"= as.POSIXct(substr(colnames(FO_grass_3), start=2, stop=30)[1:2914]), 
+                            "hour"=hour(as.POSIXct(substr(colnames(FO_grass_3), start=2, stop=30)[1:2914])),
+                            "depth_02"=diff(FO_grass_3$depth[9:10]),
+                            "depth_24"=diff(FO_grass_3$depth[8:9]),
+                            "depth_46"=diff(FO_grass_3$depth[7:8]),
+                            "depth_68"=diff(FO_grass_3$depth[6:7]),
+                            "index"=rep("grass"))
+temp_diff_both<-rbind(temp_diff_concrete, temp_diff_grass)
+
+ggplot(temp_diff_both)+
+  geom_line(aes(x=hour, y=dT_02, color="0-2"), stat="summary", fun="mean", size=2)+
+  geom_line(aes(x=hour, y=dT_24, color="2-4"), stat="summary", fun="mean", size=2)+
+  geom_line(aes(x=hour, y=dT_46, color="4-6"), stat="summary", fun="mean", size=2)+
+  geom_line(aes(x=hour, y=dT_68, color="6-8"), stat="summary", fun="mean", size=2)+
+  theme_bw()+
+  ylab(bquote(Delta~T~'[°C]'))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  theme(text = element_text(size=30, family="LM Roman 10"), 
+        legend.position="bottom")+
+  xlab("Hour of Day")+
+  scale_color_manual("Depth below ground [cm]", values=c("#a1dab4", "#41b6c4", "#2c7fb8", "#253494"))+
+  facet_grid(cols=vars(index))
+
+###new soil heat flux
+shf_whole<-read.csv(file="shf_experiment_concrete_20230316.csv")
+shf_whole$DATETIME<-as.POSIXct(shf_whole$DATETIME) #concrete
+#aggregate to half hour
+shf_30min <- aggregate(shf_whole$shf, 
+                       list(TIMESTAMP=cut(shf_whole$DATETIME, "30 mins")),
+                       mean)
+
+shf_30min$TIMESTAMP<-as.POSIXct(shf_30min$TIMESTAMP)
+range(shf_30min$TIMESTAMP)
+shf_30min$hour<-hour(shf_30min$TIMESTAMP)
+
+shf_experiment<-
+  ggplot(shf_30min, aes(x=as.factor(hour), y=x))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  stat_summary(dat=shf_30min, fun.data = "median_mad", 
+               geom = "errorbar", alpha=0.8, width=0.9)+
+  geom_point(stroke=2.5,
+             fun = "median", stat="summary")+
+  ylab(bquote('G [W' ~m^-2* ']'))+
+  xlab("Hour of Day")+
+  theme_bw()+theme(text = element_text(size=30, family="LM Roman 10"), 
+                   legend.position="bottom")
+
+setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/Thesis")
+png("G_experiment_diurnal_hourly.png", width=297, height=210, units = "mm" , res=100)
+print(shf_experiment)
+dev.off()

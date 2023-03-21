@@ -241,3 +241,7 @@ for (i in 1:dim(daily_VWC)[1]){
   }
 return(daily_VWC)
 }
+
+alpha<-6.9*10^-7
+1.41/alpha
+1.45/alpha

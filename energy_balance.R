@@ -21,6 +21,7 @@ source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Meteorology/heat_fluxes_wi
 setwd("Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswertung/Grafiken/FO_Columns/Agg_10min")
 ####Beton####
 shf_whole<-read.csv(file = "shf_concrete_20230213.csv")
+shf_whole<-read.csv(file="shf_experiment_concrete_20230316.csv")
 shf_whole$DATETIME<-as.POSIXct(shf_whole$DATETIME) #concrete
 #aggregate to half hour
 shf_30min <- aggregate(shf_whole$shf, 
@@ -31,6 +32,7 @@ shf_30min$TIMESTAMP<-as.POSIXct(shf_30min$TIMESTAMP)
 
 meteo_beton<-dat.meteo.agg[,1:13]
 
+plot(shf_30min$TIMESTAMP, shf_30min$x, type="l")
 #assign new column names
 colnames(meteo_beton)[2:13]<-substr(colnames(meteo_beton)[2:13],1, nchar(colnames(meteo_beton)[2:13])-6)
 #add soil heat flux
@@ -75,6 +77,7 @@ dat.flux.meteo$h2o_flux[dat.flux.meteo$qc_h2o_flux>6]<-NA
 dat.flux.meteo$LE[dat.flux.meteo$qc_LE>6]<-NA
 dat.flux.meteo$Tau[dat.flux.meteo$qc_Tau>6]<-NA
 dat.flux.meteo$H[dat.flux.meteo$qc_H>6]<-NA
+
 #exclude unreasonable radiation values
 #latent heat
 plot(dat.flux.meteo$TIMESTAMP, dat.flux.meteo$LE, type="b") #plot

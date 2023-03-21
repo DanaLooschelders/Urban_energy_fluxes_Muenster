@@ -1,6 +1,7 @@
 library(tidyverse)
 library(lubridate)
 
+range(dat.meteo.merge$TIMESTAMP)
 source("C:/00_Dana/Uni/Masterarbeit/Urban_heat_fluxes/Slow_data/QAQC_slow_data.R")
 dat.meteo.merge$hour<-hour(dat.meteo.merge$TIMESTAMP)
 dat.meteo.merge$hour_num<-hour(dat.meteo.merge$TIMESTAMP)

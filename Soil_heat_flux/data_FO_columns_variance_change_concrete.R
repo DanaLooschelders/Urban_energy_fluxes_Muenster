@@ -4,6 +4,7 @@ beep()
 #calculate diffusivity
 library(cmna)
 library(plyr)
+FO_grass_list[["FO-column-grass_final_20210729-1400_unheated_PVC.nc"]][["LAF"]]
 library(bigsnpr)
 library(dplyr)
 #use not aggregated data

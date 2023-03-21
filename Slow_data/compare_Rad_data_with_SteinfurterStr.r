@@ -31,6 +31,7 @@ dat.SS.agg$TIMESTAMP<-dat.SS.agg$TIMESTAMP-60*60 #substract one hour to match
 #cut to same length as concrete/grass towers
 dat.SS.cut<-dat.SS.agg[dat.SS.agg$TIMESTAMP>=range(grass.flux.meteo$TIMESTAMP)[1]&
                          dat.SS.agg$TIMESTAMP<=range(grass.flux.meteo$TIMESTAMP)[2],]
+
 #QAQC:
 dat.SS.cut$SUp_Avg[dat.SS.cut$SUp_Avg<0]<-0
 
@@ -38,7 +39,15 @@ dat.SS.cut$SUp_Avg[dat.SS.cut$SUp_Avg<0]<-0
 dat.SS.cut$hour<-as.numeric(hour(dat.SS.cut$TIMESTAMP))
 dat.SS.cut$albedo<-dat.SS.cut$SDn_Avg/dat.SS.cut$SUp_Avg
 mean(dat.SS.cut$albedo[dat.SS.cut$hour>=10&dat.SS.cut$hour<=13], na.rm=T)
+sd(dat.SS.cut$albedo[dat.SS.cut$hour>=10&dat.SS.cut$hour<=13], na.rm=T)
 
+range(dat.SS.cut$albedo[dat.SS.cut$hour>=10&dat.SS.cut$hour<=13], na.rm=T)
+range(dat.SS.cut$TIMESTAMP)
+dat.SS.cut$hour_num<-as.numeric(hour(dat.SS.cut$TIMESTAMP))
+dat.SS.cut$date<-date(dat.SS.cut$TIMESTAMP)
+daily_albedo_mean<-aggregate(data=dat.SS.cut[dat.SS.cut$hour_num>=10&dat.SS.cut$hour_num<=13,],
+                             albedo~date, FUN=mean)
+range(daily_albedo_mean$albedo) #0.1782472 0.1969504
 #calculate difference with concrete
 ggplot()+
   geom_line(data=grass.flux.meteo, aes(x=TIMESTAMP, y=SUp_Avg, col="grass"))+
@@ -226,10 +235,10 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 
 
 #calculate surface temp
-grass.flux.meteo$SurfaceTemp<-nthroot(grass.flux.meteo$LDnCo_Avg/(5.67*10^-8), 4)-272
+grass.flux.meteo$SurfaceTemp<-nthroot(0.9*grass.flux.meteo$LDnCo_Avg/(5.67*10^-8), 4)-272
 plot(grass.flux.meteo$SurfaceTemp, type="l")
-concrete.flux.meteo$SurfaceTemp<-nthroot(concrete.flux.meteo$LDnCo_Avg/(5.67*10^-8), 4)-272
-dat.SS.cut$SurfaceTemp<-nthroot(dat.SS.cut$LDnCo_Avg/(5.67*10^-8), 4)-272
+concrete.flux.meteo$SurfaceTemp<-nthroot(0.97*concrete.flux.meteo$LDnCo_Avg/(5.67*10^-8), 4)-272
+dat.SS.cut$SurfaceTemp<-nthroot(0.9*dat.SS.cut$LDnCo_Avg/(5.67*10^-8), 4)-272
 #calculate Rad balance for Steinfurter Str
 dat.SS.cut$TotRNet_Avg_2<-dat.SS.cut$SDn_Avg-dat.SS.cut$SUp_Avg+
   dat.SS.cut$LDnCo_Avg-dat.SS.cut$LUpCo_Avg
@@ -239,7 +248,7 @@ colnames(dat.SS.cut)[5]<-"AirTC_Avg"
 grass.flux.meteo$index<-"grass"
 concrete.flux.meteo$index<-"concrete"
 dat.SS.cut$index<-"rural"
-
+library(lubridate)
 grass.flux.meteo$hour<-hour(grass.flux.meteo$TIMESTAMP)
 concrete.flux.meteo$hour<-hour(concrete.flux.meteo$TIMESTAMP)
 dat.SS.cut$hour<-hour(dat.SS.cut$TIMESTAMP)

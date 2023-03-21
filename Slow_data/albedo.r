@@ -15,7 +15,7 @@ plot(dat.beton.flux.meteo$Albedo_Avg_beton, type="l") #makes no sense to calcula
 mean(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13], na.rm=T)
 #mean beton:0.1495431
 sd(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13], na.rm=T)
-
+#0.01025985
 range(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13], na.rm=T)
 # 0.1120000 0.1833333
 hist(dat.beton.flux.meteo$Albedo_Avg_beton[dat.beton.flux.meteo$hour_num>=10&dat.beton.flux.meteo$hour_num<=13])
@@ -46,6 +46,10 @@ ggplot(data=dat.kiebitz.flux.meteo)+
 #mean of albedo from rad instrument product
 mean(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13], na.rm=T)
 #0.2028889
+
+sd(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13], na.rm=T)
+
+
 hist(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13])
 #plot timeseries of daytime albedo product
 plot(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13], type="l")
@@ -54,6 +58,9 @@ plot(dat.kiebitz.flux.meteo$Albedo_Avg_kiebitz[dat.kiebitz.flux.meteo$hour_num>=
 dat.kiebitz.flux.meteo$albedo<-dat.kiebitz.flux.meteo$SDn_Avg_kiebitz/dat.kiebitz.flux.meteo$SUp_Avg_kiebitz
 #get daytime mean of albedo product
 mean(dat.kiebitz.flux.meteo$albedo[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13], na.rm=T)
+range(dat.kiebitz.flux.meteo$albedo[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13], na.rm=T)
+
+
 #mean kiebitz:  0.2045054
 #time series of albedo
 ggplot(data=dat.kiebitz.flux.meteo[dat.kiebitz.flux.meteo$hour_num>=10&dat.kiebitz.flux.meteo$hour_num<=13,])+
@@ -113,4 +120,4 @@ ggplot(daily_both)+
 
 summary(lm(data = daily_both, albedo~LE)) #p-value: 0.5667
 
-range(daily_both$albedo, na.rm=T)
+range(daily_both$albedo, na.rm=T) #0.1289948 0.1685013

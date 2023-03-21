@@ -8,6 +8,14 @@ EB_stepwise_concrete<-energy.closure(data=concrete.flux.meteo,instantaneous = TR
                                      Rn = concrete.flux.meteo$TotRNet_Avg_2,
                                      LE=concrete.flux.meteo$LE, 
                                      H=concrete.flux.meteo$H)
+
+EB_concrete<-energy.closure(data=concrete.flux.meteo,instantaneous = FALSE, 
+                                     G=concrete.flux.meteo$shf, 
+                                     Rn = concrete.flux.meteo$TotRNet_Avg_2*-1,
+                                     LE=concrete.flux.meteo$LE, 
+                                     H=concrete.flux.meteo$H)
+
+
 EB_step_concrete<-data.frame("EB"=1-EB_stepwise_concrete*100, 
                              "datetime"=concrete.flux.meteo$TIMESTAMP)
 

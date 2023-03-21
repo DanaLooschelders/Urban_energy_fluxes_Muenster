@@ -291,6 +291,29 @@ color_5th_value_grass(range=1868:1876, point=3)
 #get lower and upper k
 daily_VWC_1$lower_k 
 daily_VWC$upper_k
+
+###############################################
+write.csv(FO_grass_3, "temperature_profile_grass.csv", row.names=F)
+
+temp_diff_grass<-data.frame("dT_02"= as.numeric(t(FO_grass_3[9,1:2914]-FO_grass_3[10,1:2914])),
+                            "dT_24"= as.numeric(t(FO_grass_3[8,1:2914]-FO_grass_3[9,1:2914])),
+                            "dT_46"= as.numeric(t(FO_grass_3[7,1:2914]-FO_grass_3[8,1:2914])),
+                      "TIMESTAMP"= as.POSIXct(colnames(FO_grass_3)[1:2914]), 
+                      "depth_02"=diff(FO_grass_3$depth[9:10]),
+                      "depth_24"=diff(FO_grass_3$depth[8:9]),
+                      "depth_46"=diff(FO_grass_3$depth[7:8]))
+temp_diff_grass$hour<-hour(temp_diff_grass$TIMESTAMP)
+
+ggplot(temp_diff_grass)+
+  geom_line(aes(x=TIMESTAMP, y=dT_02))+
+  theme_bw()
+
+ggplot(temp_diff_grass)+
+  geom_line(aes(x=hour, y=dT_02, color="0-2"), stat="summary", fun="mean")+
+  geom_line(aes(x=hour, y=dT_24, color="2-4"), stat="summary", fun="mean")+
+  geom_line(aes(x=hour, y=dT_46, color="4-6"), stat="summary", fun="mean")+
+  theme_bw()
+
 #calculate temp diff over depth
 dT_dz<-(FO_grass_3[9,1:2914]-FO_grass_3[10,1:2914])/diff(FO_grass_3$depth[9:10])
 shf_g<-data.frame("dT"=t(FO_grass_3[9,1:2914]-FO_grass_3[10,1:2914]), 

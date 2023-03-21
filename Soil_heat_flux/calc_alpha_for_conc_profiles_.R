@@ -166,11 +166,48 @@ ggsave(path = "Z:/klima/Projekte/2021_CalmCity_Masterarbeit_Dana/02_Datenauswert
 k_1 #get k 
 #calculate temp diff over depth
 dT_dz<-(FO_concrete_1[10,1:3559]-FO_concrete_1[11,1:3559])/diff(FO_concrete_1$depth[10:11])
+
+dT<-(FO_concrete_1[10,1:3559]-FO_concrete_1[11,1:3559])
+#####################################
+getwd()
+write.csv(FO_concrete_1, "temperature_profile_concrete.csv", row.names=F)
+
+temp_diff_concrete<-data.frame("dT_02"= as.numeric(t(FO_concrete_1[10,1:3559]-FO_concrete_1[11,1:3559])),
+                      "dT_24"= as.numeric(t(FO_concrete_1[9,1:3559]-FO_concrete_1[10,1:3559])),
+                      "dT_46"= as.numeric(t(FO_concrete_1[8,1:3559]-FO_concrete_1[9,1:3559])),
+                      "TIMESTAMP"= as.POSIXct(colnames(FO_concrete_1)[1:3559]), 
+                      "depth_02"=diff(FO_concrete_1$depth[10:11]),
+                      "depth_24"=diff(FO_concrete_1$depth[9:10]),
+                      "depth_46"=diff(FO_concrete_1$depth[8:9]))
+temp_diff_concrete$hour<-hour(temp_diff_concrete$TIMESTAMP)
+
+ggplot(temp_diff_concrete)+
+  geom_line(aes(x=TIMESTAMP, y=dT))+
+  theme_bw()
+
+
+ggplot(temp_diff_concrete)+
+  geom_line(aes(x=hour, y=dT_02, color="0-2"), stat="summary", fun="mean")+
+  geom_line(aes(x=hour, y=dT_24, color="2-4"), stat="summary", fun="mean")+
+  geom_line(aes(x=hour, y=dT_46, color="4-6"), stat="summary", fun="mean")+
+  theme_bw()
+
 shf_vec<--k_1*dT_dz #calculate shf 
 shf_whole<-data.frame("shf"=t(shf_vec), "DATETIME"=as.POSIXct(colnames(FO_concrete_2)[1:3559]))
 colnames(shf_whole)[1]<-"shf" #rename first column
 #save as csv
 write.csv(shf_whole, file="shf_concrete_20230213.csv", row.names = F)
+#####experiment#####
+#calculate temp diff over depth
+dT_dz<-(FO_concrete_1[9,1:3559]-FO_concrete_1[10,1:3559])/diff(FO_concrete_1$depth[9:10])
+shf_vec<--k_1*dT_dz #calculate shf 
+
+shf_whole<-data.frame("shf"=t(shf_vec), "DATETIME"=as.POSIXct(colnames(FO_concrete_2)[1:3559]))
+colnames(shf_whole)[1]<-"shf" #rename first column
+#save as csv
+write.csv(shf_whole, file="shf_experiment_concrete_20230316.csv", row.names = F)
+
+
 #plot ts for sub 2
 ggplot(data=shf_whole)+
   geom_line(aes(DATETIME, shf*-1))+

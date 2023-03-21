@@ -81,6 +81,8 @@ df_grass$file<-substr(df_grass$file, start=23, stop = 35)
 #convert time to POSIXct
 df_grass$time<-strptime(df_grass$file, format="%Y%m%d-%H%M")
 df_grass$time<-as.POSIXct(df_grass$time)
+
+range(df_grass$time, na.rm=T)
 #check how many NA rows there are
 any(is.na(rowSums(df_grass[,1:199])))
 which(is.na(rowSums(df_grass[,1:199]))) #only first
